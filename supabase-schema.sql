@@ -85,20 +85,37 @@ ALTER TABLE schedule ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies (Allow all for now since we're using PIN authentication)
--- You can make these more restrictive later if needed
+-- Create RLS policies - User-specific access for data isolation
 
 -- Tasks policies
-CREATE POLICY "Enable all access for tasks" ON tasks
-  FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Users can read own tasks" ON tasks
+  FOR SELECT USING (auth.uid()::text = user_id);
+CREATE POLICY "Users can insert own tasks" ON tasks
+  FOR INSERT WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can update own tasks" ON tasks
+  FOR UPDATE USING (auth.uid()::text = user_id) WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can delete own tasks" ON tasks
+  FOR DELETE USING (auth.uid()::text = user_id);
 
 -- Notes policies
-CREATE POLICY "Enable all access for notes" ON notes
-  FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Users can read own notes" ON notes
+  FOR SELECT USING (auth.uid()::text = user_id);
+CREATE POLICY "Users can insert own notes" ON notes
+  FOR INSERT WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can update own notes" ON notes
+  FOR UPDATE USING (auth.uid()::text = user_id) WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can delete own notes" ON notes
+  FOR DELETE USING (auth.uid()::text = user_id);
 
 -- Schedule policies
-CREATE POLICY "Enable all access for schedule" ON schedule
-  FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Users can read own schedule" ON schedule
+  FOR SELECT USING (auth.uid()::text = user_id);
+CREATE POLICY "Users can insert own schedule" ON schedule
+  FOR INSERT WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can update own schedule" ON schedule
+  FOR UPDATE USING (auth.uid()::text = user_id) WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can delete own schedule" ON schedule
+  FOR DELETE USING (auth.uid()::text = user_id);
 
 -- Profiles policies (Allow public access for authentication flow)
 DROP POLICY IF EXISTS "Enable all access for profiles" ON profiles;
@@ -111,9 +128,15 @@ CREATE POLICY "Enable update access for profiles" ON profiles
 CREATE POLICY "Enable delete access for profiles" ON profiles
   FOR DELETE USING (true);
 
--- User Settings policies
-CREATE POLICY "Enable all access for user_settings" ON user_settings
-  FOR ALL USING (true) WITH CHECK (true);
+-- User Settings policies - Secure user-specific access
+CREATE POLICY "Users can read own settings" ON user_settings
+  FOR SELECT USING (auth.uid()::text = user_id);
+CREATE POLICY "Users can insert own settings" ON user_settings
+  FOR INSERT WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can update own settings" ON user_settings
+  FOR UPDATE USING (auth.uid()::text = user_id) WITH CHECK (auth.uid()::text = user_id);
+CREATE POLICY "Users can delete own settings" ON user_settings
+  FOR DELETE USING (auth.uid()::text = user_id);
 
 -- Create function to update updated_at timestamp
 -- SECURITY: Uses SECURITY DEFINER and fixed search_path to prevent hijacking
