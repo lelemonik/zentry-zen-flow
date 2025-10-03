@@ -69,7 +69,7 @@ const Landing = () => {
           </div>
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-slide-up leading-tight">
-            Welcome to Zentry
+            Zentry
           </h1>
           
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto animate-slide-up px-4">
