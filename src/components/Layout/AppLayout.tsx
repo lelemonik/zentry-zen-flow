@@ -20,6 +20,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: <FileText className="w-5 h-5" />, label: 'Notes', path: '/notes' },
     { icon: <Calendar className="w-5 h-5" />, label: 'Schedule', path: '/schedule' },
     { icon: <MessageSquare className="w-5 h-5" />, label: 'AI Chat', path: '/chat' },
+    { icon: <Settings className="w-5 h-5" />, label: 'Settings', path: '/settings' },
   ];
 
   const handleLogout = () => {
@@ -98,7 +99,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t backdrop-blur-lg">
-        <div className="grid grid-cols-4 gap-1 p-2">
+        <div className="grid grid-cols-5 gap-1 p-2">
           {navItems.map((item) => (
             <Button
               key={item.path}
