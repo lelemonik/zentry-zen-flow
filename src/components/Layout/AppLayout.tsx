@@ -35,71 +35,83 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex md:flex-col md:w-64 glass border-r p-6 gap-4">
-        <div className="mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <span className="text-xl font-bold text-white">Z</span>
+    <div className="min-h-screen flex flex-col">
+      {/* Top Navigation Bar */}
+      <header className="sticky top-0 z-50 glass border-b backdrop-blur-lg">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/dashboard')}>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                <span className="text-xl font-bold text-white">Z</span>
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:inline">
+                Zentry
+              </span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Zentry
-            </span>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-2">
+              {navItems.map((item) => (
+                <Button
+                  key={item.path}
+                  variant={isActive(item.path) ? 'default' : 'ghost'}
+                  size="sm"
+                  className={isActive(item.path) ? 'bg-gradient-to-r from-primary to-secondary' : ''}
+                  onClick={() => navigate(item.path)}
+                >
+                  {item.icon}
+                  <span className="ml-2 hidden lg:inline">{item.label}</span>
+                </Button>
+              ))}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-destructive ml-2" 
+                onClick={handleLogout}
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="ml-2 hidden lg:inline">Logout</span>
+              </Button>
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/settings')}
+                className={isActive('/settings') ? 'bg-gradient-to-r from-primary to-secondary' : ''}
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
-
-        <nav className="flex-1 space-y-2">
-          {navItems.map((item) => (
-            <Button
-              key={item.path}
-              variant={isActive(item.path) ? 'default' : 'ghost'}
-              className={`w-full justify-start ${
-                isActive(item.path) ? 'bg-gradient-to-r from-primary to-secondary' : ''
-              }`}
-              onClick={() => navigate(item.path)}
-            >
-              {item.icon}
-              <span className="ml-3">{item.label}</span>
-            </Button>
-          ))}
-        </nav>
-
-        <Button variant="ghost" className="w-full justify-start text-destructive" onClick={handleLogout}>
-          <LogOut className="w-5 h-5" />
-          <span className="ml-3">Logout</span>
-        </Button>
-      </aside>
+      </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-4 md:p-8">
+      <main className="flex-1 overflow-auto pb-20 md:pb-4">
+        <div className="container mx-auto px-4 py-6 md:py-8">
           {children}
         </div>
       </main>
 
-      {/* Bottom Navigation - Mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t p-2">
-        <div className="flex justify-around items-center">
-          {navItems.slice(0, 4).map((item) => (
+      {/* Bottom Navigation - Mobile Only */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t backdrop-blur-lg">
+        <div className="grid grid-cols-5 gap-1 p-2">
+          {navItems.map((item) => (
             <Button
               key={item.path}
               variant={isActive(item.path) ? 'default' : 'ghost'}
               size="sm"
-              className={isActive(item.path) ? 'bg-gradient-to-r from-primary to-secondary' : ''}
+              className={`flex flex-col h-14 ${isActive(item.path) ? 'bg-gradient-to-r from-primary to-secondary' : ''}`}
               onClick={() => navigate(item.path)}
             >
               {item.icon}
+              <span className="text-xs mt-1">{item.label}</span>
             </Button>
           ))}
-          <Button
-            variant={isActive('/settings') ? 'default' : 'ghost'}
-            size="sm"
-            className={isActive('/settings') ? 'bg-gradient-to-r from-primary to-secondary' : ''}
-            onClick={() => navigate('/settings')}
-          >
-            <Settings className="w-5 h-5" />
-          </Button>
         </div>
       </nav>
     </div>
