@@ -41,7 +41,6 @@ export interface UserProfile {
 }
 
 export interface AppSettings {
-  theme: 'light' | 'dark';
   colorScheme: 'purple' | 'blue' | 'green' | 'pink';
   notifications: boolean;
   autoSave: boolean;
@@ -148,7 +147,6 @@ export const profileStorage = {
 
 export const settingsStorage = {
   get: (): AppSettings => storage.get(STORAGE_KEYS.SETTINGS, {
-    theme: 'light',
     colorScheme: 'purple',
     notifications: true,
     autoSave: true,

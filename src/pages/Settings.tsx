@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { User, Settings as SettingsIcon, Download, Upload, Moon, Sun, Palette, Cloud, Trash2, AlertTriangle, Camera, X } from 'lucide-react';
+import { User, Settings as SettingsIcon, Download, Upload, Palette, Cloud, Trash2, AlertTriangle, Camera, X } from 'lucide-react';
 import { settingsStorage, profileStorage, createBackup, restoreBackup, UserProfile, AppSettings } from '@/lib/storage';
 import { supabaseProfileStorage, supabaseSettingsStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -41,16 +41,13 @@ const Settings = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Apply theme
-    document.documentElement.classList.toggle('dark', settings.theme === 'dark');
-    
     // Apply color scheme by updating CSS variables
     applyColorScheme(settings.colorScheme);
     
     // Load profile and settings from Supabase on mount
     loadProfile();
     loadSettings();
-  }, [settings.theme, settings.colorScheme]);
+  }, [settings.colorScheme]);
 
   const applyColorScheme = (scheme: string) => {
     const root = document.documentElement;
@@ -408,38 +405,6 @@ const Settings = () => {
 
           {/* Appearance Tab */}
           <TabsContent value="appearance" className="space-y-6">
-            <Card className="glass">
-              <CardHeader>
-                <CardTitle>Theme</CardTitle>
-                <CardDescription>Choose your preferred theme for the entire application</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                      {settings.theme === 'dark' ? (
-                        <Moon className="w-6 h-6 text-white" />
-                      ) : (
-                        <Sun className="w-6 h-6 text-white" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-lg">Dark Mode</p>
-                      <p className="text-sm text-muted-foreground">
-                        {settings.theme === 'dark' 
-                          ? '🌙 Dark theme enabled' 
-                          : '☀️ Light theme enabled'}
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={settings.theme === 'dark'}
-                    onCheckedChange={(checked) => handleSettingsChange({ theme: checked ? 'dark' : 'light' })}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
             <Card className="glass">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
