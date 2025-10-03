@@ -100,9 +100,16 @@ CREATE POLICY "Enable all access for notes" ON notes
 CREATE POLICY "Enable all access for schedule" ON schedule
   FOR ALL USING (true) WITH CHECK (true);
 
--- Profiles policies
-CREATE POLICY "Enable all access for profiles" ON profiles
-  FOR ALL USING (true) WITH CHECK (true);
+-- Profiles policies (Allow public access for authentication flow)
+DROP POLICY IF EXISTS "Enable all access for profiles" ON profiles;
+CREATE POLICY "Enable read access for profiles" ON profiles
+  FOR SELECT USING (true);
+CREATE POLICY "Enable insert access for profiles" ON profiles
+  FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update access for profiles" ON profiles
+  FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete access for profiles" ON profiles
+  FOR DELETE USING (true);
 
 -- User Settings policies
 CREATE POLICY "Enable all access for user_settings" ON user_settings
