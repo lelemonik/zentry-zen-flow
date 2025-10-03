@@ -185,14 +185,15 @@ const Auth = () => {
 
     setIsLoading(true);
     try {
+      // Set PIN setup flag BEFORE signup to prevent redirect race condition
+      setSignupUsername(username);
+      setShowPinSetup(true);
+      
       await supabaseAuth.signUp(username, password);
       toast({
         title: 'Account created!',
         description: `Welcome, ${username}! Now let's set up a quick PIN.`,
       });
-      // Store username and show PIN setup
-      setSignupUsername(username);
-      setShowPinSetup(true);
     } catch (error: any) {
       const isFetchError = error.message?.includes('fetch') || error.message?.includes('network');
       toast({
