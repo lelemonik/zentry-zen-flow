@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/Layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,11 +9,27 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { User, Settings as SettingsIcon, Download, Upload, Moon, Sun, Palette } from 'lucide-react';
+import { User, Settings as SettingsIcon, Download, Upload, Moon, Sun, Palette, Cloud, Trash2, AlertTriangle } from 'lucide-react';
 import { settingsStorage, profileStorage, createBackup, restoreBackup, UserProfile, AppSettings } from '@/lib/storage';
+import { supabaseProfileStorage, supabaseSettingsStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Settings = () => {
+  const navigate = useNavigate();
+  const { deleteAccount } = useAuth();
+  const [isDeleting, setIsDeleting] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(settingsStorage.get());
   const [profile, setProfile] = useState<UserProfile>(profileStorage.get() || {
     name: '',
@@ -25,26 +42,124 @@ const Settings = () => {
   useEffect(() => {
     // Apply theme
     document.documentElement.classList.toggle('dark', settings.theme === 'dark');
-  }, [settings.theme]);
+    
+    // Apply color scheme by updating CSS variables
+    applyColorScheme(settings.colorScheme);
+    
+    // Load profile and settings from Supabase on mount
+    loadProfile();
+    loadSettings();
+  }, [settings.theme, settings.colorScheme]);
+
+  const applyColorScheme = (scheme: string) => {
+    const root = document.documentElement;
+    
+    // Remove all color scheme classes
+    root.classList.remove('color-purple', 'color-blue', 'color-green', 'color-pink');
+    
+    // Add the selected color scheme class
+    root.classList.add(`color-${scheme}`);
+    
+    // Define color schemes (HSL values for CSS variables)
+    const schemes = {
+      purple: {
+        primary: '262 83% 58%', // Purple
+        secondary: '330 81% 60%', // Pink
+      },
+      blue: {
+        primary: '199 89% 48%', // Blue
+        secondary: '189 85% 51%', // Cyan
+      },
+      green: {
+        primary: '142 76% 36%', // Green
+        secondary: '158 64% 52%', // Emerald
+      },
+      pink: {
+        primary: '330 81% 60%', // Pink
+        secondary: '346 77% 50%', // Rose
+      },
+    };
+
+    const colors = schemes[scheme as keyof typeof schemes];
+    if (colors) {
+      root.style.setProperty('--primary', colors.primary);
+      root.style.setProperty('--secondary', colors.secondary);
+    }
+  };
+
+  const loadProfile = async () => {
+    try {
+      const supabaseProfile = await supabaseProfileStorage.get();
+      if (supabaseProfile) {
+        setProfile(supabaseProfile);
+        profileStorage.set(supabaseProfile);
+      }
+    } catch (error) {
+      console.error('Error loading profile from Supabase:', error);
+    }
+  };
+
+  const loadSettings = async () => {
+    try {
+      const supabaseSettings = await supabaseSettingsStorage.get();
+      if (supabaseSettings) {
+        setSettings(supabaseSettings);
+        settingsStorage.set(supabaseSettings);
+      }
+    } catch (error) {
+      console.error('Error loading settings from Supabase:', error);
+    }
+  };
 
   const handleSettingsChange = (updates: Partial<AppSettings>) => {
     const newSettings = { ...settings, ...updates };
     setSettings(newSettings);
     settingsStorage.set(newSettings);
-    toast({
-      title: 'Settings updated',
-      description: 'Your preferences have been saved',
-    });
+    // Auto-save to cloud immediately for settings
+    saveSettingsToCloud(newSettings);
   };
 
+  const saveSettingsToCloud = async (settingsToSave?: AppSettings) => {
+    const settingsData = settingsToSave || settings;
+    try {
+      await supabaseSettingsStorage.set(settingsData);
+      toast({
+        title: 'Settings updated',
+        description: '✅ Saved to cloud',
+      });
+    } catch (error) {
+      console.error('Error saving settings to Supabase:', error);
+      toast({
+        title: 'Settings saved locally',
+        description: '⚠️ Cloud sync failed',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Immediate state update (no async)
   const handleProfileChange = (updates: Partial<UserProfile>) => {
     const newProfile = { ...profile, ...updates };
     setProfile(newProfile);
     profileStorage.set(newProfile);
-    toast({
-      title: 'Profile updated',
-      description: 'Your profile has been saved',
-    });
+  };
+
+  // Separate function to save to Supabase (call this on blur or button click)
+  const saveProfileToCloud = async () => {
+    try {
+      await supabaseProfileStorage.set(profile);
+      toast({
+        title: 'Profile updated',
+        description: '✅ Saved to cloud',
+      });
+    } catch (error) {
+      console.error('Error saving profile to Supabase:', error);
+      toast({
+        title: 'Profile saved locally',
+        description: '⚠️ Cloud sync failed',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleBackup = () => {
@@ -72,6 +187,26 @@ const Settings = () => {
         description: 'Could not restore backup. Please check the file.',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteAccount();
+      toast({
+        title: 'Account Deleted',
+        description: 'Your account and all data have been permanently deleted',
+      });
+      navigate('/auth');
+    } catch (error: any) {
+      toast({
+        title: 'Delete Failed',
+        description: error.message || 'Could not delete account. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -164,6 +299,14 @@ const Settings = () => {
                     />
                   </div>
                 </div>
+                
+                <Button 
+                  onClick={saveProfileToCloud}
+                  className="w-full"
+                >
+                  <Cloud className="w-4 h-4 mr-2" />
+                  Save to Cloud
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -173,19 +316,25 @@ const Settings = () => {
             <Card className="glass">
               <CardHeader>
                 <CardTitle>Theme</CardTitle>
-                <CardDescription>Choose your preferred theme</CardDescription>
+                <CardDescription>Choose your preferred theme for the entire application</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {settings.theme === 'dark' ? (
-                      <Moon className="w-5 h-5 text-primary" />
-                    ) : (
-                      <Sun className="w-5 h-5 text-primary" />
-                    )}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                      {settings.theme === 'dark' ? (
+                        <Moon className="w-6 h-6 text-white" />
+                      ) : (
+                        <Sun className="w-6 h-6 text-white" />
+                      )}
+                    </div>
                     <div>
-                      <p className="font-medium">Dark Mode</p>
-                      <p className="text-sm text-muted-foreground">Toggle between light and dark themes</p>
+                      <p className="font-semibold text-lg">Dark Mode</p>
+                      <p className="text-sm text-muted-foreground">
+                        {settings.theme === 'dark' 
+                          ? '🌙 Dark theme enabled' 
+                          : '☀️ Light theme enabled'}
+                      </p>
                     </div>
                   </div>
                   <Switch
@@ -198,8 +347,11 @@ const Settings = () => {
 
             <Card className="glass">
               <CardHeader>
-                <CardTitle>Color Scheme</CardTitle>
-                <CardDescription>Choose your preferred color palette</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="w-5 h-5" />
+                  Color Scheme
+                </CardTitle>
+                <CardDescription>Choose your preferred color palette for the app</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
@@ -207,17 +359,25 @@ const Settings = () => {
                     <button
                       key={scheme.value}
                       onClick={() => handleSettingsChange({ colorScheme: scheme.value as any })}
-                      className={`p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                      className={`group relative p-4 rounded-xl border-2 transition-all hover:scale-105 ${
                         settings.colorScheme === scheme.value
-                          ? 'border-primary shadow-lg'
-                          : 'border-border'
+                          ? 'border-primary shadow-lg ring-2 ring-primary/20'
+                          : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      <div className={`h-12 rounded-lg bg-gradient-to-r ${scheme.colors} mb-3`} />
+                      <div className={`h-12 rounded-lg bg-gradient-to-r ${scheme.colors} mb-3 shadow-md`} />
                       <p className="font-medium">{scheme.name}</p>
+                      {settings.colorScheme === scheme.value && (
+                        <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold">
+                          ✓
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
+                <p className="text-sm text-muted-foreground mt-4">
+                  Current: <span className="font-semibold text-primary capitalize">{settings.colorScheme}</span>
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -230,25 +390,38 @@ const Settings = () => {
                 <CardDescription>Configure how Zentry works for you</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
                   <div>
                     <p className="font-medium">Notifications</p>
-                    <p className="text-sm text-muted-foreground">Receive push notifications</p>
+                    <p className="text-sm text-muted-foreground">Receive push notifications for tasks and events</p>
                   </div>
                   <Switch
                     checked={settings.notifications}
                     onCheckedChange={(checked) => handleSettingsChange({ notifications: checked })}
                   />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
                   <div>
                     <p className="font-medium">Auto-save</p>
-                    <p className="text-sm text-muted-foreground">Automatically save your work</p>
+                    <p className="text-sm text-muted-foreground">Automatically save your work to the cloud</p>
                   </div>
                   <Switch
                     checked={settings.autoSave}
                     onCheckedChange={(checked) => handleSettingsChange({ autoSave: checked })}
                   />
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {settings.autoSave 
+                      ? '✅ Changes are automatically synced to cloud' 
+                      : '⚠️ Remember to manually save your work'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {settings.notifications 
+                      ? '🔔 You will receive notifications' 
+                      : '🔕 Notifications are disabled'}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -280,6 +453,84 @@ const Settings = () => {
                     className="hidden"
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass border-destructive/50">
+              <CardHeader>
+                <CardTitle className="text-destructive flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" />
+                  Danger Zone
+                </CardTitle>
+                <CardDescription>Permanently delete your account and all data</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <p className="text-sm text-destructive font-medium mb-2">⚠️ Warning: This action cannot be undone!</p>
+                  <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                    <li>Your account will be permanently deleted</li>
+                    <li>All your tasks, notes, and schedules will be erased</li>
+                    <li>Your PIN and login credentials will be removed</li>
+                    <li>You will need to create a new account to use the app again</li>
+                  </ul>
+                </div>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      className="w-full gap-2" 
+                      variant="destructive"
+                      disabled={isDeleting}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      {isDeleting ? 'Deleting Account...' : 'Delete Account Permanently'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                        <AlertTriangle className="w-5 h-5" />
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="space-y-2">
+                        <p className="font-semibold">This action cannot be undone. This will permanently:</p>
+                        <ul className="list-disc list-inside space-y-1 ml-2">
+                          <li>Delete your account</li>
+                          <li>Remove all your tasks, notes, and schedules</li>
+                          <li>Erase your PIN and login credentials</li>
+                          <li>Clear all local and cloud data</li>
+                        </ul>
+                        <p className="text-destructive font-medium mt-4">Type "DELETE" to confirm:</p>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <Input 
+                      id="delete-confirm"
+                      placeholder="Type DELETE to confirm"
+                      className="mt-2"
+                    />
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={(e) => {
+                          const input = document.getElementById('delete-confirm') as HTMLInputElement;
+                          if (input?.value === 'DELETE') {
+                            handleDeleteAccount();
+                          } else {
+                            e.preventDefault();
+                            toast({
+                              title: 'Confirmation Required',
+                              description: 'Please type DELETE to confirm account deletion',
+                              variant: 'destructive',
+                            });
+                          }
+                        }}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete Account Forever
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardContent>
             </Card>
           </TabsContent>

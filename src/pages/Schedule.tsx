@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, Edit, ChevronLeft, ChevronRight, Cloud, CloudOff } from 'lucide-react';
 import { ScheduleEvent, scheduleStorage } from '@/lib/storage';
+import { supabaseScheduleStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
 
 const Schedule = () => {
@@ -14,6 +15,8 @@ const Schedule = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -29,8 +32,24 @@ const Schedule = () => {
     loadEvents();
   }, []);
 
-  const loadEvents = () => {
-    setEvents(scheduleStorage.getAll());
+  const loadEvents = async () => {
+    setIsLoading(true);
+    try {
+      const supabaseEvents = await supabaseScheduleStorage.getAll();
+      if (supabaseEvents.length > 0) {
+        setEvents(supabaseEvents);
+        scheduleStorage.set(supabaseEvents);
+        setIsOnline(true);
+      } else {
+        setEvents(scheduleStorage.getAll());
+      }
+    } catch (error) {
+      console.error('Error loading from Supabase:', error);
+      setEvents(scheduleStorage.getAll());
+      setIsOnline(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -46,7 +65,7 @@ const Schedule = () => {
     setEditingEvent(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title.trim() || !formData.date || !formData.startTime) {
@@ -58,27 +77,50 @@ const Schedule = () => {
       return;
     }
 
-    if (editingEvent) {
-      scheduleStorage.update(editingEvent.id, formData);
+    setIsLoading(true);
+    try {
+      if (editingEvent) {
+        await supabaseScheduleStorage.update(editingEvent.id, formData);
+        scheduleStorage.update(editingEvent.id, formData);
+        toast({
+          title: 'Event updated',
+          description: '✅ Saved to cloud',
+        });
+      } else {
+        const newEvent: ScheduleEvent = {
+          id: Date.now().toString(),
+          ...formData,
+        };
+        await supabaseScheduleStorage.add(newEvent);
+        scheduleStorage.add(newEvent);
+        toast({
+          title: 'Event created',
+          description: '✅ Saved to cloud',
+        });
+      }
+      setIsOnline(true);
+    } catch (error) {
+      console.error('Error saving to Supabase:', error);
+      if (editingEvent) {
+        scheduleStorage.update(editingEvent.id, formData);
+      } else {
+        const newEvent: ScheduleEvent = {
+          id: Date.now().toString(),
+          ...formData,
+        };
+        scheduleStorage.add(newEvent);
+      }
+      setIsOnline(false);
       toast({
-        title: 'Event updated',
-        description: 'Your event has been updated successfully',
+        title: editingEvent ? 'Event updated' : 'Event created',
+        description: '⚠️ Saved locally (offline)',
       });
-    } else {
-      const newEvent: ScheduleEvent = {
-        id: Date.now().toString(),
-        ...formData,
-      };
-      scheduleStorage.add(newEvent);
-      toast({
-        title: 'Event created',
-        description: 'Your event has been created successfully',
-      });
+    } finally {
+      setIsLoading(false);
+      loadEvents();
+      resetForm();
+      setIsDialogOpen(false);
     }
-
-    loadEvents();
-    resetForm();
-    setIsDialogOpen(false);
   };
 
   const handleEdit = (event: ScheduleEvent) => {
@@ -95,8 +137,22 @@ const Schedule = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    scheduleStorage.delete(id);
+  const handleDelete = async (id: string) => {
+    try {
+      await supabaseScheduleStorage.delete(id);
+      scheduleStorage.delete(id);
+      toast({
+        title: 'Event deleted',
+        description: '✅ Removed from cloud',
+      });
+    } catch (error) {
+      console.error('Error deleting from Supabase:', error);
+      scheduleStorage.delete(id);
+      toast({
+        title: 'Event deleted',
+        description: '⚠️ Removed locally',
+      });
+    }
     loadEvents();
     toast({
       title: 'Event deleted',
@@ -158,7 +214,22 @@ const Schedule = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Schedule
             </h1>
-            <p className="text-muted-foreground mt-1">{events.length} total events</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-muted-foreground">{events.length} total events</p>
+              <div className="flex items-center gap-1 text-xs">
+                {isOnline ? (
+                  <>
+                    <Cloud className="w-3 h-3 text-green-500" />
+                    <span className="text-green-500">Cloud synced</span>
+                  </>
+                ) : (
+                  <>
+                    <CloudOff className="w-3 h-3 text-amber-500" />
+                    <span className="text-amber-500">Offline mode</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => {

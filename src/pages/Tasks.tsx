@@ -8,14 +8,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, Cloud, CloudOff } from 'lucide-react';
 import { Task, taskStorage } from '@/lib/storage';
+import { supabaseTaskStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -30,8 +33,27 @@ const Tasks = () => {
     loadTasks();
   }, []);
 
-  const loadTasks = () => {
-    setTasks(taskStorage.getAll());
+  const loadTasks = async () => {
+    setIsLoading(true);
+    try {
+      // Try to load from Supabase first
+      const supabaseTasks = await supabaseTaskStorage.getAll();
+      if (supabaseTasks.length > 0) {
+        setTasks(supabaseTasks);
+        // Update localStorage as backup
+        taskStorage.set(supabaseTasks);
+        setIsOnline(true);
+      } else {
+        // Fallback to localStorage
+        setTasks(taskStorage.getAll());
+      }
+    } catch (error) {
+      console.error('Error loading from Supabase, using localStorage:', error);
+      setTasks(taskStorage.getAll());
+      setIsOnline(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -46,7 +68,7 @@ const Tasks = () => {
     setEditingTask(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
@@ -58,30 +80,60 @@ const Tasks = () => {
       return;
     }
 
-    if (editingTask) {
-      taskStorage.update(editingTask.id, formData);
+    setIsLoading(true);
+    try {
+      if (editingTask) {
+        // Update in both Supabase and localStorage
+        await supabaseTaskStorage.update(editingTask.id, formData);
+        taskStorage.update(editingTask.id, formData);
+        toast({
+          title: 'Task updated',
+          description: '✅ Saved to cloud',
+        });
+      } else {
+        const newTask: Task = {
+          id: Date.now().toString(),
+          ...formData,
+          completed: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        // Save to both Supabase and localStorage
+        await supabaseTaskStorage.add(newTask);
+        taskStorage.add(newTask);
+        toast({
+          title: 'Task created',
+          description: '✅ Saved to cloud',
+        });
+      }
+      setIsOnline(true);
+    } catch (error) {
+      console.error('Error saving to Supabase:', error);
+      // Fallback to localStorage only
+      if (editingTask) {
+        taskStorage.update(editingTask.id, formData);
+      } else {
+        const newTask: Task = {
+          id: Date.now().toString(),
+          ...formData,
+          completed: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        taskStorage.add(newTask);
+      }
+      setIsOnline(false);
       toast({
-        title: 'Task updated',
-        description: 'Your task has been updated successfully',
+        title: editingTask ? 'Task updated' : 'Task created',
+        description: '⚠️ Saved locally (offline)',
+        variant: 'default',
       });
-    } else {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        ...formData,
-        completed: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      taskStorage.add(newTask);
-      toast({
-        title: 'Task created',
-        description: 'Your task has been created successfully',
-      });
+    } finally {
+      setIsLoading(false);
+      loadTasks();
+      resetForm();
+      setIsDialogOpen(false);
     }
-
-    loadTasks();
-    resetForm();
-    setIsDialogOpen(false);
   };
 
   const handleEdit = (task: Task) => {
@@ -97,25 +149,48 @@ const Tasks = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    taskStorage.delete(id);
+  const handleDelete = async (id: string) => {
+    try {
+      await supabaseTaskStorage.delete(id);
+      taskStorage.delete(id);
+      toast({
+        title: 'Task deleted',
+        description: '✅ Removed from cloud',
+      });
+    } catch (error) {
+      console.error('Error deleting from Supabase:', error);
+      taskStorage.delete(id);
+      toast({
+        title: 'Task deleted',
+        description: '⚠️ Removed locally',
+      });
+    }
     loadTasks();
-    toast({
-      title: 'Task deleted',
-      description: 'Your task has been deleted',
-    });
   };
 
-  const handleToggleComplete = (task: Task) => {
-    taskStorage.update(task.id, { 
+  const handleToggleComplete = async (task: Task) => {
+    const updates = {
       completed: !task.completed,
-      progress: !task.completed ? 100 : task.progress 
-    });
+      progress: !task.completed ? 100 : task.progress
+    };
+    try {
+      await supabaseTaskStorage.update(task.id, updates);
+      taskStorage.update(task.id, updates);
+    } catch (error) {
+      console.error('Error updating in Supabase:', error);
+      taskStorage.update(task.id, updates);
+    }
     loadTasks();
   };
 
-  const handleProgressChange = (taskId: string, progress: number) => {
-    taskStorage.update(taskId, { progress });
+  const handleProgressChange = async (taskId: string, progress: number) => {
+    try {
+      await supabaseTaskStorage.update(taskId, { progress });
+      taskStorage.update(taskId, { progress });
+    } catch (error) {
+      console.error('Error updating progress:', error);
+      taskStorage.update(taskId, { progress });
+    }
     loadTasks();
   };
 
@@ -136,7 +211,22 @@ const Tasks = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Tasks
             </h1>
-            <p className="text-muted-foreground mt-1">{tasks.length} total tasks</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-muted-foreground">{tasks.length} total tasks</p>
+              <div className="flex items-center gap-1 text-xs">
+                {isOnline ? (
+                  <>
+                    <Cloud className="w-3 h-3 text-green-500" />
+                    <span className="text-green-500">Cloud synced</span>
+                  </>
+                ) : (
+                  <>
+                    <CloudOff className="w-3 h-3 text-amber-500" />
+                    <span className="text-amber-500">Offline mode</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => {

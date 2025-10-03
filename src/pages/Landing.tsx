@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Brain, Lock, Zap, Calendar, StickyNote } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const Landing = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(true);
+
+  // No redirect here - let App.tsx RootRedirect handle it
 
   const features = [
     { icon: <CheckCircle2 className="w-6 h-6" />, title: 'Task Management', desc: 'Organize with priorities & progress tracking' },

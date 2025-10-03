@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Edit, Search } from 'lucide-react';
+import { Plus, Trash2, Edit, Search, Cloud, CloudOff } from 'lucide-react';
 import { Note, noteStorage } from '@/lib/storage';
+import { supabaseNoteStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
 
 const Notes = () => {
@@ -14,6 +15,8 @@ const Notes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -25,8 +28,24 @@ const Notes = () => {
     loadNotes();
   }, []);
 
-  const loadNotes = () => {
-    setNotes(noteStorage.getAll());
+  const loadNotes = async () => {
+    setIsLoading(true);
+    try {
+      const supabaseNotes = await supabaseNoteStorage.getAll();
+      if (supabaseNotes.length > 0) {
+        setNotes(supabaseNotes);
+        noteStorage.set(supabaseNotes);
+        setIsOnline(true);
+      } else {
+        setNotes(noteStorage.getAll());
+      }
+    } catch (error) {
+      console.error('Error loading from Supabase:', error);
+      setNotes(noteStorage.getAll());
+      setIsOnline(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -38,7 +57,7 @@ const Notes = () => {
     setEditingNote(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
@@ -55,35 +74,70 @@ const Notes = () => {
       .map(tag => tag.trim())
       .filter(tag => tag.length > 0);
 
-    if (editingNote) {
-      noteStorage.update(editingNote.id, {
-        title: formData.title,
-        content: formData.content,
-        tags,
-      });
+    setIsLoading(true);
+    try {
+      if (editingNote) {
+        await supabaseNoteStorage.update(editingNote.id, {
+          title: formData.title,
+          content: formData.content,
+          tags,
+        });
+        noteStorage.update(editingNote.id, {
+          title: formData.title,
+          content: formData.content,
+          tags,
+        });
+        toast({
+          title: 'Note updated',
+          description: '✅ Saved to cloud',
+        });
+      } else {
+        const newNote: Note = {
+          id: Date.now().toString(),
+          title: formData.title,
+          content: formData.content,
+          tags,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await supabaseNoteStorage.add(newNote);
+        noteStorage.add(newNote);
+        toast({
+          title: 'Note created',
+          description: '✅ Saved to cloud',
+        });
+      }
+      setIsOnline(true);
+    } catch (error) {
+      console.error('Error saving to Supabase:', error);
+      if (editingNote) {
+        noteStorage.update(editingNote.id, {
+          title: formData.title,
+          content: formData.content,
+          tags,
+        });
+      } else {
+        const newNote: Note = {
+          id: Date.now().toString(),
+          title: formData.title,
+          content: formData.content,
+          tags,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        noteStorage.add(newNote);
+      }
+      setIsOnline(false);
       toast({
-        title: 'Note updated',
-        description: 'Your note has been updated successfully',
+        title: editingNote ? 'Note updated' : 'Note created',
+        description: '⚠️ Saved locally (offline)',
       });
-    } else {
-      const newNote: Note = {
-        id: Date.now().toString(),
-        title: formData.title,
-        content: formData.content,
-        tags,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      noteStorage.add(newNote);
-      toast({
-        title: 'Note created',
-        description: 'Your note has been created successfully',
-      });
+    } finally {
+      setIsLoading(false);
+      loadNotes();
+      resetForm();
+      setIsDialogOpen(false);
     }
-
-    loadNotes();
-    resetForm();
-    setIsDialogOpen(false);
   };
 
   const handleEdit = (note: Note) => {
@@ -96,13 +150,23 @@ const Notes = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    noteStorage.delete(id);
+  const handleDelete = async (id: string) => {
+    try {
+      await supabaseNoteStorage.delete(id);
+      noteStorage.delete(id);
+      toast({
+        title: 'Note deleted',
+        description: '✅ Removed from cloud',
+      });
+    } catch (error) {
+      console.error('Error deleting from Supabase:', error);
+      noteStorage.delete(id);
+      toast({
+        title: 'Note deleted',
+        description: '⚠️ Removed locally',
+      });
+    }
     loadNotes();
-    toast({
-      title: 'Note deleted',
-      description: 'Your note has been deleted',
-    });
   };
 
   const filteredNotes = notes.filter(note => 
@@ -119,7 +183,22 @@ const Notes = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Notes
             </h1>
-            <p className="text-muted-foreground mt-1">{notes.length} total notes</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-muted-foreground">{notes.length} total notes</p>
+              <div className="flex items-center gap-1 text-xs">
+                {isOnline ? (
+                  <>
+                    <Cloud className="w-3 h-3 text-green-500" />
+                    <span className="text-green-500">Cloud synced</span>
+                  </>
+                ) : (
+                  <>
+                    <CloudOff className="w-3 h-3 text-amber-500" />
+                    <span className="text-amber-500">Offline mode</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => {

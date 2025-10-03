@@ -18,16 +18,37 @@ import { useEffect } from "react";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  // Show loading spinner while checking auth to prevent redirect flash
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>;
+  }
+  
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
+};
+
+const RootRedirect = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  // Wait for auth check to complete before redirecting
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>;
+  }
+  
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />;
 };
 
 const App = () => {
   useEffect(() => {
-    // Register service worker
+    // Temporarily disable service worker to fix network issues
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
-        // Service worker registration failed
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => registration.unregister());
       });
     }
   }, []);
@@ -39,7 +60,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<RootRedirect />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
