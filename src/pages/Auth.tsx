@@ -49,14 +49,15 @@ const Auth = () => {
 
   // Redirect to dashboard if already authenticated (but not setting up PIN)
   useEffect(() => {
-    // Only redirect if authenticated and not in PIN setup mode
-    if (isAuthenticated && viewMode !== 'pin-setup') {
+    // Only redirect if authenticated, not in PIN setup mode, and has a PIN
+    // This prevents redirect during signup before PIN is created
+    if (isAuthenticated && viewMode !== 'pin-setup' && hasPin) {
       const timer = setTimeout(() => {
         navigate('/dashboard', { replace: true });
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, viewMode, navigate]);
+  }, [isAuthenticated, viewMode, hasPin, navigate]);
 
   // PIN Login/Setup
   const handlePinSubmit = async (e: React.FormEvent) => {
@@ -185,11 +186,15 @@ const Auth = () => {
     }
 
     setIsLoading(true);
+    
+    // Set username and switch to PIN setup view BEFORE signup
+    // This prevents race condition with authentication redirect
+    setSignupUsername(username);
+    
     try {
       await supabaseAuth.signUp(username, password);
       
-      // Immediately navigate to PIN setup
-      setSignupUsername(username);
+      // Navigate to PIN setup (state already set above)
       setViewMode('pin-setup');
       toast({
         title: 'Account created!',
