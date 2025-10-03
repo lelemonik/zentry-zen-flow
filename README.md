@@ -1,73 +1,189 @@
-# Welcome to your Lovable project
+# Zentry - Personal Productivity Suite
 
-## Project info
+A beautiful, privacy-first PWA built with React, TypeScript, and Tailwind CSS featuring glassmorphic design, AI assistance, and complete offline functionality.
 
-**URL**: https://lovable.dev/projects/7eb97785-3e1f-44a3-8e9f-76e7233fdec2
+## ✨ Features
 
-## How can I edit this code?
+### 📋 Task Management
+- Create, edit, and organize tasks with priorities (low, medium, high)
+- Custom categories and progress tracking
+- Mini progress bars for each task
+- Due dates and completion tracking
+- Visual priority indicators with gradient colors
 
-There are several ways of editing your application.
+### 📝 Notes
+- Rich text notes with auto-save
+- Tag-based organization
+- Full-text search across all notes
+- Quick edit and delete functionality
 
-**Use Lovable**
+### 📅 Schedule
+- Visual monthly calendar view
+- Color-coded events
+- Time-block your day with start/end times
+- Category-based organization
+- Upcoming events overview
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7eb97785-3e1f-44a3-8e9f-76e7233fdec2) and start prompting.
+### 🤖 AI Assistant
+- ChatGPT integration (demo mode included)
+- Natural language chat interface
+- Real-time streaming responses
+- Context-aware assistance
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🎨 Customization
+- Light/Dark mode toggle
+- Multiple color schemes (Purple, Blue, Green, Pink)
+- Glassmorphic UI with smooth animations
+- Mobile-responsive design
 
-**Use your preferred IDE**
+### 🔐 Privacy & Security
+- PIN/password protection
+- All data stored locally (no external servers)
+- Export/Import backup functionality
+- Complete offline support
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 📱 PWA Features
+- Install as native app
+- Offline-first architecture
+- Push notification support (ready)
+- App shortcuts for quick actions
+- Responsive mobile UI
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Tech Stack
 
-Follow these steps:
+- **Frontend**: React 18 + TypeScript
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: Shadcn/ui
+- **Routing**: React Router v6
+- **State Management**: React Hooks + Local Storage
+- **PWA**: Service Worker + Web App Manifest
+- **Icons**: Lucide React
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🛠️ Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Development
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Visit `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Production Build
 
-**Use GitHub Codespaces**
+```bash
+# Build for production
+npm run build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Preview production build
+npm run preview
+```
 
-## What technologies are used for this project?
+## 📱 Installing as PWA
 
-This project is built with:
+### Desktop
+1. Open the app in Chrome/Edge
+2. Click the install icon in the address bar
+3. Follow the installation prompts
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Mobile (iOS)
+1. Open in Safari
+2. Tap the Share button
+3. Select "Add to Home Screen"
 
-## How can I deploy this project?
+### Mobile (Android)
+1. Open in Chrome
+2. Tap the menu (three dots)
+3. Select "Install app" or "Add to Home Screen"
 
-Simply open [Lovable](https://lovable.dev/projects/7eb97785-3e1f-44a3-8e9f-76e7233fdec2) and click on Share -> Publish.
+## 🎯 Usage
 
-## Can I connect a custom domain to my Lovable project?
+### First Time Setup
+1. Open Zentry
+2. Click "Get Started" on the landing page
+3. Create a secure PIN (4-8 digits)
+4. Start using the app!
 
-Yes, you can!
+### Managing Tasks
+- Click "New Task" to create a task
+- Set priority, category, and due date
+- Track progress with the mini progress bar
+- Check off tasks when complete
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Taking Notes
+- Create notes with titles and rich content
+- Add tags for organization
+- Use the search bar to find notes quickly
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Scheduling Events
+- Navigate the calendar to find dates
+- Click "New Event" to add schedule items
+- Color-code events by category
+- View upcoming events at a glance
+
+### Customizing Appearance
+- Go to Settings → Appearance
+- Toggle dark mode
+- Choose your favorite color scheme
+- All changes save automatically
+
+### Data Backup
+- Settings → Preferences → Data Management
+- Export: Download a JSON backup file
+- Import: Restore from a backup file
+
+## 🔒 Security & Privacy
+
+- **Local-First**: All data stored in browser localStorage
+- **No Tracking**: Zero analytics or tracking
+- **PIN Protected**: Secure access with PIN
+- **Open Source**: Full transparency
+
+## 🎨 Design System
+
+Zentry uses a custom design system with:
+- HSL color tokens for theme switching
+- Glassmorphic cards with backdrop blur
+- Smooth animations (fade, slide, scale)
+- Gradient accents
+- Mobile-first responsive design
+
+## 🌐 Browser Support
+
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Mobile browsers (iOS Safari, Chrome Android)
+
+## 📝 Future Enhancements
+
+- [ ] Full ChatGPT API integration
+- [ ] Cloud sync (optional)
+- [ ] Recurring tasks
+- [ ] Pomodoro timer
+- [ ] Habit tracking
+- [ ] Data encryption
+- [ ] Calendar integrations
+- [ ] Collaboration features
+
+## 🤝 Contributing
+
+This is a personal project built with Lovable. Feel free to fork and customize!
+
+## 📄 License
+
+MIT License - feel free to use this project for personal or commercial purposes.
+
+## 🙏 Acknowledgments
+
+- Built with [Lovable](https://lovable.dev)
+- UI components from [Shadcn/ui](https://ui.shadcn.com)
+- Icons from [Lucide](https://lucide.dev)
+
+---
+
+**Made with ❤️ using Lovable**
