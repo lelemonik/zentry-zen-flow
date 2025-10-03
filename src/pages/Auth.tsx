@@ -411,91 +411,86 @@ const Auth = () => {
 
                   {/* Password Requirements Checklist */}
                   {password && (
-                    <>
-                      <div className="space-y-2 text-sm">
-                        <p className="font-medium text-muted-foreground">Password Requirements:</p>
-                        <div className="space-y-1">
-                            <div className={`flex items-center gap-2 ${passwordChecks.length ? 'text-green-600' : 'text-muted-foreground'}`}>
-                              {passwordChecks.length ? (
-                                <Check className="w-4 h-4" />
-                              ) : (
-                                <X className="w-4 h-4" />
-                              )}
-                              <span>At least 8 characters</span>
-                            </div>
-                            <div className={`flex items-center gap-2 ${passwordChecks.hasNumber ? 'text-green-600' : 'text-muted-foreground'}`}>
-                              {passwordChecks.hasNumber ? (
-                                <Check className="w-4 h-4" />
-                              ) : (
-                                <X className="w-4 h-4" />
-                              )}
-                              <span>Contains a number</span>
-                            </div>
-                            <div className={`flex items-center gap-2 ${passwordChecks.hasLetter ? 'text-green-600' : 'text-muted-foreground'}`}>
-                              {passwordChecks.hasLetter ? (
-                                <Check className="w-4 h-4" />
-                              ) : (
-                                <X className="w-4 h-4" />
-                              )}
-                              <span>Contains a letter</span>
-                            </div>
-                          </div>
+                    <div className="space-y-2 text-sm">
+                      <p className="font-medium text-muted-foreground">Password Requirements:</p>
+                      <div className="space-y-1">
+                        <div className={`flex items-center gap-2 ${passwordChecks.length ? 'text-green-600' : 'text-muted-foreground'}`}>
+                          {passwordChecks.length ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <X className="w-4 h-4" />
+                          )}
+                          <span>At least 8 characters</span>
+                        </div>
+                        <div className={`flex items-center gap-2 ${passwordChecks.hasNumber ? 'text-green-600' : 'text-muted-foreground'}`}>
+                          {passwordChecks.hasNumber ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <X className="w-4 h-4" />
+                          )}
+                          <span>Contains a number</span>
+                        </div>
+                        <div className={`flex items-center gap-2 ${passwordChecks.hasLetter ? 'text-green-600' : 'text-muted-foreground'}`}>
+                          {passwordChecks.hasLetter ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <X className="w-4 h-4" />
+                          )}
+                          <span>Contains a letter</span>
                         </div>
                       </div>
-                    </>
+                    </div>
                   )}
                       
                   <div>
-                        <div className="relative">
-                          <Input
-                            type="password"
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                            minLength={8}
-                            autoComplete="new-password"
-                            className={confirmPassword ? (passwordsMatch ? 'border-green-500 focus-visible:ring-green-500' : 'border-red-500 focus-visible:ring-red-500') : ''}
-                          />
-                          {confirmPassword && (
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              {passwordsMatch ? (
-                                <Check className="w-5 h-5 text-green-600" />
-                              ) : (
-                                <X className="w-5 h-5 text-red-600" />
-                              )}
-                            </div>
+                    <div className="relative">
+                      <Input
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        className={confirmPassword ? (passwordsMatch ? 'border-green-500 focus-visible:ring-green-500' : 'border-red-500 focus-visible:ring-red-500') : ''}
+                      />
+                      {confirmPassword && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {passwordsMatch ? (
+                            <Check className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <X className="w-5 h-5 text-red-600" />
                           )}
                         </div>
-                        {confirmPassword && passwordsMatch && (
-                          <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
-                            <Check className="w-4 h-4" />
-                            Passwords match!
-                          </p>
-                        )}
-                        {confirmPassword && !passwordsMatch && (
-                          <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
-                            <X className="w-4 h-4" />
-                            Passwords do not match
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  )}
+                      )}
+                    </div>
+                    {confirmPassword && passwordsMatch && (
+                      <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                        <Check className="w-4 h-4" />
+                        Passwords match!
+                      </p>
+                    )}
+                    {confirmPassword && !passwordsMatch && (
+                      <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
+                        <X className="w-4 h-4" />
+                        Passwords do not match
+                      </p>
+                    )}
+                  </div>
 
-                  <Button type="submit" className="w-full" size="lg" disabled={isLoading || (isSignUp && (!!passwordError || !!usernameError))}>
+                  <Button type="submit" className="w-full" size="lg" disabled={isLoading || !!passwordError || !!usernameError}>
                     <User className="w-4 h-4 mr-2" />
-                    {isLoading ? 'Please wait...' : (isSignUp ? 'Create Account' : 'Sign In')}
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
                   </Button>
 
                   <div className="text-center">
                     <Button
                       type="button"
                       variant="link"
-                      onClick={() => setIsSignUp(!isSignUp)}
+                      onClick={() => setViewMode('pin-login')}
                       className="text-sm"
                     >
-                      {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+                      Already have an account? Login with PIN
                     </Button>
                   </div>
 
@@ -503,11 +498,7 @@ const Auth = () => {
 
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">
-                    {isSignUp ? (
-                      <>After signup, you'll set up a quick PIN for faster access</>
-                    ) : (
-                      <>Username: 3-20 chars • Password: 8+ chars with numbers</>
-                    )}
+                    After signup, you'll create a PIN for quick access
                   </p>
                 </div>
               </div>
