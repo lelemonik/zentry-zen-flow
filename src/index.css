@@ -8,14 +8,15 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 240 20% 98%;
-    --foreground: 240 10% 10%;
+    /* Neumorphism Base Colors */
+    --background: 225 20% 92%;
+    --foreground: 240 10% 20%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card: 225 20% 92%;
+    --card-foreground: 240 10% 20%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
+    --popover: 225 20% 92%;
+    --popover-foreground: 240 10% 20%;
 
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
@@ -23,7 +24,7 @@ All colors MUST be HSL.
     --secondary: 217 91% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 5% 96%;
+    --muted: 225 15% 85%;
     --muted-foreground: 240 4% 46%;
 
     --accent: 262 83% 58%;
@@ -32,37 +33,46 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
+    --border: 225 10% 88%;
+    --input: 225 20% 92%;
     --ring: 262 83% 58%;
 
-    --radius: 1rem;
+    --radius: 1.5rem;
 
-    /* Glassmorphism specific */
-    --glass-background: 0 0% 100% / 0.7;
-    --glass-border: 240 6% 90% / 0.3;
-    --glass-shadow: 0 8px 32px 0 / rgba(31, 38, 135, 0.15);
+    /* Neumorphism Shadows */
+    --neu-shadow-light: 8px 8px 16px rgba(163, 177, 198, 0.6);
+    --neu-shadow-dark: -8px -8px 16px rgba(255, 255, 255, 0.8);
+    --neu-shadow-inset-light: inset 8px 8px 16px rgba(163, 177, 198, 0.6);
+    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(255, 255, 255, 0.8);
+    
+    /* Combined Neumorphism Shadows */
+    --neu-shadow: 8px 8px 16px rgba(163, 177, 198, 0.6), -8px -8px 16px rgba(255, 255, 255, 0.8);
+    --neu-shadow-sm: 4px 4px 8px rgba(163, 177, 198, 0.5), -4px -4px 8px rgba(255, 255, 255, 0.7);
+    --neu-shadow-lg: 12px 12px 24px rgba(163, 177, 198, 0.7), -12px -12px 24px rgba(255, 255, 255, 0.9);
+    --neu-shadow-inset: inset 8px 8px 16px rgba(163, 177, 198, 0.6), inset -8px -8px 16px rgba(255, 255, 255, 0.8);
+    --neu-shadow-pressed: inset 4px 4px 8px rgba(163, 177, 198, 0.5), inset -2px -2px 4px rgba(255, 255, 255, 0.7);
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(217 91% 60%) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(185 94% 50%) 100%);
-    --gradient-background: linear-gradient(180deg, hsl(240 20% 98%) 0%, hsl(240 30% 96%) 100%);
+    --gradient-background: radial-gradient(circle at 20% 50%, hsl(225 25% 94%) 0%, hsl(225 20% 92%) 50%, hsl(225 18% 90%) 100%);
 
-    /* Shadows */
+    /* Legacy Shadows for compatibility */
     --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
     --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.3);
     --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
   .dark {
-    --background: 240 10% 8%;
-    --foreground: 240 5% 96%;
+    /* Neumorphism Dark Mode */
+    --background: 240 15% 15%;
+    --foreground: 240 5% 90%;
 
-    --card: 240 10% 12%;
-    --card-foreground: 240 5% 96%;
+    --card: 240 15% 15%;
+    --card-foreground: 240 5% 90%;
 
-    --popover: 240 10% 12%;
-    --popover-foreground: 240 5% 96%;
+    --popover: 240 15% 15%;
+    --popover-foreground: 240 5% 90%;
 
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
@@ -70,7 +80,7 @@ All colors MUST be HSL.
     --secondary: 217 91% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 6% 18%;
+    --muted: 240 10% 22%;
     --muted-foreground: 240 5% 64%;
 
     --accent: 262 83% 58%;
@@ -79,21 +89,28 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 20%;
-    --input: 240 6% 20%;
+    --border: 240 10% 20%;
+    --input: 240 15% 15%;
     --ring: 262 83% 58%;
 
-    /* Glassmorphism dark mode */
-    --glass-background: 240 10% 12% / 0.7;
-    --glass-border: 240 6% 30% / 0.3;
-    --glass-shadow: 0 8px 32px 0 / rgba(0, 0, 0, 0.4);
+    /* Neumorphism Dark Shadows */
+    --neu-shadow-light: 8px 8px 16px rgba(0, 0, 0, 0.5);
+    --neu-shadow-dark: -8px -8px 16px rgba(60, 64, 80, 0.4);
+    --neu-shadow-inset-light: inset 8px 8px 16px rgba(0, 0, 0, 0.5);
+    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(60, 64, 80, 0.4);
+    
+    --neu-shadow: 8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(60, 64, 80, 0.4);
+    --neu-shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.4), -4px -4px 8px rgba(60, 64, 80, 0.3);
+    --neu-shadow-lg: 12px 12px 24px rgba(0, 0, 0, 0.6), -12px -12px 24px rgba(60, 64, 80, 0.5);
+    --neu-shadow-inset: inset 8px 8px 16px rgba(0, 0, 0, 0.5), inset -8px -8px 16px rgba(60, 64, 80, 0.4);
+    --neu-shadow-pressed: inset 4px 4px 8px rgba(0, 0, 0, 0.4), inset -2px -2px 4px rgba(60, 64, 80, 0.3);
 
     /* Gradients dark */
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(217 91% 60%) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(185 94% 50%) 100%);
-    --gradient-background: linear-gradient(180deg, hsl(240 10% 8%) 0%, hsl(240 10% 10%) 100%);
+    --gradient-background: radial-gradient(circle at 20% 50%, hsl(240 16% 17%) 0%, hsl(240 15% 15%) 50%, hsl(240 14% 13%) 100%);
 
-    /* Shadows dark */
+    /* Legacy Shadows */
     --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.5);
     --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -110,17 +127,59 @@ All colors MUST be HSL.
     background: var(--gradient-background);
   }
 
-  /* Glassmorphism utility classes */
+  /* Neumorphism utility classes */
+  .neu {
+    background: hsl(var(--background));
+    box-shadow: var(--neu-shadow);
+    border: none;
+    border-radius: var(--radius);
+  }
+
+  .neu-sm {
+    background: hsl(var(--background));
+    box-shadow: var(--neu-shadow-sm);
+    border: none;
+    border-radius: calc(var(--radius) * 0.75);
+  }
+
+  .neu-lg {
+    background: hsl(var(--background));
+    box-shadow: var(--neu-shadow-lg);
+    border: none;
+    border-radius: calc(var(--radius) * 1.25);
+  }
+
+  .neu-inset {
+    background: hsl(var(--background));
+    box-shadow: var(--neu-shadow-inset);
+    border: none;
+    border-radius: var(--radius);
+  }
+
+  .neu-pressed {
+    background: hsl(var(--background));
+    box-shadow: var(--neu-shadow-pressed);
+    border: none;
+    border-radius: var(--radius);
+  }
+
+  .neu-flat {
+    background: hsl(var(--background));
+    box-shadow: none;
+    border: none;
+    border-radius: var(--radius);
+  }
+
+  /* Legacy glass for compatibility */
   .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: hsl(var(--background));
+    box-shadow: var(--neu-shadow);
+    border: none;
   }
 
   .dark .glass {
-    background: rgba(30, 30, 46, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: hsl(var(--background));
+    box-shadow: var(--neu-shadow);
   }
 
   /* Smooth animations */
