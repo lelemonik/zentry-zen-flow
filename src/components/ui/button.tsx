@@ -9,10 +9,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "neu text-foreground hover:scale-[0.98] active:neu-pressed bg-gradient-to-br from-primary to-secondary text-primary-foreground shadow-lg hover:shadow-xl",
-        destructive: "neu text-foreground hover:scale-[0.98] active:neu-pressed bg-gradient-to-br from-destructive to-red-600 text-destructive-foreground",
-        outline: "neu text-foreground hover:scale-[0.98] active:neu-pressed border-2 border-primary/20",
-        secondary: "neu text-foreground hover:scale-[0.98] active:neu-pressed bg-gradient-to-br from-secondary to-blue-500 text-secondary-foreground",
+        default: "neu text-primary-foreground hover:scale-[0.98] active:neu-pressed bg-gradient-to-br from-primary to-muted shadow-lg hover:shadow-xl",
+        destructive: "neu text-destructive-foreground hover:scale-[0.98] active:neu-pressed bg-gradient-to-br from-destructive to-red-600",
+        outline: "neu text-foreground hover:scale-[0.98] active:neu-pressed border-2 border-border",
+        secondary: "neu text-foreground hover:scale-[0.98] active:neu-pressed bg-gradient-to-br from-secondary to-muted-foreground/20",
         ghost: "bg-transparent hover:neu-sm text-foreground",
         link: "text-primary underline-offset-4 hover:underline bg-transparent",
       },

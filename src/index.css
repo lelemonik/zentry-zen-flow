@@ -8,111 +8,111 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Neumorphism Base Colors */
-    --background: 225 20% 92%;
-    --foreground: 240 10% 20%;
+    /* Neumorphism Color Palette - Inspired by provided colors */
+    --background: 0 0% 90%;           /* #E6E6E6 - Light neutral gray */
+    --foreground: 210 14% 31%;        /* #45505B - Dark blue-gray */
 
-    --card: 225 20% 92%;
-    --card-foreground: 240 10% 20%;
+    --card: 0 0% 90%;                 /* #E6E6E6 - Matches background */
+    --card-foreground: 210 14% 31%;   /* #45505B - Dark text */
 
-    --popover: 225 20% 92%;
-    --popover-foreground: 240 10% 20%;
+    --popover: 0 0% 90%;
+    --popover-foreground: 210 14% 31%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 210 14% 31%;           /* #45505B - Dark blue-gray accent */
+    --primary-foreground: 0 0% 90%;   /* Light text on dark */
 
-    --secondary: 217 91% 60%;
+    --secondary: 210 9% 66%;          /* #9FA8B0 - Medium gray */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 225 15% 85%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 210 5% 80%;              /* #C9CDD1 - Light gray */
+    --muted-foreground: 210 14% 31%;  /* #45505B - Dark text */
 
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 14% 31%;            /* #45505B - Dark accent */
+    --accent-foreground: 0 0% 90%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 225 10% 88%;
-    --input: 225 20% 92%;
-    --ring: 262 83% 58%;
+    --border: 210 5% 80%;             /* #C9CDD1 - Light border */
+    --input: 0 0% 90%;                /* #E6E6E6 - Light input bg */
+    --ring: 210 14% 31%;              /* #45505B - Focus ring */
 
     --radius: 1.5rem;
 
-    /* Neumorphism Shadows */
-    --neu-shadow-light: 8px 8px 16px rgba(163, 177, 198, 0.6);
-    --neu-shadow-dark: -8px -8px 16px rgba(255, 255, 255, 0.8);
-    --neu-shadow-inset-light: inset 8px 8px 16px rgba(163, 177, 198, 0.6);
-    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(255, 255, 255, 0.8);
+    /* Neumorphism Shadows - Adjusted for neutral palette */
+    --neu-shadow-light: 8px 8px 16px rgba(163, 169, 173, 0.5);
+    --neu-shadow-dark: -8px -8px 16px rgba(255, 255, 255, 0.9);
+    --neu-shadow-inset-light: inset 8px 8px 16px rgba(163, 169, 173, 0.5);
+    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(255, 255, 255, 0.9);
     
     /* Combined Neumorphism Shadows */
-    --neu-shadow: 8px 8px 16px rgba(163, 177, 198, 0.6), -8px -8px 16px rgba(255, 255, 255, 0.8);
-    --neu-shadow-sm: 4px 4px 8px rgba(163, 177, 198, 0.5), -4px -4px 8px rgba(255, 255, 255, 0.7);
-    --neu-shadow-lg: 12px 12px 24px rgba(163, 177, 198, 0.7), -12px -12px 24px rgba(255, 255, 255, 0.9);
-    --neu-shadow-inset: inset 8px 8px 16px rgba(163, 177, 198, 0.6), inset -8px -8px 16px rgba(255, 255, 255, 0.8);
-    --neu-shadow-pressed: inset 4px 4px 8px rgba(163, 177, 198, 0.5), inset -2px -2px 4px rgba(255, 255, 255, 0.7);
+    --neu-shadow: 8px 8px 16px rgba(163, 169, 173, 0.5), -8px -8px 16px rgba(255, 255, 255, 0.9);
+    --neu-shadow-sm: 4px 4px 8px rgba(163, 169, 173, 0.4), -4px -4px 8px rgba(255, 255, 255, 0.8);
+    --neu-shadow-lg: 12px 12px 24px rgba(163, 169, 173, 0.6), -12px -12px 24px rgba(255, 255, 255, 1);
+    --neu-shadow-inset: inset 8px 8px 16px rgba(163, 169, 173, 0.5), inset -8px -8px 16px rgba(255, 255, 255, 0.9);
+    --neu-shadow-pressed: inset 4px 4px 8px rgba(163, 169, 173, 0.4), inset -2px -2px 4px rgba(255, 255, 255, 0.8);
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(217 91% 60%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(185 94% 50%) 100%);
-    --gradient-background: radial-gradient(circle at 20% 50%, hsl(225 25% 94%) 0%, hsl(225 20% 92%) 50%, hsl(225 18% 90%) 100%);
+    /* Gradients with neutral tones */
+    --gradient-primary: linear-gradient(135deg, hsl(210 14% 31%) 0%, hsl(210 9% 66%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(210 9% 66%) 0%, hsl(210 5% 80%) 100%);
+    --gradient-background: radial-gradient(circle at 20% 50%, hsl(0 0% 92%) 0%, hsl(0 0% 90%) 50%, hsl(0 0% 88%) 100%);
 
     /* Legacy Shadows for compatibility */
-    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.3);
+    --shadow-glass: 0 8px 32px 0 rgba(69, 80, 91, 0.15);
+    --shadow-glow: 0 0 40px rgba(159, 168, 176, 0.3);
     --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
   .dark {
-    /* Neumorphism Dark Mode */
-    --background: 240 15% 15%;
-    --foreground: 240 5% 90%;
+    /* Neumorphism Dark Mode - Neutral palette */
+    --background: 210 14% 20%;        /* Darker version of #45505B */
+    --foreground: 0 0% 90%;           /* Light gray text */
 
-    --card: 240 15% 15%;
-    --card-foreground: 240 5% 90%;
+    --card: 210 14% 20%;
+    --card-foreground: 0 0% 90%;
 
-    --popover: 240 15% 15%;
-    --popover-foreground: 240 5% 90%;
+    --popover: 210 14% 20%;
+    --popover-foreground: 0 0% 90%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 210 9% 66%;            /* #9FA8B0 - Medium gray */
+    --primary-foreground: 210 14% 20%;
 
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 210 14% 31%;         /* #45505B - Dark blue-gray */
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 240 10% 22%;
-    --muted-foreground: 240 5% 64%;
+    --muted: 210 14% 28%;
+    --muted-foreground: 210 5% 80%;   /* #C9CDD1 - Light text */
 
-    --accent: 262 83% 58%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 9% 66%;             /* #9FA8B0 - Medium accent */
+    --accent-foreground: 210 14% 20%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 20%;
-    --input: 240 15% 15%;
-    --ring: 262 83% 58%;
+    --border: 210 14% 28%;
+    --input: 210 14% 20%;
+    --ring: 210 9% 66%;
 
     /* Neumorphism Dark Shadows */
-    --neu-shadow-light: 8px 8px 16px rgba(0, 0, 0, 0.5);
-    --neu-shadow-dark: -8px -8px 16px rgba(60, 64, 80, 0.4);
-    --neu-shadow-inset-light: inset 8px 8px 16px rgba(0, 0, 0, 0.5);
-    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(60, 64, 80, 0.4);
+    --neu-shadow-light: 8px 8px 16px rgba(0, 0, 0, 0.6);
+    --neu-shadow-dark: -8px -8px 16px rgba(79, 90, 101, 0.3);
+    --neu-shadow-inset-light: inset 8px 8px 16px rgba(0, 0, 0, 0.6);
+    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(79, 90, 101, 0.3);
     
-    --neu-shadow: 8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(60, 64, 80, 0.4);
-    --neu-shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.4), -4px -4px 8px rgba(60, 64, 80, 0.3);
-    --neu-shadow-lg: 12px 12px 24px rgba(0, 0, 0, 0.6), -12px -12px 24px rgba(60, 64, 80, 0.5);
-    --neu-shadow-inset: inset 8px 8px 16px rgba(0, 0, 0, 0.5), inset -8px -8px 16px rgba(60, 64, 80, 0.4);
-    --neu-shadow-pressed: inset 4px 4px 8px rgba(0, 0, 0, 0.4), inset -2px -2px 4px rgba(60, 64, 80, 0.3);
+    --neu-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6), -8px -8px 16px rgba(79, 90, 101, 0.3);
+    --neu-shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.5), -4px -4px 8px rgba(79, 90, 101, 0.25);
+    --neu-shadow-lg: 12px 12px 24px rgba(0, 0, 0, 0.7), -12px -12px 24px rgba(79, 90, 101, 0.35);
+    --neu-shadow-inset: inset 8px 8px 16px rgba(0, 0, 0, 0.6), inset -8px -8px 16px rgba(79, 90, 101, 0.3);
+    --neu-shadow-pressed: inset 4px 4px 8px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(79, 90, 101, 0.25);
 
-    /* Gradients dark */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(217 91% 60%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(185 94% 50%) 100%);
-    --gradient-background: radial-gradient(circle at 20% 50%, hsl(240 16% 17%) 0%, hsl(240 15% 15%) 50%, hsl(240 14% 13%) 100%);
+    /* Gradients dark - neutral tones */
+    --gradient-primary: linear-gradient(135deg, hsl(210 9% 66%) 0%, hsl(210 5% 80%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(210 14% 31%) 0%, hsl(210 9% 66%) 100%);
+    --gradient-background: radial-gradient(circle at 20% 50%, hsl(210 14% 22%) 0%, hsl(210 14% 20%) 50%, hsl(210 14% 18%) 100%);
 
     /* Legacy Shadows */
     --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.5);
+    --shadow-glow: 0 0 40px rgba(159, 168, 176, 0.3);
     --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 }
