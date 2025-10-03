@@ -32,13 +32,11 @@ const Notes = () => {
     setIsLoading(true);
     try {
       const supabaseNotes = await supabaseNoteStorage.getAll();
-      if (supabaseNotes.length > 0) {
-        setNotes(supabaseNotes);
-        noteStorage.set(supabaseNotes);
-        setIsOnline(true);
-      } else {
-        setNotes(noteStorage.getAll());
-      }
+      // ALWAYS use Supabase data when successfully fetched (even if empty)
+      // This ensures new users see empty state instead of cached data
+      setNotes(supabaseNotes);
+      noteStorage.set(supabaseNotes);
+      setIsOnline(true);
     } catch (error) {
       console.error('Error loading from Supabase:', error);
       setNotes(noteStorage.getAll());

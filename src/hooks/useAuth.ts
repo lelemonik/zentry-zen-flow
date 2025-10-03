@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authStorage } from '@/lib/storage';
+import { authStorage, clearAllUserData } from '@/lib/storage';
 import { supabaseAuth, onAuthStateChange } from '@/lib/supabaseAuth';
 
 export const useAuth = () => {
@@ -86,7 +86,8 @@ export const useAuth = () => {
     } catch (error) {
       console.error('Logout error:', error);
     }
-    authStorage.clearAuth();
+    // Clear all user data from localStorage to prevent data leakage
+    clearAllUserData();
     setIsAuthenticated(false);
     setUser(null);
   };
@@ -94,6 +95,8 @@ export const useAuth = () => {
   const deleteAccount = async () => {
     try {
       await supabaseAuth.deleteAccount();
+      // Clear all user data from localStorage
+      clearAllUserData();
       setIsAuthenticated(false);
       setUser(null);
       setHasPin(false);

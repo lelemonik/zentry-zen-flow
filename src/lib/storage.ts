@@ -178,6 +178,18 @@ export const authStorage = {
   },
 };
 
+// Clear all user data (called on logout/account switch)
+export const clearAllUserData = () => {
+  storage.remove(STORAGE_KEYS.TASKS);
+  storage.remove(STORAGE_KEYS.NOTES);
+  storage.remove(STORAGE_KEYS.SCHEDULE);
+  storage.remove(STORAGE_KEYS.PROFILE);
+  // Keep settings (theme, etc.) as they're user preferences, not user data
+  authStorage.clearAuth();
+  // Also clear session ID to force new session generation
+  storage.remove('zentry_session_id');
+};
+
 // Auto-backup functionality
 export const createBackup = () => {
   const backup = {

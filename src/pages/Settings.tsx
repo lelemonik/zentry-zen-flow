@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/Layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { User, Settings as SettingsIcon, Download, Upload, Moon, Sun, Palette, Cloud, Trash2, AlertTriangle } from 'lucide-react';
+import { User, Settings as SettingsIcon, Download, Upload, Moon, Sun, Palette, Cloud, Trash2, AlertTriangle, Camera, X } from 'lucide-react';
 import { settingsStorage, profileStorage, createBackup, restoreBackup, UserProfile, AppSettings } from '@/lib/storage';
 import { supabaseProfileStorage, supabaseSettingsStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +38,7 @@ const Settings = () => {
     bio: '',
   });
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Apply theme
@@ -162,6 +163,58 @@ const Settings = () => {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file',
+        description: 'Please upload an image file',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please upload an image smaller than 5MB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64String = event.target?.result as string;
+        handleProfileChange({ avatar: base64String });
+        toast({
+          title: 'Photo uploaded',
+          description: 'Don\'t forget to save to cloud',
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast({
+        title: 'Upload failed',
+        description: 'Could not process the image',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    handleProfileChange({ avatar: '' });
+    toast({
+      title: 'Photo removed',
+      description: 'Your profile photo has been removed',
+    });
+  };
+
   const handleBackup = () => {
     createBackup();
     toast({
@@ -251,21 +304,63 @@ const Settings = () => {
                 <CardDescription>Update your personal information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage src={profile.avatar} />
-                    <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-secondary text-white">
-                      {profile.name?.charAt(0)?.toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <Label htmlFor="avatar">Avatar URL</Label>
-                    <Input
-                      id="avatar"
-                      placeholder="https://example.com/avatar.jpg"
-                      value={profile.avatar}
-                      onChange={(e) => handleProfileChange({ avatar: e.target.value })}
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <div className="relative group">
+                    <Avatar className="w-32 h-32 border-4 border-primary/20">
+                      <AvatarImage src={profile.avatar} />
+                      <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-secondary text-white">
+                        {profile.name?.charAt(0)?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    {profile.avatar && (
+                      <button
+                        onClick={handleRemoveAvatar}
+                        className="absolute -top-2 -right-2 w-8 h-8 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"
+                        title="Remove photo"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div>
+                      <Label className="text-base font-semibold">Profile Photo</Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Upload a photo to personalize your profile
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="gap-2"
+                      >
+                        <Camera className="w-4 h-4" />
+                        {profile.avatar ? 'Change Photo' : 'Upload Photo'}
+                      </Button>
+                      {profile.avatar && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleRemoveAvatar}
+                          className="gap-2 text-destructive hover:text-destructive"
+                        >
+                          <X className="w-4 h-4" />
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Recommended: Square image, max 5MB (JPG, PNG, GIF)
+                    </p>
                   </div>
                 </div>
 

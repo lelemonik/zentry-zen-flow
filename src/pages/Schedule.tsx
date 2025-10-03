@@ -36,13 +36,11 @@ const Schedule = () => {
     setIsLoading(true);
     try {
       const supabaseEvents = await supabaseScheduleStorage.getAll();
-      if (supabaseEvents.length > 0) {
-        setEvents(supabaseEvents);
-        scheduleStorage.set(supabaseEvents);
-        setIsOnline(true);
-      } else {
-        setEvents(scheduleStorage.getAll());
-      }
+      // ALWAYS use Supabase data when successfully fetched (even if empty)
+      // This ensures new users see empty state instead of cached data
+      setEvents(supabaseEvents);
+      scheduleStorage.set(supabaseEvents);
+      setIsOnline(true);
     } catch (error) {
       console.error('Error loading from Supabase:', error);
       setEvents(scheduleStorage.getAll());

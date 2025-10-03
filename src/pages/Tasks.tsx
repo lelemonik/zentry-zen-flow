@@ -38,15 +38,12 @@ const Tasks = () => {
     try {
       // Try to load from Supabase first
       const supabaseTasks = await supabaseTaskStorage.getAll();
-      if (supabaseTasks.length > 0) {
-        setTasks(supabaseTasks);
-        // Update localStorage as backup
-        taskStorage.set(supabaseTasks);
-        setIsOnline(true);
-      } else {
-        // Fallback to localStorage
-        setTasks(taskStorage.getAll());
-      }
+      // ALWAYS use Supabase data when successfully fetched (even if empty)
+      // This ensures new users see empty state instead of cached data
+      setTasks(supabaseTasks);
+      // Update localStorage to match Supabase
+      taskStorage.set(supabaseTasks);
+      setIsOnline(true);
     } catch (error) {
       console.error('Error loading from Supabase, using localStorage:', error);
       setTasks(taskStorage.getAll());
