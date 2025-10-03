@@ -20,7 +20,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: <FileText className="w-5 h-5" />, label: 'Notes', path: '/notes' },
     { icon: <Calendar className="w-5 h-5" />, label: 'Schedule', path: '/schedule' },
     { icon: <MessageSquare className="w-5 h-5" />, label: 'AI Chat', path: '/chat' },
-    { icon: <Settings className="w-5 h-5" />, label: 'Settings', path: '/settings' },
   ];
 
   const handleLogout = () => {
@@ -65,9 +64,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 </Button>
               ))}
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm" 
-                className="text-destructive ml-2" 
+                className="text-destructive hover:bg-destructive/10 border-destructive/20 ml-2" 
                 onClick={handleLogout}
               >
                 <LogOut className="w-5 h-5" />
@@ -75,15 +74,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               </Button>
             </nav>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Logout Button */}
             <div className="md:hidden flex items-center gap-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => navigate('/settings')}
-                className={isActive('/settings') ? 'bg-gradient-to-r from-primary to-secondary' : ''}
+                className="text-destructive hover:bg-destructive/10 border-destructive/20"
+                onClick={handleLogout}
               >
-                <Settings className="w-5 h-5" />
+                <LogOut className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -99,7 +98,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t backdrop-blur-lg">
-        <div className="grid grid-cols-5 gap-1 p-2">
+        <div className="grid grid-cols-4 gap-1 p-2">
           {navItems.map((item) => (
             <Button
               key={item.path}

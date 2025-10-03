@@ -100,6 +100,13 @@ const Landing = () => {
                 size="lg" 
                 variant="outline" 
                 className="text-lg px-8 py-6 rounded-2xl glass border-2 w-full sm:w-auto"
+                onClick={() => {
+                  toast({
+                    title: 'Install Zentry',
+                    description: 'Use your browser menu to install this app on your device, or visit on Chrome/Edge for auto-install.',
+                    duration: 5000,
+                  });
+                }}
               >
                 <Smartphone className="w-5 h-5 mr-2" />
                 Available as PWA
