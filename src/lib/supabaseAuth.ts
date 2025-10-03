@@ -82,12 +82,18 @@ export const supabaseAuth = {
 
     // Create profile with username
     if (data.user) {
-      await supabase.from('profiles').upsert({
+      const { error: profileError } = await supabase.from('profiles').upsert({
         user_id: data.user.id,
         username: username.toLowerCase(),
         name: username,
         email: syntheticEmail,
       });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Don't fail the signup, but log the error
+        // The user is still created in auth, just not in profiles table
+      }
     }
 
     return data;
@@ -95,20 +101,10 @@ export const supabaseAuth = {
 
   // Sign in with username and password
   signIn: async (username: string, password: string) => {
-    // First check if user exists
-    const { data: existingUser } = await supabase
-      .from('profiles')
-      .select('user_id')
-      .eq('username', username.toLowerCase())
-      .single();
-
-    if (!existingUser) {
-      throw new Error('This user doesn\'t exist. Please create an account first.');
-    }
-
     // Convert username to synthetic email
     const syntheticEmail = `${username.toLowerCase()}@zentry.local`;
     
+    // Try to sign in first
     const { data, error } = await supabase.auth.signInWithPassword({
       email: syntheticEmail,
       password,
@@ -117,10 +113,42 @@ export const supabaseAuth = {
     if (error) {
       // Provide user-friendly error message
       if (error.message.includes('Invalid login credentials')) {
-        throw new Error('Invalid password');
+        // Could be wrong password OR user doesn't exist
+        // Check if user exists in profiles to give better error
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('username', username.toLowerCase())
+          .single();
+        
+        if (!existingUser) {
+          throw new Error('This user doesn\'t exist. Please create an account first.');
+        } else {
+          throw new Error('Invalid password');
+        }
       }
       throw error;
     }
+
+    // If sign in successful, ensure profile exists (create if missing)
+    if (data.user) {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('user_id', data.user.id)
+        .single();
+
+      if (!existingProfile) {
+        // Profile missing - create it now
+        await supabase.from('profiles').upsert({
+          user_id: data.user.id,
+          username: username.toLowerCase(),
+          name: username,
+          email: syntheticEmail,
+        });
+      }
+    }
+
     return data;
   },
 
