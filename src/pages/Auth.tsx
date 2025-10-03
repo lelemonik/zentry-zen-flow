@@ -103,7 +103,8 @@ const Auth = () => {
         return;
       }
       
-      if (verifyPin(pin)) {
+      const isValid = await verifyPin(pin);
+      if (isValid) {
         toast({
           title: 'Welcome back!',
           description: 'Login successful',

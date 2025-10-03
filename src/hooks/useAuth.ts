@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authStorage, clearAllUserData } from '@/lib/storage';
+import { authStorage, clearAllUserData, clearUserDataOnLogout } from '@/lib/storage';
 import { supabaseAuth, onAuthStateChange } from '@/lib/supabaseAuth';
 
 export const useAuth = () => {
@@ -70,11 +70,23 @@ export const useAuth = () => {
     setIsAuthenticated(true);
   };
 
-  const verifyPin = (pin: string): boolean => {
+  const verifyPin = async (pin: string): Promise<boolean> => {
     const storedPin = authStorage.getPin();
     if (storedPin === pin) {
       authStorage.setAuthenticated(true);
       setIsAuthenticated(true);
+      
+      // Try to restore Supabase session if possible
+      try {
+        const session = await supabaseAuth.getSession();
+        if (session) {
+          setUser(session.user);
+        }
+      } catch (error) {
+        // Supabase connection failed, but PIN auth still works
+        console.warn('Could not restore Supabase session, using PIN-only auth:', error);
+      }
+      
       return true;
     }
     return false;
@@ -86,10 +98,12 @@ export const useAuth = () => {
     } catch (error) {
       console.error('Logout error:', error);
     }
-    // Clear all user data from localStorage to prevent data leakage
-    clearAllUserData();
+    // Clear user data but keep PIN for quick re-login
+    clearUserDataOnLogout();
     setIsAuthenticated(false);
     setUser(null);
+    // PIN is still available after logout for quick re-login
+    setHasPin(!!authStorage.getPin());
   };
 
   const deleteAccount = async () => {
