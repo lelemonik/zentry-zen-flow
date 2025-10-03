@@ -58,8 +58,13 @@ export const useAuth = () => {
     setIsLoading(false);
   };
 
-  const setupPin = (pin: string) => {
-    authStorage.setPin(pin);
+  const setupPin = async (pin: string) => {
+    // Get current Supabase user ID to link with PIN
+    const currentUser = await supabaseAuth.getCurrentUser();
+    const supabaseUserId = currentUser?.id;
+    
+    // Store PIN and link it to Supabase user ID for data isolation
+    authStorage.setPin(pin, supabaseUserId);
     authStorage.setAuthenticated(true);
     setHasPin(true);
     setIsAuthenticated(true);

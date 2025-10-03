@@ -2,27 +2,30 @@ import { supabase } from './supabase';
 import { supabaseAuth } from './supabaseAuth';
 import { Task, Note, ScheduleEvent, UserProfile } from './storage';
 
-// Get user ID - prioritizes Supabase Auth, falls back to PIN
+// Get user ID - prioritizes Supabase Auth, then stored Supabase ID, then session
 const getUserId = async (): Promise<string> => {
-  // Try to get authenticated user ID first
+  // Priority 1: Current authenticated Supabase user
   const user = await supabaseAuth.getCurrentUser();
   if (user) {
     return user.id;
   }
   
-  // Fall back to PIN-based ID for backward compatibility
-  const pin = localStorage.getItem('zentry_pin');
-  if (!pin) {
-    // CRITICAL: Don't use shared 'anonymous' ID
-    // Generate a unique session ID for unauthenticated users
-    let sessionId = localStorage.getItem('zentry_session_id');
-    if (!sessionId) {
-      sessionId = 'session_' + crypto.randomUUID();
-      localStorage.setItem('zentry_session_id', sessionId);
-    }
-    return sessionId;
+  // Priority 2: Stored Supabase user ID (linked to PIN for quick login)
+  // This prevents multiple users with same PIN from sharing data
+  const storedSupabaseUserId = localStorage.getItem('zentry_supabase_user_id');
+  if (storedSupabaseUserId) {
+    return storedSupabaseUserId;
   }
-  return 'user_' + btoa(pin).slice(0, 16);
+  
+  // Priority 3: Anonymous session (never use PIN as identifier)
+  // CRITICAL: Don't use shared 'anonymous' ID or PIN-based ID
+  // Generate a unique session ID for unauthenticated users
+  let sessionId = localStorage.getItem('zentry_session_id');
+  if (!sessionId) {
+    sessionId = 'session_' + crypto.randomUUID();
+    localStorage.setItem('zentry_session_id', sessionId);
+  }
+  return sessionId;
 };
 
 // Task operations

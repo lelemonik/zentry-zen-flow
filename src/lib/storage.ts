@@ -55,6 +55,7 @@ const STORAGE_KEYS = {
   SETTINGS: 'zentry_settings',
   PIN: 'zentry_pin',
   AUTHENTICATED: 'zentry_authenticated',
+  SUPABASE_USER_ID: 'zentry_supabase_user_id',
 };
 
 // Generic storage functions
@@ -161,11 +162,19 @@ export const settingsStorage = {
 
 export const authStorage = {
   getPin: (): string | null => storage.get(STORAGE_KEYS.PIN, null),
-  setPin: (pin: string) => storage.set(STORAGE_KEYS.PIN, pin),
+  setPin: (pin: string, supabaseUserId?: string) => {
+    storage.set(STORAGE_KEYS.PIN, pin);
+    if (supabaseUserId) {
+      storage.set(STORAGE_KEYS.SUPABASE_USER_ID, supabaseUserId);
+    }
+  },
+  getSupabaseUserId: (): string | null => storage.get(STORAGE_KEYS.SUPABASE_USER_ID, null),
   isAuthenticated: (): boolean => storage.get(STORAGE_KEYS.AUTHENTICATED, false),
   setAuthenticated: (value: boolean) => storage.set(STORAGE_KEYS.AUTHENTICATED, value),
   clearAuth: () => {
     storage.remove(STORAGE_KEYS.AUTHENTICATED);
+    storage.remove(STORAGE_KEYS.PIN);
+    storage.remove(STORAGE_KEYS.SUPABASE_USER_ID);
   },
 };
 

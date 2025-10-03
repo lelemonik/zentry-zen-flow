@@ -55,7 +55,7 @@ const Auth = () => {
   }, [isAuthenticated, showPinSetup, navigate]);
 
   // PIN Login/Setup
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Force setup mode if coming from signup flow
@@ -80,7 +80,7 @@ const Auth = () => {
         return;
       }
 
-      setupPin(pin);
+      await setupPin(pin);
       toast({
         title: 'Success!',
         description: showPinSetup 
