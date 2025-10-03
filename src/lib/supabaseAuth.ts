@@ -95,6 +95,17 @@ export const supabaseAuth = {
 
   // Sign in with username and password
   signIn: async (username: string, password: string) => {
+    // First check if user exists
+    const { data: existingUser } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .eq('username', username.toLowerCase())
+      .single();
+
+    if (!existingUser) {
+      throw new Error('This user doesn\'t exist. Please create an account first.');
+    }
+
     // Convert username to synthetic email
     const syntheticEmail = `${username.toLowerCase()}@zentry.local`;
     
@@ -106,7 +117,7 @@ export const supabaseAuth = {
     if (error) {
       // Provide user-friendly error message
       if (error.message.includes('Invalid login credentials')) {
-        throw new Error('Invalid username or password');
+        throw new Error('Invalid password');
       }
       throw error;
     }

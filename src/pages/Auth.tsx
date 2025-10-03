@@ -215,20 +215,34 @@ const Auth = () => {
     setIsLoading(true);
     try {
       await supabaseAuth.signIn(username, password);
-      toast({
-        title: 'Welcome back!',
-        description: `Logged in as ${username}`,
-      });
-      navigate('/dashboard');
+      
+      // Check if user has a PIN set up
+      if (!hasPin) {
+        // Offer to set up PIN for quick login
+        toast({
+          title: 'Welcome back!',
+          description: `Logged in as ${username}. Would you like to set up a quick PIN?`,
+        });
+        setSignupUsername(username);
+        setShowPinSetup(true);
+      } else {
+        toast({
+          title: 'Welcome back!',
+          description: `Logged in as ${username}`,
+        });
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       const isFetchError = error.message?.includes('fetch') || error.message?.includes('network');
+      const userDoesntExist = error.message?.includes('doesn\'t exist');
+      
       toast({
-        title: 'Login failed',
+        title: userDoesntExist ? 'User not found' : 'Login failed',
         description: isFetchError
           ? 'Cannot connect to server. Your Supabase project may be paused. Check the dashboard.'
           : error.message || 'Invalid username or password',
         variant: 'destructive',
-        duration: 7000, // Show longer for fetch errors
+        duration: userDoesntExist ? 5000 : 7000,
       });
     } finally {
       setIsLoading(false);
@@ -264,20 +278,30 @@ const Auth = () => {
 
           <CardContent>
             {showPinSetup ? (
-              // Post-signup PIN setup - REQUIRED after account creation
+              // Post-signup/login PIN setup - Optional for quick access
               <div className="space-y-4">
                 <div className="text-center mb-4">
-                  <h3 className="font-semibold text-lg">Set Up Your Quick PIN</h3>
+                  <div className="mx-auto mb-3 w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                    <KeyRound className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-lg">Set Up Quick PIN Login</h3>
                   <p className="text-sm text-muted-foreground">
-                    Create a 4-8 digit PIN for faster login next time
+                    {signupUsername ? `Welcome, ${signupUsername}!` : 'Welcome back!'} Create a 4-8 digit PIN for faster login next time.
                   </p>
                 </div>
+
+                <Alert className="border-primary/20 bg-primary/5">
+                  <AlertCircle className="w-4 h-4 text-primary" />
+                  <AlertDescription className="text-sm">
+                    You can skip this and use your username & password anytime
+                  </AlertDescription>
+                </Alert>
 
                 <form onSubmit={handlePinSubmit} className="space-y-4">
                   <div>
                     <Input
                       type="password"
-                      placeholder="Enter PIN"
+                      placeholder="Enter 4-8 digit PIN"
                       value={pin}
                       onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                       className="text-center text-2xl tracking-widest"
@@ -299,7 +323,7 @@ const Auth = () => {
 
                   <Button type="submit" className="w-full" size="lg">
                     <KeyRound className="w-4 h-4 mr-2" />
-                    Complete Setup
+                    Set Up Quick PIN
                   </Button>
 
                   <div className="text-center">
@@ -309,7 +333,7 @@ const Auth = () => {
                       onClick={() => navigate('/dashboard')}
                       className="text-sm text-muted-foreground"
                     >
-                      Skip for now
+                      Skip - I'll use my password
                     </Button>
                   </div>
                 </form>
