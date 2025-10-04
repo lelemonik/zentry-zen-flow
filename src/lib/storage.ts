@@ -46,6 +46,12 @@ export interface AppSettings {
   autoSave: boolean;
 }
 
+export interface MoodEntry {
+  mood: string;
+  date: string;
+  timestamp: string;
+}
+
 const STORAGE_KEYS = {
   TASKS: 'zentry_tasks',
   NOTES: 'zentry_notes',
@@ -53,6 +59,8 @@ const STORAGE_KEYS = {
   PROFILE: 'zentry_profile',
   SETTINGS: 'zentry_settings',
   SUPABASE_USER_ID: 'zentry_supabase_user_id',
+  MOOD_HISTORY: 'zentry_mood_history',
+  TODAY_MOOD: 'zentry_today_mood',
 };
 
 // Generic storage functions
@@ -170,6 +178,8 @@ export const clearUserDataOnLogout = () => {
   storage.remove(STORAGE_KEYS.NOTES);
   storage.remove(STORAGE_KEYS.SCHEDULE);
   storage.remove(STORAGE_KEYS.PROFILE);
+  storage.remove(STORAGE_KEYS.MOOD_HISTORY);
+  storage.remove(STORAGE_KEYS.TODAY_MOOD);
   // Keep settings as they're user preferences, not user data
   authStorage.clearAuth();
   // Also clear session ID to force new session generation
@@ -182,6 +192,8 @@ export const clearAllUserData = () => {
   storage.remove(STORAGE_KEYS.NOTES);
   storage.remove(STORAGE_KEYS.SCHEDULE);
   storage.remove(STORAGE_KEYS.PROFILE);
+  storage.remove(STORAGE_KEYS.MOOD_HISTORY);
+  storage.remove(STORAGE_KEYS.TODAY_MOOD);
   authStorage.clearAuth();
   storage.remove('zentry_session_id');
 };
@@ -225,4 +237,58 @@ export const restoreBackup = (file: File): Promise<void> => {
     };
     reader.readAsText(file);
   });
+};
+
+// Mood tracking storage
+export const moodStorage = {
+  // Get today's mood
+  getTodayMood: (): string | null => {
+    const today = new Date().toISOString().split('T')[0];
+    const savedMood = storage.get<{ mood: string; date: string } | null>(STORAGE_KEYS.TODAY_MOOD, null);
+    
+    // Check if the saved mood is from today
+    if (savedMood && savedMood.date === today) {
+      return savedMood.mood;
+    }
+    return null;
+  },
+
+  // Save today's mood
+  setTodayMood: (mood: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    const moodData = {
+      mood,
+      date: today,
+    };
+    storage.set(STORAGE_KEYS.TODAY_MOOD, moodData);
+
+    // Also add to mood history
+    const history = moodStorage.getHistory();
+    const entry: MoodEntry = {
+      mood,
+      date: today,
+      timestamp: new Date().toISOString(),
+    };
+    
+    // Check if there's already an entry for today and update it, otherwise add new
+    const existingIndex = history.findIndex(e => e.date === today);
+    if (existingIndex >= 0) {
+      history[existingIndex] = entry;
+    } else {
+      history.push(entry);
+    }
+    
+    storage.set(STORAGE_KEYS.MOOD_HISTORY, history);
+  },
+
+  // Get mood history
+  getHistory: (): MoodEntry[] => {
+    return storage.get<MoodEntry[]>(STORAGE_KEYS.MOOD_HISTORY, []);
+  },
+
+  // Clear mood data
+  clear: () => {
+    storage.remove(STORAGE_KEYS.TODAY_MOOD);
+    storage.remove(STORAGE_KEYS.MOOD_HISTORY);
+  },
 };

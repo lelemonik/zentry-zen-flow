@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Smile, Meh, Frown, Angry, Laugh } from 'lucide-react';
 import AppLayout from '@/components/Layout/AppLayout';
-import { taskStorage, profileStorage } from '@/lib/storage';
+import { taskStorage, profileStorage, moodStorage } from '@/lib/storage';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [stats, setStats] = useState({
     tasks: 0,
     completedTasks: 0,
@@ -34,6 +36,12 @@ const Dashboard = () => {
     } else {
       setUserName('there');
     }
+
+    // Load today's mood from storage
+    const todayMood = moodStorage.getTodayMood();
+    if (todayMood) {
+      setSelectedMood(todayMood);
+    }
   }, [user]);
 
   const moods = [
@@ -46,6 +54,16 @@ const Dashboard = () => {
 
   const handleMoodSelect = (value: string) => {
     setSelectedMood(value);
+    // Save mood to localStorage
+    moodStorage.setTodayMood(value);
+    
+    // Show feedback toast
+    const moodLabel = moods.find(m => m.value === value)?.label || 'your mood';
+    toast({
+      title: 'Mood saved!',
+      description: `We've recorded that you're feeling ${moodLabel} today.`,
+      duration: 2000,
+    });
   };
 
   return (
