@@ -90,15 +90,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto pb-20 md:pb-4">
-        <div className="container mx-auto px-4 py-6 md:py-8">
-          {children}
-        </div>
-      </main>
-
-      {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t backdrop-blur-lg">
+      {/* Mobile Navigation - Below Header */}
+      <nav className="md:hidden sticky top-16 z-40 glass border-b backdrop-blur-lg mt-4">
         <div className="grid grid-cols-5 gap-1 p-2">
           {navItems.map((item) => (
             <Button
@@ -114,6 +107,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           ))}
         </div>
       </nav>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        <div className="container mx-auto px-4 py-6 md:py-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 };
