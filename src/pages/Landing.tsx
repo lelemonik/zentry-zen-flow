@@ -46,9 +46,21 @@ const Landing = () => {
   };
 
   const features = [
-    { icon: <CheckCircle2 className="w-5 h-5" />, title: 'Tasks' },
-    { icon: <StickyNote className="w-5 h-5" />, title: 'Notes' },
-    { icon: <Calendar className="w-5 h-5" />, title: 'Schedule' },
+    { 
+      icon: <CheckCircle2 className="w-6 h-6" />, 
+      title: 'Tasks', 
+      description: 'Organize and track your to-dos' 
+    },
+    { 
+      icon: <StickyNote className="w-6 h-6" />, 
+      title: 'Notes', 
+      description: 'Capture ideas and thoughts' 
+    },
+    { 
+      icon: <Calendar className="w-6 h-6" />, 
+      title: 'Schedule', 
+      description: 'Plan your day efficiently' 
+    },
   ];
 
   return (
@@ -78,32 +90,33 @@ const Landing = () => {
               Get Started
             </Button>
             
-            {isInstallable && (
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full text-lg py-6 rounded-xl glass border-2"
-                onClick={handleInstallClick}
-              >
-                <Download className="w-5 h-5 mr-2" />
-                Install App
-              </Button>
-            )}
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="w-full text-lg py-6 rounded-xl glass border-2 hover:scale-105 transition-all"
+              onClick={handleInstallClick}
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Install App
+            </Button>
           </div>
 
           {/* Features */}
-          <div className="pt-4">
-            <p className="text-sm text-muted-foreground mb-4">Includes</p>
-            <div className="flex justify-center gap-6">
+          <div className="pt-8">
+            <p className="text-sm text-muted-foreground mb-6 uppercase tracking-wider">Features</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center gap-2"
+                  className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 transition-all hover:scale-105 border border-border/50"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-primary">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-primary shadow-lg">
                     {feature.icon}
                   </div>
-                  <span className="text-xs font-medium">{feature.title}</span>
+                  <div className="text-center space-y-1">
+                    <h3 className="text-sm font-semibold">{feature.title}</h3>
+                    <p className="text-xs text-muted-foreground">{feature.description}</p>
+                  </div>
                 </div>
               ))}
             </div>

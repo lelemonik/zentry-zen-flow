@@ -63,7 +63,7 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Welcome Back!
+            Welcome back!
           </h1>
           <p className="text-muted-foreground text-lg">
             Your productivity dashboard
