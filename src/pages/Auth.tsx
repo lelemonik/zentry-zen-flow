@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { Lock, ArrowLeft, User, KeyRound, AlertCircle, Check, X } from 'lucide-react';
+import { Lock, ArrowLeft, User, AlertCircle, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabaseAuth, validatePassword, validateUsername } from '@/lib/supabaseAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,12 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { hasPin, setupPin, verifyPin, isAuthenticated } = useAuth();
-  
-  // PIN state
-  const [pin, setPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
-  const [isSettingUpPin, setIsSettingUpPin] = useState(!hasPin);
+  const { isAuthenticated } = useAuth();
   
   // Username/Password state
   const [username, setUsername] = useState('');
@@ -27,15 +22,6 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [usernameError, setUsernameError] = useState('');
-  
-  // Post-signup PIN setup
-  const [showPinSetup, setShowPinSetup] = useState(false);
-  const [signupUsername, setSignupUsername] = useState('');
-  
-  // View modes: 'pin-login' | 'pin-setup' | 'signup'
-  const [viewMode, setViewMode] = useState<'pin-login' | 'pin-setup' | 'signup'>(
-    hasPin ? 'pin-login' : 'signup'
-  );
   
   // Password requirement checks
   const [passwordChecks, setPasswordChecks] = useState({
@@ -47,79 +33,17 @@ const Auth = () => {
   // Password match check
   const passwordsMatch = password && confirmPassword && password === confirmPassword;
 
-  // Redirect to dashboard if already authenticated (but not setting up PIN)
+  // Redirect to dashboard if already authenticated
   useEffect(() => {
-    // Only redirect if authenticated, not in PIN setup mode, and has a PIN
-    // This prevents redirect during signup before PIN is created
-    if (isAuthenticated && viewMode !== 'pin-setup' && hasPin) {
+    if (isAuthenticated) {
       const timer = setTimeout(() => {
         navigate('/dashboard', { replace: true });
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, viewMode, hasPin, navigate]);
+  }, [isAuthenticated, navigate]);
 
-  // PIN Login/Setup
-  const handlePinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
-    if (viewMode === 'pin-setup') {
-      // Setting up new PIN
-      if (pin.length < 4) {
-        toast({
-          title: 'PIN too short',
-          description: 'Please enter at least 4 digits',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (pin !== confirmPin) {
-        toast({
-          title: 'PINs do not match',
-          description: 'Please make sure both PINs are the same',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      await setupPin(pin);
-      toast({
-        title: 'Success!',
-        description: `Welcome, ${signupUsername}! Your account is ready.`,
-      });
-      navigate('/dashboard');
-    } else {
-      // Logging in with existing PIN
-      if (!hasPin) {
-        // No PIN set up yet - redirect to signup
-        toast({
-          title: 'No account found',
-          description: 'Please create an account first',
-          variant: 'destructive',
-        });
-        setViewMode('signup');
-        setPin('');
-        return;
-      }
-      
-      const isValid = await verifyPin(pin);
-      if (isValid) {
-        toast({
-          title: 'Welcome back!',
-          description: 'Login successful',
-        });
-        navigate('/dashboard');
-      } else {
-        toast({
-          title: 'Incorrect PIN',
-          description: 'Please try again',
-          variant: 'destructive',
-        });
-        setPin('');
-      }
-    }
-  };
 
   // Validate inputs on change
   const handlePasswordChange = (value: string) => {
@@ -188,19 +112,16 @@ const Auth = () => {
 
     setIsLoading(true);
     
-    // Set username and switch to PIN setup view BEFORE signup
-    // This prevents race condition with authentication redirect
-    setSignupUsername(username);
-    
     try {
       await supabaseAuth.signUp(username, password);
       
-      // Navigate to PIN setup (state already set above)
-      setViewMode('pin-setup');
       toast({
         title: 'Account created!',
-        description: `Welcome, ${username}! Now create your PIN.`,
+        description: `Welcome, ${username}! Redirecting to dashboard...`,
       });
+      
+      // Navigate directly to dashboard
+      navigate('/dashboard');
     } catch (error: any) {
       const isFetchError = error.message?.includes('fetch') || error.message?.includes('network');
       toast({
@@ -224,22 +145,11 @@ const Auth = () => {
     try {
       await supabaseAuth.signIn(username, password);
       
-      // Check if user has a PIN set up
-      if (!hasPin) {
-        // Offer to set up PIN for quick login
-        toast({
-          title: 'Welcome back!',
-          description: `Logged in as ${username}. Would you like to set up a quick PIN?`,
-        });
-        setSignupUsername(username);
-        setShowPinSetup(true);
-      } else {
-        toast({
-          title: 'Welcome back!',
-          description: `Logged in as ${username}`,
-        });
-        navigate('/dashboard');
-      }
+      toast({
+        title: 'Welcome back!',
+        description: `Logged in as ${username}`,
+      });
+      navigate('/dashboard');
     } catch (error: any) {
       const isFetchError = error.message?.includes('fetch') || error.message?.includes('network');
       const userDoesntExist = error.message?.includes('doesn\'t exist');
@@ -276,100 +186,13 @@ const Auth = () => {
             </div>
             <CardTitle className="text-3xl">Zentry</CardTitle>
             <CardDescription>
-              {viewMode === 'pin-setup' 
-                ? 'Create your PIN'
-                : viewMode === 'pin-login'
-                  ? 'Enter your PIN'
-                  : 'Create your account'}
+              {isSignUp ? 'Create your account' : 'Welcome back'}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            {viewMode === 'pin-setup' ? (
-              // PIN Setup after signup
-              <div className="space-y-4">
-                <div className="text-center mb-4">
-                  <div className="mx-auto mb-3 w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                    <KeyRound className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg">Create Your PIN</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {signupUsername ? `Welcome, ${signupUsername}!` : ''} Enter a 4-8 digit PIN for quick access.
-                  </p>
-                </div>
-
-                <form onSubmit={handlePinSubmit} className="space-y-4">
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Enter 4-8 digit PIN"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                      className="text-center text-2xl tracking-widest"
-                      maxLength={8}
-                      autoFocus
-                    />
-                  </div>
-
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Confirm PIN"
-                      value={confirmPin}
-                      onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
-                      className="text-center text-2xl tracking-widest"
-                      maxLength={8}
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" size="lg">
-                    <KeyRound className="w-4 h-4 mr-2" />
-                    Create PIN
-                  </Button>
-                </form>
-              </div>
-            ) : viewMode === 'pin-login' ? (
-              // PIN Login - Existing users
-              <div className="space-y-4">
-                <div className="text-center mb-4">
-                  <h3 className="font-semibold text-lg">Welcome Back!</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Enter your PIN to continue
-                  </p>
-                </div>
-
-                <form onSubmit={handlePinSubmit} className="space-y-4">
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Enter PIN"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                      className="text-center text-2xl tracking-widest"
-                      maxLength={8}
-                      autoFocus
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" size="lg">
-                    <KeyRound className="w-4 h-4 mr-2" />
-                    Unlock
-                  </Button>
-
-                  <div className="text-center">
-                    <Button
-                      type="button"
-                      variant="link"
-                      onClick={() => setViewMode('signup')}
-                      className="text-sm"
-                    >
-                      Don't have an account? Sign up
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            ) : (
-              // Signup - New users only
+            {isSignUp ? (
+              // Signup Form
               <div className="space-y-4 mt-4">
                 <div className="text-center mb-4">
                   <h3 className="font-semibold text-lg">Create Account</h3>
@@ -493,20 +316,65 @@ const Auth = () => {
                     <Button
                       type="button"
                       variant="link"
-                      onClick={() => setViewMode('pin-login')}
+                      onClick={() => setIsSignUp(false)}
                       className="text-sm"
                     >
-                      Already have an account? Login with PIN
+                      Already have an account? Login
                     </Button>
                   </div>
 
                 </form>
-
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground">
-                    After signup, you'll create a PIN for quick access
+              </div>
+            ) : (
+              // Login Form
+              <div className="space-y-4 mt-4">
+                <div className="text-center mb-4">
+                  <h3 className="font-semibold text-lg">Welcome Back!</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Login to your account
                   </p>
                 </div>
+
+                <form onSubmit={handleUsernameLogin} className="space-y-4">
+                  <div>
+                    <Input
+                      type="text"
+                      placeholder="Username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      autoComplete="username"
+                    />
+                  </div>
+
+                  <div>
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      autoComplete="current-password"
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                    <User className="w-4 h-4 mr-2" />
+                    {isLoading ? 'Logging in...' : 'Login'}
+                  </Button>
+
+                  <div className="text-center">
+                    <Button
+                      type="button"
+                      variant="link"
+                      onClick={() => setIsSignUp(true)}
+                      className="text-sm"
+                    >
+                      Don't have an account? Sign up
+                    </Button>
+                  </div>
+
+                </form>
               </div>
             )}
           </CardContent>

@@ -52,8 +52,6 @@ const STORAGE_KEYS = {
   SCHEDULE: 'zentry_schedule',
   PROFILE: 'zentry_profile',
   SETTINGS: 'zentry_settings',
-  PIN: 'zentry_pin',
-  AUTHENTICATED: 'zentry_authenticated',
   SUPABASE_USER_ID: 'zentry_supabase_user_id',
 };
 
@@ -159,47 +157,31 @@ export const settingsStorage = {
 };
 
 export const authStorage = {
-  getPin: (): string | null => storage.get(STORAGE_KEYS.PIN, null),
-  setPin: (pin: string, supabaseUserId?: string) => {
-    storage.set(STORAGE_KEYS.PIN, pin);
-    if (supabaseUserId) {
-      storage.set(STORAGE_KEYS.SUPABASE_USER_ID, supabaseUserId);
-    }
-  },
   getSupabaseUserId: (): string | null => storage.get(STORAGE_KEYS.SUPABASE_USER_ID, null),
-  isAuthenticated: (): boolean => storage.get(STORAGE_KEYS.AUTHENTICATED, false),
-  setAuthenticated: (value: boolean) => storage.set(STORAGE_KEYS.AUTHENTICATED, value),
+  setSupabaseUserId: (userId: string) => storage.set(STORAGE_KEYS.SUPABASE_USER_ID, userId),
   clearAuth: () => {
-    storage.remove(STORAGE_KEYS.AUTHENTICATED);
-    storage.remove(STORAGE_KEYS.PIN);
     storage.remove(STORAGE_KEYS.SUPABASE_USER_ID);
-  },
-  clearAuthSession: () => {
-    // Only clear authentication flag, keep PIN for quick re-login
-    storage.remove(STORAGE_KEYS.AUTHENTICATED);
   },
 };
 
-// Clear user data on logout (keep PIN for quick re-login)
+// Clear user data on logout
 export const clearUserDataOnLogout = () => {
   storage.remove(STORAGE_KEYS.TASKS);
   storage.remove(STORAGE_KEYS.NOTES);
   storage.remove(STORAGE_KEYS.SCHEDULE);
   storage.remove(STORAGE_KEYS.PROFILE);
-  // Keep settings (theme, etc.) as they're user preferences, not user data
-  // Keep PIN for quick re-login
-  authStorage.clearAuthSession();
+  // Keep settings as they're user preferences, not user data
+  authStorage.clearAuth();
   // Also clear session ID to force new session generation
   storage.remove('zentry_session_id');
 };
 
-// Clear ALL data including PIN (called on account deletion)
+// Clear ALL data (called on account deletion)
 export const clearAllUserData = () => {
   storage.remove(STORAGE_KEYS.TASKS);
   storage.remove(STORAGE_KEYS.NOTES);
   storage.remove(STORAGE_KEYS.SCHEDULE);
   storage.remove(STORAGE_KEYS.PROFILE);
-  // Remove everything including PIN on account deletion
   authStorage.clearAuth();
   storage.remove('zentry_session_id');
 };

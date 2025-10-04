@@ -152,23 +152,6 @@ export const supabaseAuth = {
     return data;
   },
 
-  // Sign in with PIN (quick login)
-  signInWithPin: async (pin: string) => {
-    // Check if PIN matches local storage
-    const storedPin = authStorage.getPin();
-    if (storedPin === pin) {
-      // PIN is correct, check if user has a Supabase session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        return { success: true, session };
-      } else {
-        // PIN-only mode (legacy)
-        return { success: true, session: null, pinOnly: true };
-      }
-    }
-    throw new Error('Invalid PIN');
-  },
-
   // Sign out
   signOut: async () => {
     const { error } = await supabase.auth.signOut();
@@ -204,21 +187,7 @@ export const supabaseAuth = {
     if (error) throw error;
   },
 
-  // Link PIN to authenticated account
-  linkPinToAccount: async (pin: string) => {
-    const user = await supabaseAuth.getCurrentUser();
-    if (!user) throw new Error('Must be logged in to link PIN');
-    
-    // Store PIN locally
-    authStorage.setPin(pin);
-    
-    // Store PIN association in user metadata
-    const { error } = await supabase.auth.updateUser({
-      data: { has_pin: true }
-    });
-    
-    if (error) throw error;
-  },
+
 
   // Check if user has email account
   hasEmailAccount: async (): Promise<boolean> => {
@@ -228,28 +197,20 @@ export const supabaseAuth = {
 
   // Get user ID (for database queries)
   getUserId: async (): Promise<string> => {
-    // Try to get Supabase user first
+    // Get Supabase user
     const user = await supabaseAuth.getCurrentUser();
     if (user) {
       return user.id;
     }
-    
-    // Fall back to PIN-based ID for legacy users
-    const pin = authStorage.getPin();
-    if (!pin) return 'anonymous';
-    return 'user_' + btoa(pin).slice(0, 16);
+    return 'anonymous';
   },
 
   // Delete account (permanently removes user and all data)
   deleteAccount: async () => {
     const user = await supabaseAuth.getCurrentUser();
     
-    // Handle case where user has PIN but no Supabase account
     if (!user) {
-      // Just clear local storage for PIN-only users
-      localStorage.clear();
-      authStorage.clearAuth();
-      return;
+      throw new Error('No authenticated user found');
     }
 
     const userId = user.id;

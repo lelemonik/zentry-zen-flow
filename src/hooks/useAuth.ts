@@ -5,7 +5,6 @@ import { supabaseAuth, onAuthStateChange } from '@/lib/supabaseAuth';
 export const useAuth = () => {
   // Start with false - will be set properly after checkAuth completes
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [hasPin, setHasPin] = useState(!!authStorage.getPin());
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -19,11 +18,8 @@ export const useAuth = () => {
         setIsAuthenticated(true);
         setUser(session.user);
       } else {
-        // Check PIN-only auth
-        const authenticated = authStorage.isAuthenticated();
-        const pin = authStorage.getPin();
-        // Only set authenticated if both flag AND PIN exist
-        setIsAuthenticated(authenticated && !!pin);
+        setIsAuthenticated(false);
+        setUser(null);
       }
     });
 
@@ -40,56 +36,16 @@ export const useAuth = () => {
       if (session) {
         setIsAuthenticated(true);
         setUser(session.user);
-        setHasPin(!!authStorage.getPin());
-        setIsLoading(false);
-        return;
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
       }
     } catch (error) {
-      // If Supabase fails (connection issue), fall back to PIN/local auth
-      console.warn('Supabase connection issue, using local auth:', error);
+      console.warn('Supabase connection issue:', error);
+      setIsAuthenticated(false);
+      setUser(null);
     }
-    
-    // Fall back to PIN-only authentication
-    // Only set authenticated if BOTH flag AND PIN exist
-    const authenticated = authStorage.isAuthenticated();
-    const pin = authStorage.getPin();
-    setIsAuthenticated(authenticated && !!pin);
-    setHasPin(!!pin);
     setIsLoading(false);
-  };
-
-  const setupPin = async (pin: string) => {
-    // Get current Supabase user ID to link with PIN
-    const currentUser = await supabaseAuth.getCurrentUser();
-    const supabaseUserId = currentUser?.id;
-    
-    // Store PIN and link it to Supabase user ID for data isolation
-    authStorage.setPin(pin, supabaseUserId);
-    authStorage.setAuthenticated(true);
-    setHasPin(true);
-    setIsAuthenticated(true);
-  };
-
-  const verifyPin = async (pin: string): Promise<boolean> => {
-    const storedPin = authStorage.getPin();
-    if (storedPin === pin) {
-      authStorage.setAuthenticated(true);
-      setIsAuthenticated(true);
-      
-      // Try to restore Supabase session if possible
-      try {
-        const session = await supabaseAuth.getSession();
-        if (session) {
-          setUser(session.user);
-        }
-      } catch (error) {
-        // Supabase connection failed, but PIN auth still works
-        console.warn('Could not restore Supabase session, using PIN-only auth:', error);
-      }
-      
-      return true;
-    }
-    return false;
   };
 
   const logout = async () => {
@@ -98,12 +54,10 @@ export const useAuth = () => {
     } catch (error) {
       console.error('Logout error:', error);
     }
-    // Clear user data but keep PIN for quick re-login
+    // Clear user data on logout
     clearUserDataOnLogout();
     setIsAuthenticated(false);
     setUser(null);
-    // PIN is still available after logout for quick re-login
-    setHasPin(!!authStorage.getPin());
   };
 
   const deleteAccount = async () => {
@@ -113,7 +67,6 @@ export const useAuth = () => {
       clearAllUserData();
       setIsAuthenticated(false);
       setUser(null);
-      setHasPin(false);
     } catch (error) {
       console.error('Delete account error:', error);
       throw error;
@@ -122,11 +75,8 @@ export const useAuth = () => {
 
   return {
     isAuthenticated,
-    hasPin,
     user,
     isLoading,
-    setupPin,
-    verifyPin,
     logout,
     deleteAccount,
     checkAuth,
