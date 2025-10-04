@@ -115,11 +115,6 @@ const Auth = () => {
     try {
       await supabaseAuth.signUp(username, password);
       
-      toast({
-        title: 'Account created!',
-        description: `Welcome, ${username}! Redirecting to dashboard...`,
-      });
-      
       // Navigate directly to dashboard
       navigate('/dashboard');
     } catch (error: any) {
@@ -145,10 +140,6 @@ const Auth = () => {
     try {
       await supabaseAuth.signIn(username, password);
       
-      toast({
-        title: 'Welcome back!',
-        description: `Logged in as ${username}`,
-      });
       navigate('/dashboard');
     } catch (error: any) {
       const isFetchError = error.message?.includes('fetch') || error.message?.includes('network');
