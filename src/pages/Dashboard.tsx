@@ -1,140 +1,128 @@
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckSquare, FileText, Calendar, MessageSquare, TrendingUp } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TrendingUp, Smile, Meh, Frown, Angry, Laugh } from 'lucide-react';
 import AppLayout from '@/components/Layout/AppLayout';
-import { taskStorage, noteStorage, scheduleStorage } from '@/lib/storage';
+import { taskStorage, profileStorage } from '@/lib/storage';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     tasks: 0,
     completedTasks: 0,
-    notes: 0,
-    events: 0,
   });
+  const [userName, setUserName] = useState('');
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   useEffect(() => {
     const tasks = taskStorage.getAll();
-    const notes = noteStorage.getAll();
-    const events = scheduleStorage.getAll();
 
     setStats({
       tasks: tasks.length,
       completedTasks: tasks.filter(t => t.completed).length,
-      notes: notes.length,
-      events: events.length,
     });
-  }, []);
 
-  const quickActions = [
-    {
-      icon: <CheckSquare className="w-8 h-8" />,
-      title: 'Tasks',
-      description: `${stats.tasks} total, ${stats.completedTasks} completed`,
-      path: '/tasks',
-      gradient: 'from-purple-500 to-pink-500',
-    },
-    {
-      icon: <FileText className="w-8 h-8" />,
-      title: 'Notes',
-      description: `${stats.notes} notes`,
-      path: '/notes',
-      gradient: 'from-blue-500 to-cyan-500',
-    },
-    {
-      icon: <Calendar className="w-8 h-8" />,
-      title: 'Schedule',
-      description: `${stats.events} events`,
-      path: '/schedule',
-      gradient: 'from-green-500 to-emerald-500',
-    },
-    {
-      icon: <MessageSquare className="w-8 h-8" />,
-      title: 'AI Assistant',
-      description: 'Chat with AI',
-      path: '/chat',
-      gradient: 'from-orange-500 to-red-500',
-    },
+    // Get user's name from profile or Supabase user metadata
+    const profile = profileStorage.get();
+    if (profile?.name) {
+      setUserName(profile.name);
+    } else if (user?.user_metadata?.username) {
+      setUserName(user.user_metadata.username);
+    } else if (user?.email) {
+      setUserName(user.email.split('@')[0]);
+    } else {
+      setUserName('there');
+    }
+  }, [user]);
+
+  const moods = [
+    { icon: <Laugh className="w-6 h-6" />, label: 'Amazing', value: 'amazing', color: 'text-green-500' },
+    { icon: <Smile className="w-6 h-6" />, label: 'Good', value: 'good', color: 'text-blue-500' },
+    { icon: <Meh className="w-6 h-6" />, label: 'Okay', value: 'okay', color: 'text-yellow-500' },
+    { icon: <Frown className="w-6 h-6" />, label: 'Not Great', value: 'bad', color: 'text-orange-500' },
+    { icon: <Angry className="w-6 h-6" />, label: 'Awful', value: 'awful', color: 'text-red-500' },
   ];
+
+  const handleMoodSelect = (value: string) => {
+    setSelectedMood(value);
+  };
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8 animate-fade-in">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Welcome Message */}
+        <div className="animate-fade-in">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Welcome back!
+            Welcome back, {userName}!
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Your productivity dashboard
-          </p>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {quickActions.map((action, index) => (
-            <Card
-              key={index}
-              className="glass cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 animate-scale-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-              onClick={() => navigate(action.path)}
-            >
-              <CardHeader className="pb-3">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center text-white mb-2`}>
-                  {action.icon}
-                </div>
-                <CardTitle className="text-lg">{action.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>{action.description}</CardDescription>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Progress Section */}
+        {/* Progress Bar */}
         <Card className="glass animate-slide-up">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <TrendingUp className="w-5 h-5" />
               Your Progress
             </CardTitle>
-            <CardDescription>Keep up the great work!</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Task Completion</span>
-                  <span className="text-sm text-muted-foreground">
-                    {stats.tasks > 0 ? Math.round((stats.completedTasks / stats.tasks) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500"
-                    style={{
-                      width: `${stats.tasks > 0 ? (stats.completedTasks / stats.tasks) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">Task Completion</span>
+                <span className="text-muted-foreground">
+                  {stats.completedTasks} / {stats.tasks} completed
+                </span>
               </div>
-
-              <div className="grid grid-cols-3 gap-4 pt-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{stats.tasks}</div>
-                  <div className="text-xs text-muted-foreground">Total Tasks</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-secondary">{stats.notes}</div>
-                  <div className="text-xs text-muted-foreground">Notes</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-accent">{stats.events}</div>
-                  <div className="text-xs text-muted-foreground">Events</div>
-                </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <div
+                  className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${stats.tasks > 0 ? (stats.completedTasks / stats.tasks) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+              <div className="text-center">
+                <span className="text-2xl font-bold text-primary">
+                  {stats.tasks > 0 ? Math.round((stats.completedTasks / stats.tasks) * 100) : 0}%
+                </span>
+                <p className="text-xs text-muted-foreground mt-1">Overall completion rate</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Mood Tracker */}
+        <Card className="glass animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <CardHeader>
+            <CardTitle className="text-lg">How are you feeling today?</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-around gap-2">
+              {moods.map((mood) => (
+                <Button
+                  key={mood.value}
+                  variant={selectedMood === mood.value ? 'default' : 'outline'}
+                  size="lg"
+                  className={`flex flex-col items-center gap-2 h-auto py-4 px-3 transition-all hover:scale-110 ${
+                    selectedMood === mood.value 
+                      ? 'shadow-lg ring-2 ring-primary' 
+                      : 'glass'
+                  }`}
+                  onClick={() => handleMoodSelect(mood.value)}
+                >
+                  <div className={selectedMood === mood.value ? 'text-primary-foreground' : mood.color}>
+                    {mood.icon}
+                  </div>
+                  <span className="text-xs font-medium">{mood.label}</span>
+                </Button>
+              ))}
+            </div>
+            {selectedMood && (
+              <p className="text-center text-sm text-muted-foreground mt-4 animate-fade-in">
+                Thanks for sharing! We hope your day gets even better! ✨
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
