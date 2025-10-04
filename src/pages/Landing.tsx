@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Brain, Lock, Zap, Calendar, StickyNote, Download, Smartphone } from 'lucide-react';
+import { CheckCircle2, Calendar, StickyNote, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
 const Landing = () => {
@@ -10,8 +9,6 @@ const Landing = () => {
   const { toast } = useToast();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
-
-  // No redirect here - let App.tsx RootRedirect handle it
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -21,15 +18,15 @@ const Landing = () => {
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
       toast({
-        title: 'Already Installed',
-        description: 'The app is already installed or not installable on this device.',
+        title: 'Install Zentry',
+        description: 'Use your browser menu to install this app on your device.',
+        duration: 3000,
       });
       return;
     }
@@ -49,103 +46,82 @@ const Landing = () => {
   };
 
   const features = [
-    { icon: <CheckCircle2 className="w-6 h-6" />, title: 'Task Management', desc: 'Organize with priorities & progress tracking' },
-    { icon: <StickyNote className="w-6 h-6" />, title: 'Smart Notes', desc: 'Auto-save with rich formatting' },
-    { icon: <Calendar className="w-6 h-6" />, title: 'Visual Schedule', desc: 'Time-block your day effortlessly' },
-    { icon: <Brain className="w-6 h-6" />, title: 'AI Assistant', desc: 'ChatGPT integration for instant help' },
-    { icon: <Lock className="w-6 h-6" />, title: 'Privacy First', desc: 'All data stored locally' },
-    { icon: <Zap className="w-6 h-6" />, title: 'Lightning Fast', desc: 'Works offline, syncs instantly' },
+    { icon: <CheckCircle2 className="w-5 h-5" />, title: 'Tasks' },
+    { icon: <StickyNote className="w-5 h-5" />, title: 'Notes' },
+    { icon: <Calendar className="w-5 h-5" />, title: 'Schedule' },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 overflow-hidden">
-      <div className="w-full max-w-6xl mx-auto">
-        {/* Hero Section */}
-        <div className="text-center mb-12 md:mb-16 animate-fade-in">
-          <div className="inline-block mb-4 md:mb-6">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/50">
-              <span className="text-3xl md:text-4xl font-bold text-white">Z</span>
-            </div>
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="w-full py-6 px-4">
+        <div className="container mx-auto flex items-center justify-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+            <span className="text-xl font-bold text-white">Z</span>
           </div>
-          
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-slide-up leading-tight">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Zentry
           </h1>
-          
-          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto animate-slide-up px-4">
-            Your personal productivity suite with tasks, notes, scheduling, and AI assistance - all in one beautiful app
-          </p>
+        </div>
+      </header>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">
+      {/* Main Content - Centered */}
+      <main className="flex-1 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md text-center space-y-8">
+          {/* Main CTA Buttons */}
+          <div className="space-y-4">
             <Button 
               size="lg" 
-              className="text-lg px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 w-full sm:w-auto"
+              className="w-full text-lg py-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
               onClick={() => navigate('/auth')}
             >
               Get Started
             </Button>
+            
             {isInstallable && (
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6 rounded-2xl glass border-2 w-full sm:w-auto"
+                className="w-full text-lg py-6 rounded-xl glass border-2"
                 onClick={handleInstallClick}
               >
                 <Download className="w-5 h-5 mr-2" />
                 Install App
               </Button>
             )}
-            {!isInstallable && (
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-lg px-8 py-6 rounded-2xl glass border-2 w-full sm:w-auto"
-                onClick={() => {
-                  toast({
-                    title: 'Install Zentry',
-                    description: 'Use your browser menu to install this app on your device, or visit on Chrome/Edge for auto-install.',
-                    duration: 5000,
-                  });
-                }}
-              >
-                <Smartphone className="w-5 h-5 mr-2" />
-                Available as PWA
-              </Button>
-            )}
           </div>
-        </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="glass rounded-2xl md:rounded-3xl p-5 md:p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 animate-scale-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-3 md:mb-4 text-white">
-                {feature.icon}
-              </div>
-              <h3 className="text-lg md:text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-sm md:text-base text-muted-foreground">{feature.desc}</p>
+          {/* Features */}
+          <div className="pt-4">
+            <p className="text-sm text-muted-foreground mb-4">Includes</p>
+            <div className="flex justify-center gap-6">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-primary">
+                    {feature.icon}
+                  </div>
+                  <span className="text-xs font-medium">{feature.title}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {/* App Preview */}
-        <div className="glass rounded-2xl md:rounded-3xl p-6 md:p-8 text-center animate-fade-in">
-          <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Beautiful, Fast, Private</h2>
-          <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6 max-w-2xl mx-auto px-2">
-            Zentry combines powerful productivity tools with a stunning glassmorphic interface. 
-            Everything is stored locally on your device, with optional cloud backup.
-          </p>
-          <div className="flex flex-wrap justify-center gap-2 md:gap-4 text-xs md:text-sm">
-            <span className="px-3 md:px-4 py-1.5 md:py-2 bg-primary/10 rounded-full text-primary font-medium">Offline First</span>
-            <span className="px-3 md:px-4 py-1.5 md:py-2 bg-secondary/10 rounded-full text-secondary font-medium">PWA Ready</span>
-            <span className="px-3 md:px-4 py-1.5 md:py-2 bg-accent/10 rounded-full text-accent font-medium">Zero Setup</span>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full py-6 px-4 border-t">
+        <div className="container mx-auto text-center space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Developed with ❤️ by <span className="font-semibold text-foreground">Gayle</span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            © 2025 Zentry. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
