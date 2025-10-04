@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { User, Settings as SettingsIcon, Download, Upload, Palette, Cloud, Trash2, AlertTriangle, Camera, X } from 'lucide-react';
+import { User, Settings as SettingsIcon, Download, Upload, Cloud, Trash2, AlertTriangle, Camera, X } from 'lucide-react';
 import { settingsStorage, profileStorage, createBackup, restoreBackup, UserProfile, AppSettings } from '@/lib/storage';
 import { supabaseProfileStorage, supabaseSettingsStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -41,49 +41,10 @@ const Settings = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Apply color scheme by updating CSS variables
-    applyColorScheme(settings.colorScheme);
-    
     // Load profile and settings from Supabase on mount
     loadProfile();
     loadSettings();
-  }, [settings.colorScheme]);
-
-  const applyColorScheme = (scheme: string) => {
-    const root = document.documentElement;
-    
-    // Remove all color scheme classes
-    root.classList.remove('color-purple', 'color-blue', 'color-green', 'color-pink');
-    
-    // Add the selected color scheme class
-    root.classList.add(`color-${scheme}`);
-    
-    // Define color schemes (HSL values for CSS variables)
-    const schemes = {
-      purple: {
-        primary: '262 83% 58%', // Purple
-        secondary: '330 81% 60%', // Pink
-      },
-      blue: {
-        primary: '199 89% 48%', // Blue
-        secondary: '189 85% 51%', // Cyan
-      },
-      green: {
-        primary: '142 76% 36%', // Green
-        secondary: '158 64% 52%', // Emerald
-      },
-      pink: {
-        primary: '330 81% 60%', // Pink
-        secondary: '346 77% 50%', // Rose
-      },
-    };
-
-    const colors = schemes[scheme as keyof typeof schemes];
-    if (colors) {
-      root.style.setProperty('--primary', colors.primary);
-      root.style.setProperty('--secondary', colors.secondary);
-    }
-  };
+  }, []);
 
   const loadProfile = async () => {
     try {
@@ -260,13 +221,6 @@ const Settings = () => {
     }
   };
 
-  const colorSchemes = [
-    { name: 'Purple', value: 'purple', colors: 'from-purple-500 to-pink-500' },
-    { name: 'Blue', value: 'blue', colors: 'from-blue-500 to-cyan-500' },
-    { name: 'Green', value: 'green', colors: 'from-green-500 to-emerald-500' },
-    { name: 'Pink', value: 'pink', colors: 'from-pink-500 to-rose-500' },
-  ];
-
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
@@ -282,10 +236,6 @@ const Settings = () => {
             <TabsTrigger value="profile" className="gap-2">
               <User className="w-4 h-4" />
               Profile
-            </TabsTrigger>
-            <TabsTrigger value="appearance" className="gap-2">
-              <Palette className="w-4 h-4" />
-              Appearance
             </TabsTrigger>
             <TabsTrigger value="preferences" className="gap-2">
               <SettingsIcon className="w-4 h-4" />
@@ -305,14 +255,14 @@ const Settings = () => {
                   <div className="relative group">
                     <Avatar className="w-32 h-32 border-4 border-primary/20">
                       <AvatarImage src={profile.avatar} />
-                      <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-secondary text-white">
+                      <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-secondary text-primary-foreground">
                         {profile.name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     {profile.avatar && (
                       <button
                         onClick={handleRemoveAvatar}
-                        className="absolute -top-2 -right-2 w-8 h-8 bg-destructive text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"
+                        className="absolute -top-2 -right-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"
                         title="Remove photo"
                       >
                         <X className="w-4 h-4" />
@@ -399,45 +349,6 @@ const Settings = () => {
                   <Cloud className="w-4 h-4 mr-2" />
                   Save to Cloud
                 </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Appearance Tab */}
-          <TabsContent value="appearance" className="space-y-6">
-            <Card className="glass">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="w-5 h-5" />
-                  Color Scheme
-                </CardTitle>
-                <CardDescription>Choose your preferred color palette for the app</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  {colorSchemes.map((scheme) => (
-                    <button
-                      key={scheme.value}
-                      onClick={() => handleSettingsChange({ colorScheme: scheme.value as any })}
-                      className={`group relative p-4 rounded-xl border-2 transition-all hover:scale-105 ${
-                        settings.colorScheme === scheme.value
-                          ? 'border-primary shadow-lg ring-2 ring-primary/20'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <div className={`h-12 rounded-lg bg-gradient-to-r ${scheme.colors} mb-3 shadow-md`} />
-                      <p className="font-medium">{scheme.name}</p>
-                      {settings.colorScheme === scheme.value && (
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold">
-                          ✓
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground mt-4">
-                  Current: <span className="font-semibold text-primary capitalize">{settings.colorScheme}</span>
-                </p>
               </CardContent>
             </Card>
           </TabsContent>
