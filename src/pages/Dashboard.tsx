@@ -45,11 +45,11 @@ const Dashboard = () => {
   }, [user]);
 
   const moods = [
-    { icon: <Laugh className="w-6 h-6" />, label: 'Amazing', value: 'amazing', color: 'text-green-500' },
-    { icon: <Smile className="w-6 h-6" />, label: 'Good', value: 'good', color: 'text-blue-500' },
-    { icon: <Meh className="w-6 h-6" />, label: 'Okay', value: 'okay', color: 'text-yellow-500' },
-    { icon: <Frown className="w-6 h-6" />, label: 'Not Great', value: 'bad', color: 'text-orange-500' },
-    { icon: <Angry className="w-6 h-6" />, label: 'Awful', value: 'awful', color: 'text-red-500' },
+    { icon: <Laugh className="w-6 h-6" />, label: 'Amazing', value: 'amazing', color: 'text-primary' },
+    { icon: <Smile className="w-6 h-6" />, label: 'Good', value: 'good', color: 'text-secondary' },
+    { icon: <Meh className="w-6 h-6" />, label: 'Okay', value: 'okay', color: 'text-muted-foreground' },
+    { icon: <Frown className="w-6 h-6" />, label: 'Not Great', value: 'bad', color: 'text-accent' },
+    { icon: <Angry className="w-6 h-6" />, label: 'Awful', value: 'awful', color: 'text-destructive' },
   ];
 
   const handleMoodSelect = (value: string) => {
