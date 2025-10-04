@@ -9,11 +9,12 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { User, Settings as SettingsIcon, Download, Upload, Cloud, Trash2, AlertTriangle, Camera, X } from 'lucide-react';
+import { User, Settings as SettingsIcon, Download, Upload, Cloud, Trash2, AlertTriangle, Camera, X, Bell } from 'lucide-react';
 import { settingsStorage, profileStorage, createBackup, restoreBackup, UserProfile, AppSettings } from '@/lib/storage';
 import { supabaseProfileStorage, supabaseSettingsStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { notificationManager } from '@/lib/notifications';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,10 +71,28 @@ const Settings = () => {
     }
   };
 
-  const handleSettingsChange = (updates: Partial<AppSettings>) => {
+  const handleSettingsChange = async (updates: Partial<AppSettings>) => {
     const newSettings = { ...settings, ...updates };
     setSettings(newSettings);
     settingsStorage.set(newSettings);
+    
+    // Handle notification permission if notifications are being enabled
+    if (updates.notifications === true) {
+      const granted = await notificationManager.requestPermission();
+      if (!granted) {
+        // Revert the setting if permission denied
+        const revertedSettings = { ...newSettings, notifications: false };
+        setSettings(revertedSettings);
+        settingsStorage.set(revertedSettings);
+        toast({
+          title: 'Permission Denied',
+          description: 'Please enable notifications in your browser settings',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+    
     // Auto-save to cloud immediately for settings
     saveSettingsToCloud(newSettings);
   };
@@ -361,15 +380,34 @@ const Settings = () => {
                 <CardDescription>Configure how Zentry works for you</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
-                  <div>
-                    <p className="font-medium">Notifications</p>
-                    <p className="text-sm text-muted-foreground">Receive push notifications for tasks and events</p>
+                <div className="p-3 rounded-lg hover:bg-accent/50 transition-colors space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Notifications</p>
+                      <p className="text-sm text-muted-foreground">Receive push notifications for tasks and events</p>
+                    </div>
+                    <Switch
+                      checked={settings.notifications}
+                      onCheckedChange={(checked) => handleSettingsChange({ notifications: checked })}
+                    />
                   </div>
-                  <Switch
-                    checked={settings.notifications}
-                    onCheckedChange={(checked) => handleSettingsChange({ notifications: checked })}
-                  />
+                  {settings.notifications && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full gap-2"
+                      onClick={async () => {
+                        await notificationManager.testNotification();
+                        toast({
+                          title: 'Test sent',
+                          description: 'Check if you received the notification',
+                        });
+                      }}
+                    >
+                      <Bell className="w-4 h-4" />
+                      Test Notification
+                    </Button>
+                  )}
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
                   <div>

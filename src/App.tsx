@@ -14,6 +14,7 @@ import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
+import { notificationManager } from "@/lib/notifications";
 
 const queryClient = new QueryClient();
 
@@ -45,12 +46,24 @@ const RootRedirect = () => {
 
 const App = () => {
   useEffect(() => {
-    // Temporarily disable service worker to fix network issues
+    // Register service worker for notifications and offline support
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        registrations.forEach(registration => registration.unregister());
-      });
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('Service Worker registered:', registration);
+        })
+        .catch(error => {
+          console.error('Service Worker registration failed:', error);
+        });
     }
+
+    // Initialize notification system
+    notificationManager.startMonitoring();
+
+    // Cleanup on unmount
+    return () => {
+      notificationManager.stopMonitoring();
+    };
   }, []);
 
   return (

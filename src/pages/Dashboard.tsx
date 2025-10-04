@@ -1,11 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, Smile, Meh, Frown, Angry, Laugh } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { TrendingUp, Smile, Meh, Frown, Angry, Laugh, MessageSquare, Lightbulb, Send } from 'lucide-react';
 import AppLayout from '@/components/Layout/AppLayout';
 import { taskStorage, profileStorage, moodStorage } from '@/lib/storage';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -16,6 +18,9 @@ const Dashboard = () => {
   });
   const [userName, setUserName] = useState('');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [featureText, setFeatureText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const tasks = taskStorage.getAll();
@@ -46,7 +51,7 @@ const Dashboard = () => {
 
   const moods = [
     { icon: <Laugh className="w-6 h-6" />, label: 'Amazing', value: 'amazing', color: 'text-primary' },
-    { icon: <Smile className="w-6 h-6" />, label: 'Good', value: 'good', color: 'text-secondary' },
+    { icon: <Smile className="w-6 h-6" />, label: 'Good', value: 'good', color: 'text-primary' },
     { icon: <Meh className="w-6 h-6" />, label: 'Okay', value: 'okay', color: 'text-muted-foreground' },
     { icon: <Frown className="w-6 h-6" />, label: 'Not Great', value: 'bad', color: 'text-accent' },
     { icon: <Angry className="w-6 h-6" />, label: 'Awful', value: 'awful', color: 'text-destructive' },
@@ -58,12 +63,41 @@ const Dashboard = () => {
     moodStorage.setTodayMood(value);
     
     // Show feedback toast
-    const moodLabel = moods.find(m => m.value === value)?.label || 'your mood';
     toast({
       title: 'Mood saved!',
-      description: `We've recorded that you're feeling ${moodLabel} today.`,
       duration: 2000,
     });
+  };
+
+  const handleSubmitFeedback = async (type: 'feedback' | 'feature') => {
+    const text = type === 'feedback' ? feedbackText : featureText;
+    
+    if (!text.trim()) {
+      toast({
+        title: 'Empty submission',
+        description: 'Please enter your ' + type + ' before submitting',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Simulate submission (you can replace this with actual API call)
+    setTimeout(() => {
+      toast({
+        title: 'Thank you!',
+        description: `Your ${type === 'feedback' ? 'feedback' : 'feature request'} has been submitted. We appreciate your input!`,
+      });
+      
+      if (type === 'feedback') {
+        setFeedbackText('');
+      } else {
+        setFeatureText('');
+      }
+      
+      setIsSubmitting(false);
+    }, 1000);
   };
 
   return (
@@ -138,9 +172,70 @@ const Dashboard = () => {
             </div>
             {selectedMood && (
               <p className="text-center text-sm text-muted-foreground mt-4 animate-fade-in">
-                Thanks for sharing! We hope your day gets even better! ✨
+                We hope your day gets even better! 
               </p>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Feedback & Feature Request Section */}
+        <Card className="glass animate-slide-up" style={{ animationDelay: '200ms' }}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <MessageSquare className="w-5 h-5" />
+              Share Your Thoughts
+            </CardTitle>
+            <CardDescription>
+              Help us improve Zentry by sharing feedback or requesting new features
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="feedback" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="feedback" className="gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Feedback
+                </TabsTrigger>
+                <TabsTrigger value="feature" className="gap-2">
+                  <Lightbulb className="w-4 h-4" />
+                  Feature Request
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="feedback" className="space-y-4 mt-4">
+                <Textarea
+                  placeholder="Tell us what you think about Zentry... What's working well? What could be better?"
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  className="min-h-[120px] resize-none"
+                />
+                <Button
+                  onClick={() => handleSubmitFeedback('feedback')}
+                  disabled={isSubmitting || !feedbackText.trim()}
+                  className="w-full gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  {isSubmitting ? 'Sending...' : 'Submit Feedback'}
+                </Button>
+              </TabsContent>
+              
+              <TabsContent value="feature" className="space-y-4 mt-4">
+                <Textarea
+                  placeholder="Describe a feature you'd love to see in Zentry... Be as detailed as you like!"
+                  value={featureText}
+                  onChange={(e) => setFeatureText(e.target.value)}
+                  className="min-h-[120px] resize-none"
+                />
+                <Button
+                  onClick={() => handleSubmitFeedback('feature')}
+                  disabled={isSubmitting || !featureText.trim()}
+                  className="w-full gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  {isSubmitting ? 'Sending...' : 'Submit Request'}
+                </Button>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>

@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CheckSquare, FileText, Calendar, Settings, LogOut, MessageSquare, LayoutDashboard } from 'lucide-react';
@@ -23,6 +23,27 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const { logout } = useAuth();
   const { toast } = useToast();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  // Update date every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Format date for display
+  const formatDate = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = { 
+      weekday: 'short', 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    return date.toLocaleDateString('en-US', options);
+  };
 
   // Navigation items for Tasks, Notes, Schedule only
   const navItems = [
@@ -76,11 +97,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                 <SheetHeader>
                   <SheetTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    Zentry Menu
+                    Menu
                   </SheetTitle>
-                  <SheetDescription>
-                    Navigate to different sections of the app
-                  </SheetDescription>
                 </SheetHeader>
                 <div className="mt-8 space-y-2">
                   {drawerItems.map((item) => (
@@ -113,46 +131,61 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </Sheet>
 
             {/* Desktop Navigation - Tasks, Notes, Schedule only */}
-            <nav className="hidden md:flex items-center gap-2">
-              {navItems.map((item) => (
-                <Button
-                  key={item.path}
-                  variant={isActive(item.path) ? 'default' : 'ghost'}
-                  size="sm"
-                  className={isActive(item.path) ? 'bg-gradient-to-r from-primary to-secondary' : ''}
-                  onClick={() => navigate(item.path)}
+            <div className="flex items-center gap-4">
+              {/* Date Display */}
+              <div className="text-sm font-medium text-foreground/70">
+                {formatDate(currentDate)}
+              </div>
+              
+              <nav className="hidden md:flex items-center gap-2">
+                {navItems.map((item) => (
+                  <Button
+                    key={item.path}
+                    variant={isActive(item.path) ? 'default' : 'ghost'}
+                    size="sm"
+                    className={isActive(item.path) ? 'bg-gradient-to-r from-primary to-secondary' : ''}
+                    onClick={() => navigate(item.path)}
+                  >
+                    {item.icon}
+                    <span className="ml-2 hidden lg:inline">{item.label}</span>
+                  </Button>
+                ))}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-destructive hover:bg-destructive/10 border-destructive/20 ml-2" 
+                  onClick={handleLogout}
                 >
-                  {item.icon}
-                  <span className="ml-2 hidden lg:inline">{item.label}</span>
+                  <LogOut className="w-5 h-5" />
+                  <span className="ml-2 hidden lg:inline">Logout</span>
                 </Button>
-              ))}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-destructive hover:bg-destructive/10 border-destructive/20 ml-2" 
-                onClick={handleLogout}
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="ml-2 hidden lg:inline">Logout</span>
-              </Button>
-            </nav>
+              </nav>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Mobile Navigation - Below Header - Tasks, Notes, Schedule only */}
-      <nav className="md:hidden sticky top-16 z-40 glass border-b backdrop-blur-lg mt-4">
-        <div className="grid grid-cols-3 gap-1 p-2">
+      <nav className="md:hidden sticky top-16 z-40 glass backdrop-blur-lg shadow-lg mx-4 mt-2 rounded-2xl">
+        <div className="grid grid-cols-3 gap-2 p-3">
           {navItems.map((item) => (
             <Button
               key={item.path}
               variant={isActive(item.path) ? 'default' : 'ghost'}
               size="sm"
-              className={`flex flex-col h-14 ${isActive(item.path) ? 'bg-gradient-to-r from-primary to-secondary' : ''}`}
+              className={`flex flex-col h-16 gap-1.5 rounded-2xl transition-all duration-300 ${
+                isActive(item.path) 
+                  ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-md scale-105' 
+                  : 'hover:bg-accent/50 hover:scale-105'
+              }`}
               onClick={() => navigate(item.path)}
             >
-              {item.icon}
-              <span className="text-xs mt-1">{item.label}</span>
+              <span className={`transition-transform duration-300 ${isActive(item.path) ? 'scale-110' : ''}`}>
+                {item.icon}
+              </span>
+              <span className={`text-xs font-semibold ${isActive(item.path) ? 'text-white' : 'text-foreground'}`}>
+                {item.label}
+              </span>
             </Button>
           ))}
         </div>
