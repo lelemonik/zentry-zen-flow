@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Trash2, Edit, ChevronLeft, ChevronRight, Cloud, CloudOff } from 'lucide-react';
 import { ScheduleEvent, scheduleStorage } from '@/lib/storage';
 import { supabaseScheduleStorage } from '@/lib/supabaseStorage';
@@ -243,6 +243,9 @@ const Schedule = () => {
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>{editingEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+                <DialogDescription>
+                  {editingEvent ? 'Update your event details below.' : 'Schedule a new event with date, time, and details.'}
+                </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Trash2, Edit, Search, Cloud, CloudOff } from 'lucide-react';
 import { Note, noteStorage } from '@/lib/storage';
 import { supabaseNoteStorage } from '@/lib/supabaseStorage';
@@ -212,6 +212,9 @@ const Notes = () => {
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>{editingNote ? 'Edit Note' : 'Create New Note'}</DialogTitle>
+                <DialogDescription>
+                  {editingNote ? 'Update your note details below.' : 'Create a new note with title, content, and tags.'}
+                </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
