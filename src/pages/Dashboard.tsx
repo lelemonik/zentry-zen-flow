@@ -138,13 +138,13 @@ const Dashboard = () => {
             <CardTitle className="text-lg">How are you feeling today?</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-around gap-2">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:justify-around">
               {moods.map((mood) => (
                 <Button
                   key={mood.value}
                   variant={selectedMood === mood.value ? 'default' : 'outline'}
                   size="lg"
-                  className={`flex flex-col items-center gap-2 h-auto py-4 px-3 transition-all hover:scale-110 ${
+                  className={`flex flex-col items-center gap-1 sm:gap-2 h-auto py-3 px-2 sm:py-4 sm:px-3 min-w-[60px] sm:min-w-[70px] transition-all hover:scale-110 ${
                     selectedMood === mood.value 
                       ? 'shadow-lg ring-2 ring-primary' 
                       : 'glass'
@@ -154,7 +154,7 @@ const Dashboard = () => {
                   <div className={selectedMood === mood.value ? 'text-primary-foreground' : mood.color}>
                     {mood.icon}
                   </div>
-                  <span className="text-xs font-medium">{mood.label}</span>
+                  <span className="text-[10px] sm:text-xs font-medium text-center leading-tight">{mood.label}</span>
                 </Button>
               ))}
             </div>
