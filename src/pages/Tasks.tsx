@@ -417,7 +417,7 @@ const Tasks = () => {
                       <Checkbox
                         checked={task.completed}
                         onCheckedChange={() => handleToggleComplete(task)}
-                        className="mt-1 h-5 w-5 flex-shrink-0"
+                        className="mt-1 h-4 w-4 flex-shrink-0"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
