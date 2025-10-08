@@ -69,11 +69,11 @@ const Dashboard = () => {
   }, [user]);
 
   const moods = [
-    { icon: <Laugh className="w-6 h-6" />, label: 'Amazing', value: 'amazing', color: 'text-primary' },
-    { icon: <Smile className="w-6 h-6" />, label: 'Good', value: 'good', color: 'text-primary' },
-    { icon: <Meh className="w-6 h-6" />, label: 'Okay', value: 'okay', color: 'text-muted-foreground' },
-    { icon: <Frown className="w-6 h-6" />, label: 'Not Great', value: 'bad', color: 'text-accent' },
-    { icon: <Angry className="w-6 h-6" />, label: 'Awful', value: 'awful', color: 'text-destructive' },
+    { icon: <Laugh className="w-full h-full" />, label: 'Amazing', value: 'amazing', color: 'text-primary' },
+    { icon: <Smile className="w-full h-full" />, label: 'Good', value: 'good', color: 'text-primary' },
+    { icon: <Meh className="w-full h-full" />, label: 'Okay', value: 'okay', color: 'text-muted-foreground' },
+    { icon: <Frown className="w-full h-full" />, label: 'Not Great', value: 'bad', color: 'text-accent' },
+    { icon: <Angry className="w-full h-full" />, label: 'Awful', value: 'awful', color: 'text-destructive' },
   ];
 
   const handleMoodSelect = (value: string) => {
@@ -135,26 +135,25 @@ const Dashboard = () => {
         {/* Mood Tracker */}
         <Card className="glass animate-slide-up" style={{ animationDelay: '100ms' }}>
           <CardHeader>
-            <CardTitle className="text-lg">How are you feeling today?</CardTitle>
+            <CardTitle className="text-base sm:text-lg">How are you feeling today?</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-around gap-2">
+            <div className="flex justify-center sm:justify-around gap-1 sm:gap-2 flex-wrap">
               {moods.map((mood) => (
                 <Button
                   key={mood.value}
                   variant={selectedMood === mood.value ? 'default' : 'outline'}
-                  size="lg"
-                  className={`flex flex-col items-center gap-2 h-auto py-4 px-3 transition-all hover:scale-110 ${
+                  className={`flex flex-col items-center gap-1 sm:gap-2 h-auto py-2 sm:py-3 md:py-4 px-2 sm:px-3 transition-all hover:scale-105 sm:hover:scale-110 min-w-[58px] sm:min-w-[70px] ${
                     selectedMood === mood.value 
                       ? 'shadow-lg ring-2 ring-primary' 
                       : 'glass'
                   }`}
                   onClick={() => handleMoodSelect(mood.value)}
                 >
-                  <div className={selectedMood === mood.value ? 'text-primary-foreground' : mood.color}>
+                  <div className={`w-5 h-5 sm:w-6 sm:h-6 ${selectedMood === mood.value ? 'text-primary-foreground' : mood.color}`}>
                     {mood.icon}
                   </div>
-                  <span className="text-xs font-medium">{mood.label}</span>
+                  <span className="text-[10px] sm:text-xs font-medium">{mood.label}</span>
                 </Button>
               ))}
             </div>
