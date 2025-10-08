@@ -7,7 +7,6 @@ export interface Task {
   completed: boolean;
   priority: 'low' | 'medium' | 'high';
   category: string;
-  progress: number;
   dueDate?: string;
   createdAt: string;
   updatedAt: string;

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, Edit, ChevronLeft, ChevronRight, Cloud, CloudOff } from 'lucide-react';
 import { ScheduleEvent, scheduleStorage } from '@/lib/storage';
 import { supabaseScheduleStorage } from '@/lib/supabaseStorage';
@@ -66,10 +67,10 @@ const Schedule = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim() || !formData.date || !formData.startTime) {
+    if (!formData.title.trim() || !formData.date) {
       toast({
         title: 'Error',
-        description: 'Please fill in all required fields',
+        description: 'Please fill in title and date',
         variant: 'destructive',
       });
       return;
@@ -248,31 +249,44 @@ const Schedule = () => {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Event Title *</label>
                   <Input
-                    placeholder="Event title"
+                    placeholder="e.g., Team Meeting"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Description</label>
                   <Textarea
-                    placeholder="Description (optional)"
+                    placeholder="Add details about this event (optional)"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Date *</label>
+                  <Input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    required
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm text-muted-foreground">Start Time</label>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Start Time (Optional)</label>
                     <Input
                       type="time"
                       value={formData.startTime}
                       onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                     />
                   </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground">End Time</label>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">End Time (Optional)</label>
                     <Input
                       type="time"
                       value={formData.endTime}
@@ -280,29 +294,36 @@ const Schedule = () => {
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="text-sm text-muted-foreground">Date</label>
-                  <Input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  />
-                </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm text-muted-foreground">Color</label>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Category</label>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value: string) => setFormData({ ...formData, category: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Meeting">💼 Meeting</SelectItem>
+                        <SelectItem value="Appointment">📅 Appointment</SelectItem>
+                        <SelectItem value="Deadline">⏰ Deadline</SelectItem>
+                        <SelectItem value="Birthday">🎂 Birthday</SelectItem>
+                        <SelectItem value="Holiday">🌴 Holiday</SelectItem>
+                        <SelectItem value="Reminder">🔔 Reminder</SelectItem>
+                        <SelectItem value="Personal">🏠 Personal</SelectItem>
+                        <SelectItem value="Work">💼 Work</SelectItem>
+                        <SelectItem value="School">📌 School</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Color</label>
                     <Input
                       type="color"
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground">Category</label>
-                    <Input
-                      placeholder="Work, Personal, etc."
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="h-10"
                     />
                   </div>
                 </div>
@@ -357,7 +378,7 @@ const Schedule = () => {
                 return (
                   <div
                     key={index}
-                    className={`min-h-[100px] p-2 rounded-lg border transition-colors ${
+                    className={`min-h-[70px] p-1.5 rounded-md border transition-colors ${
                       date
                         ? isToday(date)
                           ? 'bg-primary/10 border-primary'
@@ -367,20 +388,26 @@ const Schedule = () => {
                   >
                     {date && (
                       <>
-                        <div className={`text-sm font-medium mb-1 ${isToday(date) ? 'text-primary' : ''}`}>
+                        <div className={`text-xs font-medium mb-0.5 ${isToday(date) ? 'text-primary' : ''}`}>
                           {date.getDate()}
                         </div>
-                        <div className="space-y-1">
-                          {dayEvents.map(event => (
+                        <div className="space-y-0.5">
+                          {dayEvents.slice(0, 2).map(event => (
                             <div
                               key={event.id}
-                              className="text-xs p-1 rounded cursor-pointer hover:opacity-80 transition-opacity"
+                              className="text-[10px] px-1 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity truncate"
                               style={{ backgroundColor: event.color + '40', color: event.color }}
                               onClick={() => handleEdit(event)}
+                              title={event.title}
                             >
                               {event.title}
                             </div>
                           ))}
+                          {dayEvents.length > 2 && (
+                            <div className="text-[9px] text-muted-foreground text-center">
+                              +{dayEvents.length - 2} more
+                            </div>
+                          )}
                         </div>
                       </>
                     )}
@@ -397,33 +424,35 @@ const Schedule = () => {
               <CardTitle>Upcoming Events</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {events
                   .sort((a, b) => new Date(a.date + ' ' + a.startTime).getTime() - new Date(b.date + ' ' + b.startTime).getTime())
                   .slice(0, 5)
                   .map(event => (
                     <div
                       key={event.id}
-                      className="flex items-center justify-between p-3 rounded-lg border bg-card/50"
+                      className="flex items-center justify-between p-2 rounded-md border bg-card/50"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <div
-                          className="w-3 h-3 rounded-full"
+                          className="w-2.5 h-2.5 rounded-full"
                           style={{ backgroundColor: event.color }}
                         />
                         <div>
-                          <div className="font-medium">{event.title}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {new Date(event.date).toLocaleDateString()} at {event.startTime}
+                          <div className="font-medium text-sm">{event.title}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(event.date).toLocaleDateString()}
+                            {event.startTime && ` at ${event.startTime}`}
+                            {event.endTime && ` - ${event.endTime}`}
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => handleEdit(event)}>
-                          <Edit className="w-4 h-4" />
+                      <div className="flex gap-0.5">
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleEdit(event)}>
+                          <Edit className="w-3.5 h-3.5" />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => handleDelete(event.id)}>
-                          <Trash2 className="w-4 h-4" />
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleDelete(event.id)}>
+                          <Trash2 className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     </div>

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { TrendingUp, Smile, Meh, Frown, Angry, Laugh, MessageSquare, Lightbulb, Send } from 'lucide-react';
+import { Smile, Meh, Frown, Angry, Laugh, MessageSquare, Lightbulb, Send } from 'lucide-react';
 import AppLayout from '@/components/Layout/AppLayout';
 import { taskStorage, profileStorage, moodStorage } from '@/lib/storage';
 import { useEffect, useState } from 'react';
@@ -23,30 +23,49 @@ const Dashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const tasks = taskStorage.getAll();
+    const loadData = async () => {
+      const tasks = taskStorage.getAll();
 
-    setStats({
-      tasks: tasks.length,
-      completedTasks: tasks.filter(t => t.completed).length,
-    });
+      setStats({
+        tasks: tasks.length,
+        completedTasks: tasks.filter(t => t.completed).length,
+      });
 
-    // Get user's name from profile or Supabase user metadata
-    const profile = profileStorage.get();
-    if (profile?.name) {
-      setUserName(profile.name);
-    } else if (user?.user_metadata?.username) {
-      setUserName(user.user_metadata.username);
-    } else if (user?.email) {
-      setUserName(user.email.split('@')[0]);
-    } else {
-      setUserName('there');
-    }
+      // Get user's name from profile or Supabase user metadata
+      let profile = profileStorage.get();
+      
+      // If no local profile or empty name, try loading from Supabase
+      if (!profile?.name) {
+        try {
+          const { supabaseProfileStorage } = await import('@/lib/supabaseStorage');
+          const supabaseProfile = await supabaseProfileStorage.get();
+          if (supabaseProfile?.name) {
+            profile = supabaseProfile;
+            profileStorage.set(supabaseProfile);
+          }
+        } catch (error) {
+          console.error('Error loading profile from Supabase:', error);
+        }
+      }
 
-    // Load today's mood from storage
-    const todayMood = moodStorage.getTodayMood();
-    if (todayMood) {
-      setSelectedMood(todayMood);
-    }
+      if (profile?.name) {
+        setUserName(profile.name);
+      } else if (user?.user_metadata?.username) {
+        setUserName(user.user_metadata.username);
+      } else if (user?.email) {
+        setUserName(user.email.split('@')[0]);
+      } else {
+        setUserName('there');
+      }
+
+      // Load today's mood from storage
+      const todayMood = moodStorage.getTodayMood();
+      if (todayMood) {
+        setSelectedMood(todayMood);
+      }
+    };
+
+    loadData();
   }, [user]);
 
   const moods = [
@@ -108,41 +127,10 @@ const Dashboard = () => {
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Welcome back, {userName}!
           </h1>
+          <p className="text-muted-foreground">
+            You have {stats.tasks} {stats.tasks === 1 ? 'task' : 'tasks'} {stats.completedTasks > 0 && `(${stats.completedTasks} completed)`}
+          </p>
         </div>
-
-        {/* Progress Bar */}
-        <Card className="glass animate-slide-up">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <TrendingUp className="w-5 h-5" />
-              Your Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium">Task Completion</span>
-                <span className="text-muted-foreground">
-                  {stats.completedTasks} / {stats.tasks} completed
-                </span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <div
-                  className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all duration-500"
-                  style={{
-                    width: `${stats.tasks > 0 ? (stats.completedTasks / stats.tasks) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-              <div className="text-center">
-                <span className="text-2xl font-bold text-primary">
-                  {stats.tasks > 0 ? Math.round((stats.completedTasks / stats.tasks) * 100) : 0}%
-                </span>
-                <p className="text-xs text-muted-foreground mt-1">Overall completion rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Mood Tracker */}
         <Card className="glass animate-slide-up" style={{ animationDelay: '100ms' }}>

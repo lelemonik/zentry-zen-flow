@@ -6,10 +6,10 @@ A beautiful, privacy-first PWA built with React, TypeScript, and Tailwind CSS fe
 
 ### 📋 Task Management
 - Create, edit, and organize tasks with priorities (low, medium, high)
-- Custom categories and progress tracking
-- Mini progress bars for each task
+- Custom categories and organization
 - Due dates and completion tracking
 - Visual priority indicators with gradient colors
+- Simple checkbox completion system
 
 ### 📝 Notes
 - Rich text notes with auto-save
@@ -111,8 +111,8 @@ npm run preview
 ### Managing Tasks
 - Click "New Task" to create a task
 - Set priority, category, and due date
-- Track progress with the mini progress bar
 - Check off tasks when complete
+- Edit or delete tasks as needed
 
 ### Taking Notes
 - Create notes with titles and rich content
