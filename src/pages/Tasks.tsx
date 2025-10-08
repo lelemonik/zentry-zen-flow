@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, Edit, Cloud, CloudOff, Clock, Calendar, Tag, Search, Bell } from 'lucide-react';
+import { Plus, Trash2, Edit, Cloud, CloudOff, Clock, Calendar, Tag, Bell } from 'lucide-react';
 import { Task, taskStorage } from '@/lib/storage';
 import { supabaseTaskStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -194,12 +194,9 @@ const Tasks = () => {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header with Search and Notification */}
+        {/* Header */}
         <div className="flex justify-between items-center animate-fade-in">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Search className="w-5 h-5" />
-            </Button>
             <h2 className="text-lg font-semibold text-muted-foreground">Your task tracking</h2>
           </div>
           <div className="flex items-center gap-2">

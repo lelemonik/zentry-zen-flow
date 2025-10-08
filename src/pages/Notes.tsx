@@ -5,14 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Edit, Search, Cloud, CloudOff } from 'lucide-react';
+import { Plus, Trash2, Edit, Cloud, CloudOff } from 'lucide-react';
 import { Note, noteStorage } from '@/lib/storage';
 import { supabaseNoteStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
 
 const Notes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -167,12 +166,6 @@ const Notes = () => {
     loadNotes();
   };
 
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto">
@@ -259,29 +252,17 @@ const Notes = () => {
           </Dialog>
         </div>
 
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input
-              placeholder="Search notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredNotes.length === 0 ? (
+          {notes.length === 0 ? (
             <Card className="glass md:col-span-2 lg:col-span-3">
               <CardContent className="py-12 text-center">
                 <p className="text-muted-foreground">
-                  {searchQuery ? 'No notes found matching your search.' : 'No notes yet. Create your first note to get started!'}
+                  No notes yet. Create your first note to get started!
                 </p>
               </CardContent>
             </Card>
           ) : (
-            filteredNotes.map((note, index) => (
+            notes.map((note, index) => (
               <Card
                 key={note.id}
                 className="glass hover:shadow-lg transition-all animate-scale-in"

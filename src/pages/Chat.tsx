@@ -104,7 +104,7 @@ const Chat = () => {
           }
         );
       } else {
-        // Call OpenAI ChatGPT API
+        // Call OpenAI API
         response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -176,7 +176,7 @@ const Chat = () => {
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error('ChatGPT API Error:', error);
+      console.error(`${aiName} API Error:`, error);
       
       // Determine error message based on error type
       let errorMessage = '';
@@ -184,10 +184,18 @@ const Chat = () => {
       
       if (error instanceof Error) {
         if (error.message === 'RATE_LIMIT') {
-          errorMessage = `⏱️ **Rate Limit Reached**\n\nYou've sent too many requests too quickly. OpenAI has rate limits:\n\n**Free Tier:**\n• 3 requests per minute\n• 200 requests per day\n\n**What to do:**\n1. Wait 60 seconds before trying again\n2. Or upgrade your OpenAI account for higher limits\n3. Check your usage at: platform.openai.com/usage\n\nPlease try again in a minute!`;
+          if (aiProvider === 'gemini') {
+            errorMessage = `⏱️ **Rate Limit Reached**\n\nYou've sent too many requests too quickly. Gemini API has rate limits:\n\n**Free Tier:**\n• 15 requests per minute\n• 1500 requests per day\n\n**What to do:**\n1. Wait 60 seconds before trying again\n2. Or upgrade your Google Cloud account for higher limits\n3. Check your usage at: console.cloud.google.com/\n\nPlease try again in a minute!`;
+          } else {
+            errorMessage = `⏱️ **Rate Limit Reached**\n\nYou've sent too many requests too quickly. OpenAI has rate limits:\n\n**Free Tier:**\n• 3 requests per minute\n• 200 requests per day\n\n**What to do:**\n1. Wait 60 seconds before trying again\n2. Or upgrade your OpenAI account for higher limits\n3. Check your usage at: platform.openai.com/usage\n\nPlease try again in a minute!`;
+          }
           toastTitle = 'Rate Limit Exceeded';
         } else if (error.message === 'INVALID_KEY') {
-          errorMessage = `🔑 **Invalid API Key**\n\nYour OpenAI API key appears to be invalid or expired.\n\n**Steps to fix:**\n1. Go to platform.openai.com/api-keys\n2. Generate a new API key\n3. Update your .env.local file\n4. Restart the dev server\n\nContact support if the issue persists.`;
+          if (aiProvider === 'gemini') {
+            errorMessage = `🔑 **Invalid API Key**\n\nYour Gemini API key appears to be invalid or expired.\n\n**Steps to fix:**\n1. Go to aistudio.google.com/app/apikey\n2. Generate a new API key\n3. Update your .env.local file with VITE_GEMINI_API_KEY\n4. Restart the dev server\n\nContact support if the issue persists.`;
+          } else {
+            errorMessage = `🔑 **Invalid API Key**\n\nYour OpenAI API key appears to be invalid or expired.\n\n**Steps to fix:**\n1. Go to platform.openai.com/api-keys\n2. Generate a new API key\n3. Update your .env.local file\n4. Restart the dev server\n\nContact support if the issue persists.`;
+          }
           toastTitle = 'Invalid API Key';
         } else if (error.message === 'QUOTA_EXCEEDED') {
           errorMessage = `💳 **Quota Exceeded**\n\nYou've used up your ${aiProvider === 'gemini' ? 'Gemini' : 'OpenAI'} credits or quota.\n\n**Solutions:**\n1. Check your usage in the API dashboard\n2. Wait for your quota to reset\n3. Upgrade to a paid plan for more usage`;
@@ -216,7 +224,7 @@ const Chat = () => {
         title: toastTitle,
         description: error instanceof Error && error.message === 'RATE_LIMIT' 
           ? 'Please wait 60 seconds before trying again' 
-          : 'Unable to connect to ChatGPT. Check the chat for details.',
+          : `Unable to connect to ${aiName}. Check the chat for details.`,
         variant: 'destructive',
       });
     } finally {
