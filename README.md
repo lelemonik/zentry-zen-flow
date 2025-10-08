@@ -172,7 +172,7 @@ Zentry uses a custom design system with:
 
 ## 🤝 Contributing
 
-This is a personal project built with Lovable. Feel free to fork and customize!
+This is an open-source personal productivity project. Feel free to fork and customize!
 
 ## 📄 License
 
@@ -180,10 +180,10 @@ MIT License - feel free to use this project for personal or commercial purposes.
 
 ## 🙏 Acknowledgments
 
-- Built with [Lovable](https://lovable.dev)
 - UI components from [Shadcn/ui](https://ui.shadcn.com)
 - Icons from [Lucide](https://lucide.dev)
+- Built with React, TypeScript, and Vite
 
 ---
 
-**Made with ❤️ using Lovable**
+**Made with ❤️ for productivity**
