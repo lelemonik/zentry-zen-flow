@@ -1,8 +1,9 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets/|favicon.ico|icon-.*\\.png|manifest.json|robots.txt|sw.js|placeholder.svg).*)",
-      "destination": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html",
+      "check": true
     }
   ],
   "headers": [
