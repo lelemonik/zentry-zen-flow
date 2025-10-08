@@ -7,13 +7,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, Edit, Cloud, CloudOff } from 'lucide-react';
+import { Plus, Trash2, Edit, Cloud, CloudOff, Clock, Calendar, Tag, Search, Bell } from 'lucide-react';
 import { Task, taskStorage } from '@/lib/storage';
 import { supabaseTaskStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
+import { WeekSelector } from '@/components/WeekSelector';
+import { StatisticsCard } from '@/components/StatisticsCard';
+import { calculateTaskStats, filterTasksByDate, getPriorityColor, formatDate } from '@/lib/taskUtils';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +31,11 @@ const Tasks = () => {
     dueDate: '',
   });
   const { toast } = useToast();
+
+  // Calculate statistics
+  const stats = calculateTaskStats(tasks);
+  // Filter tasks by selected date (or show all if no date selected)
+  const displayTasks = tasks; // Can be changed to filterTasksByDate(tasks, selectedDate) if you want filtering
 
   useEffect(() => {
     loadTasks();
@@ -176,15 +185,6 @@ const Tasks = () => {
     loadTasks();
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'from-red-500 to-orange-500';
-      case 'medium': return 'from-yellow-500 to-amber-500';
-      case 'low': return 'from-green-500 to-emerald-500';
-      default: return 'from-gray-500 to-slate-500';
-    }
-  };
-
   const handleTaskClick = (task: Task) => {
     if (task.description) {
       setViewingTask(task);
@@ -193,29 +193,50 @@ const Tasks = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6 animate-fade-in">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Tasks
-            </h1>
-            <div className="flex items-center gap-3 mt-1">
-              <p className="text-muted-foreground">{tasks.length} total tasks</p>
-              <div className="flex items-center gap-1 text-xs">
-                {isOnline ? (
-                  <>
-                    <Cloud className="w-3 h-3 text-green-500" />
-                    <span className="text-green-500">Cloud synced</span>
-                  </>
-                ) : (
-                  <>
-                    <CloudOff className="w-3 h-3 text-amber-500" />
-                    <span className="text-amber-500">Offline mode</span>
-                  </>
-                )}
-              </div>
-            </div>
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header with Search and Notification */}
+        <div className="flex justify-between items-center animate-fade-in">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Search className="w-5 h-5" />
+            </Button>
+            <h2 className="text-lg font-semibold text-muted-foreground">Your task tracking</h2>
           </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 text-xs mr-2">
+              {isOnline ? (
+                <>
+                  <Cloud className="w-3 h-3 text-green-500" />
+                  <span className="text-green-500">Synced</span>
+                </>
+              ) : (
+                <>
+                  <CloudOff className="w-3 h-3 text-amber-500" />
+                  <span className="text-amber-500">Offline</span>
+                </>
+              )}
+            </div>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Bell className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Week Selector */}
+        <Card className="glass p-4 animate-slide-up" style={{ animationDelay: '50ms' }}>
+          <WeekSelector selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+        </Card>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <StatisticsCard label="All task" count={stats.total} percentage={100} />
+          <StatisticsCard label="Done" count={stats.completed} percentage={stats.completionPercentage} />
+          <StatisticsCard label="In process" count={stats.inProgress} percentage={stats.inProgressPercentage} />
+        </div>
+
+        {/* Tasks Section Header */}
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-bold">Tasks</h3>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
@@ -390,8 +411,8 @@ const Tasks = () => {
           </DialogContent>
         </Dialog>
 
-        <div className="grid gap-4">
-          {tasks.length === 0 ? (
+        <div className="grid gap-3 sm:gap-4">
+          {displayTasks.length === 0 ? (
             <Card className="glass">
               <CardContent className="py-16 text-center space-y-4">
                 <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
@@ -399,70 +420,77 @@ const Tasks = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-2">No tasks yet</h3>
-                  <p className="text-muted-foreground">Click the "New Task" button above to create your first task!</p>
+                  <p className="text-muted-foreground">Click the "+" button to create your first task!</p>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            tasks.map((task, index) => (
+            displayTasks.map((task, index) => (
               <Card
                 key={task.id}
-                className="glass hover:shadow-lg hover:scale-[1.02] transition-all animate-scale-in cursor-pointer"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className={`glass hover:shadow-lg transition-all animate-scale-in cursor-pointer relative overflow-hidden ${getPriorityColor(task.priority)}`}
+                style={{ animationDelay: `${index * 50 + 150}ms` }}
                 onClick={() => handleTaskClick(task)}
               >
-                <CardContent className="pt-6 pb-4">
-                  <div className="flex items-start gap-4">
-                    <div onClick={(e) => e.stopPropagation()}>
+                <CardContent className="py-4 px-4 sm:py-5 sm:px-5">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    {/* Checkbox */}
+                    <div onClick={(e) => e.stopPropagation()} className="pt-1">
                       <Checkbox
                         checked={task.completed}
                         onCheckedChange={() => handleToggleComplete(task)}
-                        className="mt-1 h-5 w-5 flex-shrink-0"
+                        className="h-5 w-5 rounded-full flex-shrink-0"
                       />
                     </div>
+
+                    {/* Task Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className={`text-lg font-semibold ${task.completed ? 'line-through opacity-60' : ''}`}>
-                            {task.title}
-                          </h3>
-                          <div className="flex flex-wrap gap-2 mt-1">
-                            {task.completed && (
-                              <span className="text-xs text-green-600 dark:text-green-400 font-medium">✓ Completed</span>
-                            )}
-                            {task.description && (
-                              <span className="text-xs text-muted-foreground/60">Tap to view details</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDelete(task.id)}
-                            title="Delete task"
-                            className="h-8 w-8 p-0"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getPriorityColor(task.priority)} text-white capitalize`}>
-                          {task.priority}
-                        </span>
-                        {task.category && (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted">
-                            {task.category}
-                          </span>
+                      {/* Title and Description */}
+                      <div className="mb-2">
+                        <h3 className={`text-base sm:text-lg font-semibold mb-1 ${task.completed ? 'line-through opacity-60' : ''}`}>
+                          {task.title}
+                        </h3>
+                        {task.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {task.description}
+                          </p>
                         )}
+                      </div>
+
+                      {/* Info Row with Icons */}
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                         {task.dueDate && (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted">
-                            📅 {new Date(task.dueDate).toLocaleDateString()}
-                          </span>
+                          <>
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <span>18:00</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>{formatDate(task.dueDate)}</span>
+                            </div>
+                          </>
+                        )}
+                        {task.category && (
+                          <div className="flex items-center gap-1">
+                            <Tag className="w-3 h-3" />
+                            <span className="lowercase">{task.category}</span>
+                          </div>
                         )}
                       </div>
+                    </div>
+
+                    {/* Delete Button */}
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(task.id)}
+                        title="Delete task"
+                        className="h-8 w-8 p-0 rounded-full"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
