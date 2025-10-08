@@ -191,21 +191,21 @@ const Schedule = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center animate-fade-in">
-          <h2 className="text-2xl font-bold">Calendar</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Calendar</h2>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-xs">
               {isOnline ? (
                 <>
                   <Cloud className="w-3 h-3 text-green-500" />
-                  <span className="text-green-500">Synced</span>
+                  <span className="text-green-500 hidden sm:inline">Synced</span>
                 </>
               ) : (
                 <>
                   <CloudOff className="w-3 h-3 text-amber-500" />
-                  <span className="text-amber-500">Offline</span>
+                  <span className="text-amber-500 hidden sm:inline">Offline</span>
                 </>
               )}
             </div>
@@ -214,9 +214,10 @@ const Schedule = () => {
               if (!open) resetForm();
             }}>
               <DialogTrigger asChild>
-                <Button size="sm" className="gap-2">
+                <Button size="sm" className="gap-1.5 sm:gap-2">
                   <Plus className="w-4 h-4" />
-                  New Event
+                  <span className="hidden sm:inline">New Event</span>
+                  <span className="sm:hidden">New</span>
                 </Button>
               </DialogTrigger>
             </Dialog>
@@ -224,7 +225,7 @@ const Schedule = () => {
         </div>
 
         {/* Calendar Grid */}
-        <Card className="glass p-4 sm:p-6 animate-slide-up" style={{ animationDelay: '50ms' }}>
+        <Card className="glass p-3 sm:p-4 md:p-6 animate-slide-up" style={{ animationDelay: '50ms' }}>
           <CalendarGrid
             currentDate={currentDate}
             selectedDates={selectedDates}

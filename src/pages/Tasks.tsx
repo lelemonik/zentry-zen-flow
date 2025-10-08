@@ -225,7 +225,7 @@ const Tasks = () => {
         </Card>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
           <StatisticsCard label="All task" count={stats.total} percentage={100} />
           <StatisticsCard label="Done" count={stats.completed} percentage={stats.completionPercentage} />
           <StatisticsCard label="In process" count={stats.inProgress} percentage={stats.inProgressPercentage} />
@@ -233,16 +233,17 @@ const Tasks = () => {
 
         {/* Tasks Section Header */}
         <div className="flex justify-between items-center">
-          <h3 className="text-xl font-bold">Tasks</h3>
+          <h3 className="text-lg sm:text-xl font-bold">Tasks</h3>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button size="lg" className="gap-2">
-                <Plus className="w-5 h-5" />
-                New Task
+              <Button size="default" className="gap-2">
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">New Task</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
@@ -429,49 +430,49 @@ const Tasks = () => {
                 style={{ animationDelay: `${index * 50 + 150}ms` }}
                 onClick={() => handleTaskClick(task)}
               >
-                <CardContent className="py-4 px-4 sm:py-5 sm:px-5">
-                  <div className="flex items-start gap-3 sm:gap-4">
+                <CardContent className="py-3 px-3 sm:py-4 sm:px-4 md:py-5 md:px-5">
+                  <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
                     {/* Checkbox */}
-                    <div onClick={(e) => e.stopPropagation()} className="pt-1">
+                    <div onClick={(e) => e.stopPropagation()} className="pt-0.5 sm:pt-1">
                       <Checkbox
                         checked={task.completed}
                         onCheckedChange={() => handleToggleComplete(task)}
-                        className="h-5 w-5 rounded-full flex-shrink-0"
+                        className="h-4 w-4 sm:h-5 sm:w-5 rounded-full flex-shrink-0"
                       />
                     </div>
 
                     {/* Task Content */}
                     <div className="flex-1 min-w-0">
                       {/* Title and Description */}
-                      <div className="mb-2">
-                        <h3 className={`text-base sm:text-lg font-semibold mb-1 ${task.completed ? 'line-through opacity-60' : ''}`}>
+                      <div className="mb-1.5 sm:mb-2">
+                        <h3 className={`text-sm sm:text-base md:text-lg font-semibold mb-0.5 sm:mb-1 ${task.completed ? 'line-through opacity-60' : ''}`}>
                           {task.title}
                         </h3>
                         {task.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                             {task.description}
                           </p>
                         )}
                       </div>
 
                       {/* Info Row with Icons */}
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                         {task.dueDate && (
                           <>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5 sm:gap-1">
                               <Clock className="w-3 h-3" />
                               <span>18:00</span>
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5 sm:gap-1">
                               <Calendar className="w-3 h-3" />
                               <span>{formatDate(task.dueDate)}</span>
                             </div>
                           </>
                         )}
                         {task.category && (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-0.5 sm:gap-1">
                             <Tag className="w-3 h-3" />
-                            <span className="lowercase">{task.category}</span>
+                            <span className="lowercase truncate max-w-[80px] sm:max-w-none">{task.category}</span>
                           </div>
                         )}
                       </div>
@@ -484,9 +485,9 @@ const Tasks = () => {
                         variant="ghost"
                         onClick={() => handleDelete(task.id)}
                         title="Delete task"
-                        className="h-8 w-8 p-0 rounded-full"
+                        className="h-7 w-7 sm:h-8 sm:w-8 p-0 rounded-full"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </div>

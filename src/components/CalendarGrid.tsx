@@ -84,7 +84,7 @@ export function CalendarGrid({
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Month Navigation */}
       <div className="flex items-center justify-between">
         <Button
@@ -96,8 +96,8 @@ export function CalendarGrid({
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        <h3 className="text-lg font-semibold">
-          {monthNames[currentDate.getMonth()]}
+        <h3 className="text-base sm:text-lg font-semibold">
+          {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </h3>
         
         <Button
@@ -113,7 +113,7 @@ export function CalendarGrid({
       {/* Day Names */}
       <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {dayNames.map(day => (
-          <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
+          <div key={day} className="text-center text-[10px] sm:text-xs font-medium text-muted-foreground py-1 sm:py-2">
             {day}
           </div>
         ))}
@@ -135,14 +135,14 @@ export function CalendarGrid({
               key={index}
               onClick={() => onDateSelect(day)}
               className={`
-                aspect-square rounded-full flex items-center justify-center text-sm font-medium
+                aspect-square rounded-full flex items-center justify-center text-xs sm:text-sm font-medium
                 transition-all duration-200
                 ${selected 
-                  ? 'bg-primary text-primary-foreground scale-110 shadow-lg' 
+                  ? 'bg-primary text-primary-foreground scale-105 sm:scale-110 shadow-lg' 
                   : inRange
                   ? 'bg-primary/20 text-primary'
                   : today
-                  ? 'bg-primary/10 text-primary font-bold'
+                  ? 'bg-primary/10 text-primary font-bold ring-2 ring-primary/30'
                   : 'hover:bg-muted text-foreground'
                 }
               `}
