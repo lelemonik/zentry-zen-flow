@@ -1,12 +1,4 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/((?!assets|favicon\\.ico|manifest\\.json|sw\\.js|robots\\.txt|.*\\.(png|jpg|jpeg|gif|svg|ico|json|js|css|woff|woff2|ttf|eot)).*)",
-      "destination": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/sw.js",
