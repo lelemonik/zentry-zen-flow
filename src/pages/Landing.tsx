@@ -1,48 +1,89 @@
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Calendar, StickyNote, Smartphone, Monitor, Chrome, Apple } from 'lucide-react';
+import { CheckCircle2, Calendar, StickyNote, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
 
-  const installInstructions = [
-    {
-      icon: <Chrome className="w-6 h-6" />,
-      platform: 'Chrome / Edge (Desktop)',
-      steps: [
-        'Click the ⋮ or ⋯ menu (top right)',
-        'Select "Install Zentry" or "Apps"',
-        'Click "Install"'
-      ]
-    },
-    {
-      icon: <Smartphone className="w-6 h-6" />,
-      platform: 'Chrome / Edge (Mobile)',
-      steps: [
-        'Tap the ⋮ menu',
-        'Tap "Add to Home screen"',
-        'Tap "Install" or "Add"'
-      ]
-    },
-    {
-      icon: <Apple className="w-6 h-6" />,
-      platform: 'Safari (iOS)',
-      steps: [
-        'Tap the Share button (⎙)',
-        'Scroll down',
-        'Tap "Add to Home Screen"'
-      ]
-    },
-    {
-      icon: <Monitor className="w-6 h-6" />,
-      platform: 'Other Browsers',
-      steps: [
-        'Look for install icon in address bar',
-        'Or check browser menu',
-        'Select "Install" or "Add to Home screen"'
-      ]
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      // Check if already installed
+      if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true) {
+        toast({
+          title: 'Already Installed',
+          description: 'Zentry is already installed on your device!',
+          duration: 3000,
+        });
+        return;
+      }
+
+      // Show browser-specific instructions
+      const userAgent = navigator.userAgent.toLowerCase();
+      let instructions = 'Use your browser menu to install this app.';
+      
+      if (userAgent.includes('chrome') && !userAgent.includes('edg')) {
+        instructions = 'Click the ⋮ menu (top right) → "Install Zentry" or "Add to Home screen"';
+      } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+        instructions = 'Tap the Share button → "Add to Home Screen"';
+      } else if (userAgent.includes('firefox')) {
+        instructions = 'Tap the ⋮ menu → "Install" or "Add to Home Screen"';
+      } else if (userAgent.includes('edg')) {
+        instructions = 'Click the ⋯ menu → "Apps" → "Install Zentry"';
+      }
+
+      toast({
+        title: 'Install Zentry',
+        description: instructions,
+        duration: 5000,
+      });
+      return;
     }
-  ];
+
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+
+      if (outcome === 'accepted') {
+        toast({
+          title: 'App Installed!',
+          description: '🎉 Zentry has been installed successfully!',
+        });
+      } else {
+        toast({
+          title: 'Installation Cancelled',
+          description: 'You can install Zentry anytime from your browser menu.',
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Installation error:', error);
+      toast({
+        title: 'Installation Error',
+        description: 'Please try installing from your browser menu.',
+        variant: 'destructive',
+        duration: 3000,
+      });
+    }
+
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
 
   const features = [
     { 
@@ -79,8 +120,8 @@ const Landing = () => {
       {/* Main Content - Centered */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-md text-center space-y-8">
-          {/* Main CTA Button */}
-          <div>
+          {/* Main CTA Buttons */}
+          <div className="space-y-4">
             <Button 
               size="lg" 
               className="w-full text-lg py-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
@@ -88,37 +129,16 @@ const Landing = () => {
             >
               Get Started
             </Button>
-          </div>
-
-          {/* Installation Instructions */}
-          <div className="pt-8">
-            <h2 className="text-lg font-semibold mb-6 flex items-center justify-center gap-2">
-              <Smartphone className="w-5 h-5" />
-              Install as App
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {installInstructions.map((instruction, index) => (
-                <div
-                  key={index}
-                  className="p-4 rounded-xl bg-gradient-to-br from-primary/5 to-secondary/5 border border-border/50 hover:from-primary/10 hover:to-secondary/10 transition-all"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-primary">
-                      {instruction.icon}
-                    </div>
-                    <h3 className="text-sm font-semibold text-left">{instruction.platform}</h3>
-                  </div>
-                  <ol className="text-left space-y-2">
-                    {instruction.steps.map((step, stepIndex) => (
-                      <li key={stepIndex} className="text-xs text-muted-foreground flex items-start gap-2">
-                        <span className="text-primary font-semibold min-w-[16px]">{stepIndex + 1}.</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              ))}
-            </div>
+            
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="w-full text-lg py-6 rounded-xl glass border-2 hover:scale-105 transition-all"
+              onClick={handleInstallClick}
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Install App
+            </Button>
           </div>
 
           {/* Features */}
