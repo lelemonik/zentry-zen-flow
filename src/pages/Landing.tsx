@@ -23,21 +23,61 @@ const Landing = () => {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
+      // Check if already installed
+      if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true) {
+        toast({
+          title: 'Already Installed',
+          description: 'Zentry is already installed on your device!',
+          duration: 3000,
+        });
+        return;
+      }
+
+      // Show browser-specific instructions
+      const userAgent = navigator.userAgent.toLowerCase();
+      let instructions = 'Use your browser menu to install this app.';
+      
+      if (userAgent.includes('chrome') && !userAgent.includes('edg')) {
+        instructions = 'Click the ⋮ menu (top right) → "Install Zentry" or "Add to Home screen"';
+      } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+        instructions = 'Tap the Share button → "Add to Home Screen"';
+      } else if (userAgent.includes('firefox')) {
+        instructions = 'Tap the ⋮ menu → "Install" or "Add to Home Screen"';
+      } else if (userAgent.includes('edg')) {
+        instructions = 'Click the ⋯ menu → "Apps" → "Install Zentry"';
+      }
+
       toast({
         title: 'Install Zentry',
-        description: 'Use your browser menu to install this app on your device.',
-        duration: 3000,
+        description: instructions,
+        duration: 5000,
       });
       return;
     }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === 'accepted') {
+      if (outcome === 'accepted') {
+        toast({
+          title: 'App Installed!',
+          description: '🎉 Zentry has been installed successfully!',
+        });
+      } else {
+        toast({
+          title: 'Installation Cancelled',
+          description: 'You can install Zentry anytime from your browser menu.',
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Installation error:', error);
       toast({
-        title: 'App Installed!',
-        description: '🎉 Zentry has been installed successfully!',
+        title: 'Installation Error',
+        description: 'Please try installing from your browser menu.',
+        variant: 'destructive',
+        duration: 3000,
       });
     }
 
