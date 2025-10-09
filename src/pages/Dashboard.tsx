@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import InstallPrompt from '@/components/InstallPrompt';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -121,6 +122,7 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
+      <InstallPrompt />
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Welcome Message */}
         <div className="animate-fade-in">

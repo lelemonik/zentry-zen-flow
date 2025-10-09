@@ -42,7 +42,8 @@ const RootRedirect = () => {
     </div>;
   }
   
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />;
+  // Always redirect to auth or dashboard - skip landing page
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/auth" replace />;
 };
 
 const App = () => {
@@ -76,6 +77,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<RootRedirect />} />
+              <Route path="/landing" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
