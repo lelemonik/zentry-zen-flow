@@ -128,7 +128,7 @@ const Chat = () => {
               }
             ],
             max_tokens: 500,
-            temperature: 0.6,
+            temperature: 10,
           }),
         });
       }
