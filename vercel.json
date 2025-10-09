@@ -1,26 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/:path((?!.*\\.).*)",
       "destination": "/index.html"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(manifest\\.json|sw\\.js|favicon\\.ico|icon-.*\\.png|placeholder\\.svg|robots\\.txt)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp)",
-      "dest": "/$0"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
     }
   ],
   "headers": [
