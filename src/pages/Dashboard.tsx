@@ -17,6 +17,7 @@ const Dashboard = () => {
     completedTasks: 0,
   });
   const [userName, setUserName] = useState('');
+  const [isNewUser, setIsNewUser] = useState(false);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
   const [featureText, setFeatureText] = useState('');
@@ -30,6 +31,17 @@ const Dashboard = () => {
         tasks: tasks.length,
         completedTasks: tasks.filter(t => t.completed).length,
       });
+
+      // Check if user is new (first time login)
+      const hasVisitedKey = `hasVisited_${user?.id || 'guest'}`;
+      const hasVisited = localStorage.getItem(hasVisitedKey);
+      
+      if (!hasVisited) {
+        setIsNewUser(true);
+        localStorage.setItem(hasVisitedKey, 'true');
+      } else {
+        setIsNewUser(false);
+      }
 
       // Get user's name from profile or Supabase user metadata
       let profile = profileStorage.get();
@@ -125,10 +137,13 @@ const Dashboard = () => {
         {/* Welcome Message */}
         <div className="animate-fade-in">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Welcome back, {userName}!
+            {isNewUser ? `Welcome, ${userName}!` : `Welcome back, ${userName}!`}
           </h1>
           <p className="text-muted-foreground">
-            You have {stats.tasks} {stats.tasks === 1 ? 'task' : 'tasks'} {stats.completedTasks > 0 && `(${stats.completedTasks} completed)`}
+            {isNewUser 
+              ? "We're excited to have you here! Start by creating your first task or note."
+              : `You have ${stats.tasks} ${stats.tasks === 1 ? 'task' : 'tasks'}${stats.completedTasks > 0 ? ` (${stats.completedTasks} completed)` : ''}`
+            }
           </p>
         </div>
 
