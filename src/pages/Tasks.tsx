@@ -231,10 +231,10 @@ const Tasks = () => {
                 <span className="sm:hidden">New</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[90vw] md:max-w-[500px] rounded-3xl border-0 shadow-neumorphism">
               <DialogHeader>
-                <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-xl font-bold text-dried-rose">{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+                <DialogDescription className="text-muted-foreground">
                   {editingTask ? 'Update your task details below.' : 'Fill in the details to create a new task.'}
                 </DialogDescription>
               </DialogHeader>
@@ -328,11 +328,11 @@ const Tasks = () => {
 
         {/* Task Details Dialog */}
         <Dialog open={!!viewingTask} onOpenChange={(open) => !open && setViewingTask(null)}>
-          <DialogContent className="sm:max-w-[500px] animate-scale-in">
+          <DialogContent className="sm:max-w-[90vw] md:max-w-[500px] rounded-3xl border-0 shadow-neumorphism">
             {viewingTask && (
               <>
                 <DialogHeader>
-                  <DialogTitle className={`text-2xl ${viewingTask.completed ? 'line-through opacity-60' : ''}`}>
+                  <DialogTitle className={`text-xl font-bold text-dried-rose ${viewingTask.completed ? 'line-through opacity-60' : ''}`}>
                     {viewingTask.title}
                   </DialogTitle>
                   {viewingTask.completed && (

@@ -203,10 +203,10 @@ const Notes = () => {
                   <span className="sm:hidden">New</span>
                 </Button>
               </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[90vw] md:max-w-[550px] rounded-3xl border-0 shadow-neumorphism">
                   <DialogHeader>
-                    <DialogTitle>{editingNote ? 'Edit Note' : 'Create New Note'}</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-xl font-bold text-dried-rose">{editingNote ? 'Edit Note' : 'Create New Note'}</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                       {editingNote ? 'Update your note details below.' : 'Create a new note with title, content, and tags.'}
                     </DialogDescription>
                   </DialogHeader>

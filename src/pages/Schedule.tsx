@@ -256,7 +256,7 @@ const Schedule = () => {
         <Dialog open={!!selectedDate} onOpenChange={(open) => {
           if (!open) handleCloseFloatingBox();
         }}>
-          <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto rounded-3xl bg-white-blossom shadow-neumorphism border-0">
+          <DialogContent className="sm:max-w-[90vw] md:max-w-[500px] max-h-[85vh] overflow-y-auto rounded-3xl bg-white-blossom shadow-neumorphism border-0">
             <div className="space-y-4">
               {/* Date Header */}
               <div className="pb-4 border-b border-petal-dust">
@@ -368,10 +368,10 @@ const Schedule = () => {
           setIsDialogOpen(open);
           if (!open) resetForm();
         }}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[90vw] md:max-w-[500px] rounded-3xl border-0 shadow-neumorphism">
               <DialogHeader>
-                <DialogTitle>{editingEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-xl font-bold text-dried-rose">{editingEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+                <DialogDescription className="text-muted-foreground">
                   {editingEvent ? 'Update your event details below.' : 'Schedule a new event with date, time, and details.'}
                 </DialogDescription>
               </DialogHeader>
