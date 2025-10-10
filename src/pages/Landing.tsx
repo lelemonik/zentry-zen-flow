@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Calendar, StickyNote, Download, MessageSquare, Sparkles } from 'lucide-react';
+import { CheckCircle2, Calendar, StickyNote, Download, MessageSquare, Sparkles, Palette } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -87,12 +87,19 @@ const Landing = () => {
 
   const features = [
     { 
+      icon: <Palette className="w-6 h-6" />, 
+      title: 'Theme Switcher', 
+      description: 'Choose from 4 beautiful themes to personalize your experience',
+      gradient: 'from-pastel-purple/30 to-pastel-pink/30',
+      iconGradient: 'from-primary to-muted',
+      badge: 'NEW'
+    },
+    { 
       icon: <MessageSquare className="w-6 h-6" />, 
       title: 'AI Chat', 
       description: 'Get instant help and insights powered by AI',
       gradient: 'from-pastel-purple/30 to-pastel-pink/30',
-      iconGradient: 'from-primary to-muted',
-      badge: 'NEW'
+      iconGradient: 'from-primary to-muted'
     },
     { 
       icon: <CheckCircle2 className="w-6 h-6" />, 
