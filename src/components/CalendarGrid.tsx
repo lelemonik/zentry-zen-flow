@@ -96,7 +96,7 @@ export function CalendarGrid({
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        <h3 className="text-base sm:text-lg font-semibold">
+        <h3 className="text-base sm:text-lg font-bold text-dried-rose">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </h3>
         
@@ -113,7 +113,7 @@ export function CalendarGrid({
       {/* Day Names */}
       <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {dayNames.map(day => (
-          <div key={day} className="text-center text-[10px] sm:text-xs font-medium text-muted-foreground py-1 sm:py-2">
+          <div key={day} className="text-center text-[10px] sm:text-xs font-semibold text-dried-rose py-1 sm:py-2">
             {day}
           </div>
         ))}
@@ -135,15 +135,15 @@ export function CalendarGrid({
               key={index}
               onClick={() => onDateSelect(day)}
               className={`
-                aspect-square rounded-full flex items-center justify-center text-xs sm:text-sm font-medium
+                aspect-square rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold
                 transition-all duration-200
                 ${selected 
-                  ? 'bg-primary text-primary-foreground scale-105 sm:scale-110 shadow-lg' 
+                  ? 'bg-gradient-to-br from-faded-mauve to-muted-rosewood text-white scale-105 sm:scale-110 shadow-neumorphism' 
                   : inRange
-                  ? 'bg-primary/20 text-primary'
+                  ? 'bg-petal-dust/40 text-dried-rose'
                   : today
-                  ? 'bg-primary/10 text-primary font-bold ring-2 ring-primary/30'
-                  : 'hover:bg-muted text-foreground'
+                  ? 'bg-blush-cloud/40 text-dried-rose font-bold ring-2 ring-faded-mauve/50'
+                  : 'hover:bg-petal-dust/20 text-dried-rose'
                 }
               `}
             >

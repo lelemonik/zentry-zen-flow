@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Calendar, StickyNote, Download } from 'lucide-react';
+import { CheckCircle2, Calendar, StickyNote, Download, MessageSquare, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -87,19 +87,33 @@ const Landing = () => {
 
   const features = [
     { 
+      icon: <MessageSquare className="w-6 h-6" />, 
+      title: 'AI Chat', 
+      description: 'Get instant help and insights powered by AI',
+      gradient: 'from-pastel-purple/30 to-pastel-pink/30',
+      iconGradient: 'from-pastel-purple to-pastel-pink',
+      badge: 'NEW'
+    },
+    { 
       icon: <CheckCircle2 className="w-6 h-6" />, 
-      title: 'Tasks', 
-      description: 'Organize and track your to-dos' 
+      title: 'Smart Tasks', 
+      description: 'Organize and track your to-dos with AI assistance',
+      gradient: 'from-pastel-steel/30 to-pastel-blue/30',
+      iconGradient: 'from-pastel-steel to-pastel-blue'
     },
     { 
       icon: <StickyNote className="w-6 h-6" />, 
-      title: 'Notes', 
-      description: 'Capture ideas and thoughts' 
+      title: 'Quick Notes', 
+      description: 'Capture ideas and thoughts instantly',
+      gradient: 'from-pastel-yellow/30 to-pastel-pink/30',
+      iconGradient: 'from-pastel-yellow to-pastel-pink'
     },
     { 
       icon: <Calendar className="w-6 h-6" />, 
       title: 'Schedule', 
-      description: 'Plan your day efficiently' 
+      description: 'Plan your day with a beautiful calendar',
+      gradient: 'from-pastel-teal/30 to-pastel-blue/30',
+      iconGradient: 'from-pastel-teal to-pastel-blue'
     },
   ];
 
@@ -141,21 +155,51 @@ const Landing = () => {
             </Button>
           </div>
 
+          {/* Tagline */}
+          <div className="text-center">
+            <p className="text-sm md:text-base text-muted-foreground font-medium">
+              Your all-in-one productivity hub
+            </p>
+          </div>
+
           {/* Features */}
-          <div className="pt-8">
-            <p className="text-sm text-muted-foreground mb-6 uppercase tracking-wider">Features</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="pt-12">
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+              <p className="text-base font-semibold text-foreground uppercase tracking-wider">
+                Features
+              </p>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 transition-all hover:scale-105 border border-border/50"
+                  className="group relative flex flex-col items-center gap-4 p-6 rounded-3xl glass hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 border-2 border-border/50 hover:border-primary/30 overflow-hidden"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-primary shadow-lg">
+                  {/* Badge for new features */}
+                  {feature.badge && (
+                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-gradient-to-r from-pastel-purple to-pastel-pink text-white text-[10px] font-bold uppercase tracking-wide shadow-lg">
+                      {feature.badge}
+                    </div>
+                  )}
+                  
+                  {/* Background glow effect */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient || 'from-primary/5 to-secondary/5'} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl`} />
+                  
+                  {/* Icon */}
+                  <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.iconGradient || 'from-primary to-secondary'} flex items-center justify-center text-white shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300`}>
                     {feature.icon}
                   </div>
-                  <div className="text-center space-y-1">
-                    <h3 className="text-sm font-semibold">{feature.title}</h3>
-                    <p className="text-xs text-muted-foreground">{feature.description}</p>
+                  
+                  {/* Content */}
+                  <div className="relative text-center space-y-2">
+                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
+                      {feature.title}
+                    </h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {feature.description}
+                    </p>
                   </div>
                 </div>
               ))}

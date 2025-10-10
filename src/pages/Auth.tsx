@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { Lock, ArrowLeft, User, AlertCircle, Check, X } from 'lucide-react';
+import { Lock, ArrowLeft, User, AlertCircle, Check, X, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabaseAuth, validatePassword, validateUsername } from '@/lib/supabaseAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -22,6 +22,8 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [usernameError, setUsernameError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   // Password requirement checks
   const [passwordChecks, setPasswordChecks] = useState({
@@ -212,15 +214,25 @@ const Auth = () => {
                   </div>
 
                   <div>
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => handlePasswordChange(e.target.value)}
-                      required
-                      minLength={8}
-                      autoComplete="new-password"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => handlePasswordChange(e.target.value)}
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                     {passwordError && (
                       <Alert variant="destructive" className="mt-2">
                         <AlertCircle className="h-4 w-4" />
@@ -265,24 +277,33 @@ const Auth = () => {
                   <div>
                     <div className="relative">
                       <Input
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm Password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         minLength={8}
                         autoComplete="new-password"
-                        className={confirmPassword ? (passwordsMatch ? 'border-green-500 focus-visible:ring-green-500' : 'border-red-500 focus-visible:ring-red-500') : ''}
+                        className={`pr-20 ${confirmPassword ? (passwordsMatch ? 'border-green-500 focus-visible:ring-green-500' : 'border-red-500 focus-visible:ring-red-500') : ''}`}
                       />
-                      {confirmPassword && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          {passwordsMatch ? (
-                            <Check className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <X className="w-5 h-5 text-red-600" />
-                          )}
-                        </div>
-                      )}
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                        {confirmPassword && (
+                          <div>
+                            {passwordsMatch ? (
+                              <Check className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-600" />
+                            )}
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
                     {confirmPassword && passwordsMatch && (
                       <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
@@ -339,14 +360,24 @@ const Auth = () => {
                   </div>
 
                   <div>
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      autoComplete="current-password"
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </div>
 
                   <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
@@ -389,11 +420,6 @@ const Auth = () => {
             {' '}to restore it, or click "Back to Home" to use the app offline.
           </AlertDescription>
         </Alert>
-
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          <p>🔒 Your data is encrypted and secure</p>
-          <p className="mt-1">☁️ Cloud sync • 💾 Offline support</p>
-        </div>
       </div>
     </div>
   );

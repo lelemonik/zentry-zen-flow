@@ -249,7 +249,6 @@ const Chat = () => {
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   AI Assistant
                 </h1>
-                <p className="text-muted-foreground mt-1">Chat with AI powered by Gemini</p>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 {isOnline ? (
@@ -281,7 +280,7 @@ const Chat = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-primary" />
-                Chat with {aiProvider === 'gemini' ? 'Gemini Pro' : 'GPT-3.5 Turbo'}
+                Chat with {aiProvider === 'gemini' ? 'Gemini GPT-3.5' : 'GPT-3.5 Turbo'}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
@@ -352,7 +351,7 @@ const Chat = () => {
 
               <p className="text-xs text-muted-foreground mt-2 text-center">
                 {isOnline 
-                  ? `🤖 Powered by ${aiProvider === 'gemini' ? 'Google Gemini Pro' : 'OpenAI GPT-3.5 Turbo'} • Your conversations are private`
+                  ? `🤖 Powered by ${aiProvider === 'gemini' ? 'Google Gemini' : 'OpenAI GPT-3.5 Turbo'} • Your conversations are private`
                   : '⚠️ Internet connection required for AI features'
                 }
               </p>

@@ -8,111 +8,120 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Neumorphism Color Palette - Inspired by provided colors */
-    --background: 0 0% 90%;           /* #E6E6E6 - Light neutral gray */
-    --foreground: 210 14% 31%;        /* #45505B - Dark blue-gray */
+    /* Cloud Petal Palette - Soft, warm, and cozy tones */
+    /* Base Colors from the palette */
+    --white-blossom: 0 0% 97%;         /* #f9f7f4 - White Blossom */
+    --blush-cloud: 350 39% 78%;        /* #f5e0e2 - Blush Cloud */
+    --petal-dust: 6 30% 78%;           /* #e8cdc7 - Petal Dust */
+    --muted-rosewood: 6 25% 66%;       /* #d7b3ad - Muted Rosewood */
+    --faded-mauve: 340 18% 61%;        /* #b9908d - Faded Mauve */
+    --dried-rose: 0 16% 47%;           /* #8b6a69 - Dried Rose */
 
-    --card: 0 0% 90%;                 /* #E6E6E6 - Matches background */
-    --card-foreground: 210 14% 31%;   /* #45505B - Dark text */
+    /* Theme Colors using the Cloud Petal palette */
+    --background: 0 0% 97%;            /* #f9f7f4 - White Blossom background */
+    --foreground: 0 16% 35%;           /* Darker dried rose for text */
 
-    --popover: 0 0% 90%;
-    --popover-foreground: 210 14% 31%;
+    --card: 350 39% 95%;               /* Light blush for cards */
+    --card-foreground: 0 16% 35%;      /* Dried rose text */
 
-    --primary: 210 14% 31%;           /* #45505B - Dark blue-gray accent */
-    --primary-foreground: 0 0% 90%;   /* Light text on dark */
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 16% 35%;
 
-    --secondary: 210 9% 66%;          /* #9FA8B0 - Medium gray */
-    --secondary-foreground: 0 0% 100%;
+    --primary: 340 18% 61%;            /* #b9908d - Faded Mauve primary */
+    --primary-foreground: 0 0% 100%;   /* White text on primary */
 
-    --muted: 210 5% 80%;              /* #C9CDD1 - Light gray */
-    --muted-foreground: 210 14% 31%;  /* #45505B - Dark text */
+    --secondary: 350 39% 78%;          /* #f5e0e2 - Blush Cloud */
+    --secondary-foreground: 0 16% 35%;
 
-    --accent: 210 14% 31%;            /* #45505B - Dark accent */
-    --accent-foreground: 0 0% 90%;
+    --muted: 6 30% 78%;                /* #e8cdc7 - Petal Dust for muted elements */
+    --muted-foreground: 0 16% 45%;   
 
-    --destructive: 0 84% 60%;
+    --accent: 6 25% 66%;               /* #d7b3ad - Muted Rosewood accent */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 60%;          /* Brighter rose for destructive */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 5% 80%;             /* #C9CDD1 - Light border */
-    --input: 0 0% 90%;                /* #E6E6E6 - Light input bg */
-    --ring: 210 14% 31%;              /* #45505B - Focus ring */
+    --border: 6 30% 85%;               /* Light petal dust borders */
+    --input: 0 0% 98%;                 /* Light input background */
+    --ring: 340 18% 61%;               /* Faded mauve focus ring */
 
     --radius: 1.5rem;
 
-    /* Neumorphism Shadows - Adjusted for neutral palette */
-    --neu-shadow-light: 8px 8px 16px rgba(163, 169, 173, 0.5);
-    --neu-shadow-dark: -8px -8px 16px rgba(255, 255, 255, 0.9);
-    --neu-shadow-inset-light: inset 8px 8px 16px rgba(163, 169, 173, 0.5);
-    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(255, 255, 255, 0.9);
+    /* Neumorphism Shadows - Cloud Petal palette */
+    --neu-shadow-light: 8px 8px 16px rgba(215, 179, 173, 0.25);
+    --neu-shadow-dark: -8px -8px 16px rgba(255, 255, 255, 0.95);
+    --neu-shadow-inset-light: inset 8px 8px 16px rgba(215, 179, 173, 0.25);
+    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(255, 255, 255, 0.95);
     
     /* Combined Neumorphism Shadows */
-    --neu-shadow: 8px 8px 16px rgba(163, 169, 173, 0.5), -8px -8px 16px rgba(255, 255, 255, 0.9);
-    --neu-shadow-sm: 4px 4px 8px rgba(163, 169, 173, 0.4), -4px -4px 8px rgba(255, 255, 255, 0.8);
-    --neu-shadow-lg: 12px 12px 24px rgba(163, 169, 173, 0.6), -12px -12px 24px rgba(255, 255, 255, 1);
-    --neu-shadow-inset: inset 8px 8px 16px rgba(163, 169, 173, 0.5), inset -8px -8px 16px rgba(255, 255, 255, 0.9);
-    --neu-shadow-pressed: inset 4px 4px 8px rgba(163, 169, 173, 0.4), inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+    --neu-shadow: 8px 8px 16px rgba(215, 179, 173, 0.25), -8px -8px 16px rgba(255, 255, 255, 0.95);
+    --neu-shadow-sm: 4px 4px 8px rgba(215, 179, 173, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.9);
+    --neu-shadow-lg: 12px 12px 24px rgba(215, 179, 173, 0.3), -12px -12px 24px rgba(255, 255, 255, 1);
+    --neu-shadow-inset: inset 8px 8px 16px rgba(215, 179, 173, 0.25), inset -8px -8px 16px rgba(255, 255, 255, 0.95);
+    --neu-shadow-pressed: inset 4px 4px 8px rgba(215, 179, 173, 0.2), inset -2px -2px 4px rgba(255, 255, 255, 0.9);
 
-    /* Gradients with neutral tones */
-    --gradient-primary: linear-gradient(135deg, hsl(210 14% 31%) 0%, hsl(210 9% 66%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(210 9% 66%) 0%, hsl(210 5% 80%) 100%);
-    --gradient-background: radial-gradient(circle at 20% 50%, hsl(0 0% 92%) 0%, hsl(0 0% 90%) 50%, hsl(0 0% 88%) 100%);
+    /* Gradients with Cloud Petal tones */
+    --gradient-primary: linear-gradient(135deg, hsl(340 18% 61%) 0%, hsl(6 25% 66%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(350 39% 78%) 0%, hsl(6 30% 78%) 100%);
+    --gradient-background: radial-gradient(circle at 20% 50%, hsl(350 39% 85%) 0%, hsl(0 0% 97%) 50%, hsl(6 30% 85%) 100%);
 
     /* Legacy Shadows for compatibility */
-    --shadow-glass: 0 8px 32px 0 rgba(69, 80, 91, 0.15);
-    --shadow-glow: 0 0 40px rgba(159, 168, 176, 0.3);
-    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-glass: 0 8px 32px 0 rgba(215, 179, 173, 0.15);
+    --shadow-glow: 0 0 40px rgba(245, 224, 226, 0.3);
+    --shadow-card: 0 4px 16px rgba(215, 179, 173, 0.12);
   }
 
   .dark {
-    /* Neumorphism Dark Mode - Neutral palette */
-    --background: 210 14% 20%;        /* Darker version of #45505B */
-    --foreground: 0 0% 90%;           /* Light gray text */
+    /* Dark Mode - Darker pastel palette */
+    --background: 211 29% 20%;        /* Dark steel blue */
+    --foreground: 48 43% 83%;         /* Light cream text */
 
-    --card: 210 14% 20%;
-    --card-foreground: 0 0% 90%;
+    --card: 211 29% 25%;
+    --card-foreground: 48 43% 83%;
 
-    --popover: 210 14% 20%;
-    --popover-foreground: 0 0% 90%;
+    --popover: 211 29% 25%;
+    --popover-foreground: 48 43% 83%;
 
-    --primary: 210 9% 66%;            /* #9FA8B0 - Medium gray */
-    --primary-foreground: 210 14% 20%;
+    --primary: 197 44% 70%;           /* Lighter blue for dark mode */
+    --primary-foreground: 211 29% 20%;
 
-    --secondary: 210 14% 31%;         /* #45505B - Dark blue-gray */
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 349 42% 65%;         /* Darker pink for dark mode */
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 210 14% 28%;
-    --muted-foreground: 210 5% 80%;   /* #C9CDD1 - Light text */
+    --muted: 211 29% 30%;
+    --muted-foreground: 197 44% 75%;  
 
-    --accent: 210 9% 66%;             /* #9FA8B0 - Medium accent */
-    --accent-foreground: 210 14% 20%;
+    --accent: 243 27% 70%;            /* Lighter purple for dark mode */
+    --accent-foreground: 211 29% 20%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 349 52% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 14% 28%;
-    --input: 210 14% 20%;
-    --ring: 210 9% 66%;
+    --border: 211 29% 35%;
+    --input: 211 29% 25%;
+    --ring: 197 44% 70%;
 
     /* Neumorphism Dark Shadows */
-    --neu-shadow-light: 8px 8px 16px rgba(0, 0, 0, 0.6);
-    --neu-shadow-dark: -8px -8px 16px rgba(79, 90, 101, 0.3);
-    --neu-shadow-inset-light: inset 8px 8px 16px rgba(0, 0, 0, 0.6);
-    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(79, 90, 101, 0.3);
+    --neu-shadow-light: 8px 8px 16px rgba(0, 0, 0, 0.5);
+    --neu-shadow-dark: -8px -8px 16px rgba(100, 130, 160, 0.15);
+    --neu-shadow-inset-light: inset 8px 8px 16px rgba(0, 0, 0, 0.5);
+    --neu-shadow-inset-dark: inset -8px -8px 16px rgba(100, 130, 160, 0.15);
     
-    --neu-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6), -8px -8px 16px rgba(79, 90, 101, 0.3);
-    --neu-shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.5), -4px -4px 8px rgba(79, 90, 101, 0.25);
-    --neu-shadow-lg: 12px 12px 24px rgba(0, 0, 0, 0.7), -12px -12px 24px rgba(79, 90, 101, 0.35);
-    --neu-shadow-inset: inset 8px 8px 16px rgba(0, 0, 0, 0.6), inset -8px -8px 16px rgba(79, 90, 101, 0.3);
-    --neu-shadow-pressed: inset 4px 4px 8px rgba(0, 0, 0, 0.5), inset -2px -2px 4px rgba(79, 90, 101, 0.25);
+    --neu-shadow: 8px 8px 16px rgba(0, 0, 0, 0.5), -8px -8px 16px rgba(100, 130, 160, 0.15);
+    --neu-shadow-sm: 4px 4px 8px rgba(0, 0, 0, 0.4), -4px -4px 8px rgba(100, 130, 160, 0.1);
+    --neu-shadow-lg: 12px 12px 24px rgba(0, 0, 0, 0.6), -12px -12px 24px rgba(100, 130, 160, 0.2);
+    --neu-shadow-inset: inset 8px 8px 16px rgba(0, 0, 0, 0.5), inset -8px -8px 16px rgba(100, 130, 160, 0.15);
+    --neu-shadow-pressed: inset 4px 4px 8px rgba(0, 0, 0, 0.4), inset -2px -2px 4px rgba(100, 130, 160, 0.1);
 
-    /* Gradients dark - neutral tones */
-    --gradient-primary: linear-gradient(135deg, hsl(210 9% 66%) 0%, hsl(210 5% 80%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(210 14% 31%) 0%, hsl(210 9% 66%) 100%);
-    --gradient-background: radial-gradient(circle at 20% 50%, hsl(210 14% 22%) 0%, hsl(210 14% 20%) 50%, hsl(210 14% 18%) 100%);
+    /* Gradients dark - pastel tones */
+    --gradient-primary: linear-gradient(135deg, hsl(211 29% 30%) 0%, hsl(197 44% 40%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(349 42% 45%) 0%, hsl(243 27% 50%) 100%);
+    --gradient-background: radial-gradient(circle at 20% 50%, hsl(211 29% 22%) 0%, hsl(211 29% 20%) 50%, hsl(211 29% 18%) 100%);
 
     /* Legacy Shadows */
     --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 40px rgba(159, 168, 176, 0.3);
+    --shadow-glow: 0 0 40px rgba(197, 219, 231, 0.2);
     --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 }
@@ -199,6 +208,105 @@ All colors MUST be HSL.
 
   .animate-scale-in {
     animation: scale-in 0.3s ease-out;
+  }
+
+  /* Cloud Petal Color Utilities */
+  .bg-white-blossom {
+    background-color: hsl(var(--white-blossom));
+  }
+
+  .bg-blush-cloud {
+    background-color: hsl(var(--blush-cloud));
+  }
+
+  .bg-petal-dust {
+    background-color: hsl(var(--petal-dust));
+  }
+
+  .bg-muted-rosewood {
+    background-color: hsl(var(--muted-rosewood));
+  }
+
+  .bg-faded-mauve {
+    background-color: hsl(var(--faded-mauve));
+  }
+
+  .bg-dried-rose {
+    background-color: hsl(var(--dried-rose));
+  }
+
+  .text-white-blossom {
+    color: hsl(var(--white-blossom));
+  }
+
+  .text-blush-cloud {
+    color: hsl(var(--blush-cloud));
+  }
+
+  .text-petal-dust {
+    color: hsl(var(--petal-dust));
+  }
+
+  .text-muted-rosewood {
+    color: hsl(var(--muted-rosewood));
+  }
+
+  .text-faded-mauve {
+    color: hsl(var(--faded-mauve));
+  }
+
+  .text-dried-rose {
+    color: hsl(var(--dried-rose));
+  }
+
+  .border-white-blossom {
+    border-color: hsl(var(--white-blossom));
+  }
+
+  .border-blush-cloud {
+    border-color: hsl(var(--blush-cloud));
+  }
+
+  .border-petal-dust {
+    border-color: hsl(var(--petal-dust));
+  }
+
+  .border-muted-rosewood {
+    border-color: hsl(var(--muted-rosewood));
+  }
+
+  .border-faded-mauve {
+    border-color: hsl(var(--faded-mauve));
+  }
+
+  .border-dried-rose {
+    border-color: hsl(var(--dried-rose));
+  }
+
+  /* Neumorphism shadow utilities */
+  .shadow-neumorphism {
+    box-shadow: var(--neu-shadow);
+  }
+
+  .shadow-neumorphism-sm {
+    box-shadow: var(--neu-shadow-sm);
+  }
+
+  .shadow-neumorphism-lg {
+    box-shadow: var(--neu-shadow-lg);
+  }
+
+  .shadow-neumorphism-inset {
+    box-shadow: var(--neu-shadow-inset);
+  }
+
+  .shadow-neumorphism-pressed {
+    box-shadow: var(--neu-shadow-pressed);
+  }
+
+  .shadow-neumorphism-hover {
+    box-shadow: var(--neu-shadow-lg);
+    transform: translateY(-2px);
   }
 }
 

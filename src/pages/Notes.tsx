@@ -169,87 +169,86 @@ const Notes = () => {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6 animate-fade-in">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        <div className="animate-fade-in">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-4xl font-bold text-dried-rose">
               Notes
             </h1>
-            <div className="flex items-center gap-3 mt-1">
-              <p className="text-muted-foreground">{notes.length} total notes</p>
-              <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-neumorphism-inset bg-white-blossom/60">
                 {isOnline ? (
                   <>
-                    <Cloud className="w-3 h-3 text-green-500" />
-                    <span className="text-green-500">Cloud synced</span>
+                    <Cloud className="w-3.5 h-3.5 text-muted-rosewood" />
+                    <span className="text-xs font-medium text-dried-rose">Synced</span>
                   </>
                 ) : (
                   <>
-                    <CloudOff className="w-3 h-3 text-amber-500" />
-                    <span className="text-amber-500">Offline mode</span>
+                    <CloudOff className="w-3.5 h-3.5 text-faded-mauve" />
+                    <span className="text-xs font-medium text-dried-rose">Offline</span>
                   </>
                 )}
               </div>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="gap-2 shadow-neumorphism hover:shadow-neumorphism-hover bg-dried-rose hover:bg-faded-mauve text-white transition-all">
+                    <Plus className="w-5 h-5" />
+                    New
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>{editingNote ? 'Edit Note' : 'Create New Note'}</DialogTitle>
+                    <DialogDescription>
+                      {editingNote ? 'Update your note details below.' : 'Create a new note with title, content, and tags.'}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Input
+                        placeholder="Note title"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Textarea
+                        placeholder="Write your note..."
+                        value={formData.content}
+                        onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                        className="min-h-[200px]"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        placeholder="Tags (comma separated)"
+                        value={formData.tags}
+                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="flex-1">
+                        {editingNote ? 'Update' : 'Create'} Note
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          resetForm();
+                          setIsDialogOpen(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
-
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="gap-2">
-                <Plus className="w-5 h-5" />
-                New Note
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>{editingNote ? 'Edit Note' : 'Create New Note'}</DialogTitle>
-                <DialogDescription>
-                  {editingNote ? 'Update your note details below.' : 'Create a new note with title, content, and tags.'}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Input
-                    placeholder="Note title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Textarea
-                    placeholder="Write your note..."
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    className="min-h-[200px]"
-                  />
-                </div>
-                <div>
-                  <Input
-                    placeholder="Tags (comma separated)"
-                    value={formData.tags}
-                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button type="submit" className="flex-1">
-                    {editingNote ? 'Update' : 'Create'} Note
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      resetForm();
-                      setIsDialogOpen(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <p className="text-muted-foreground">{notes.length} total notes</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -11,13 +11,10 @@ import { Plus, Trash2, Edit, Cloud, CloudOff, Clock, Calendar, Tag, Bell } from 
 import { Task, taskStorage } from '@/lib/storage';
 import { supabaseTaskStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
-import { WeekSelector } from '@/components/WeekSelector';
-import { StatisticsCard } from '@/components/StatisticsCard';
-import { calculateTaskStats, filterTasksByDate, getPriorityColor, formatDate } from '@/lib/taskUtils';
+import { getPriorityColor, formatDate } from '@/lib/taskUtils';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,11 +28,6 @@ const Tasks = () => {
     dueDate: '',
   });
   const { toast } = useToast();
-
-  // Calculate statistics
-  const stats = calculateTaskStats(tasks);
-  // Filter tasks by selected date (or show all if no date selected)
-  const displayTasks = tasks; // Can be changed to filterTasksByDate(tasks, selectedDate) if you want filtering
 
   useEffect(() => {
     loadTasks();
@@ -193,54 +185,47 @@ const Tasks = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center animate-fade-in">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-muted-foreground">Your task tracking</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-xs mr-2">
-              {isOnline ? (
-                <>
-                  <Cloud className="w-3 h-3 text-green-500" />
-                  <span className="text-green-500">Synced</span>
-                </>
-              ) : (
-                <>
-                  <CloudOff className="w-3 h-3 text-amber-500" />
-                  <span className="text-amber-500">Offline</span>
-                </>
-              )}
+        <div className="animate-fade-in">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-4xl font-bold text-dried-rose">
+              My Tasks
+            </h1>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-neumorphism-inset bg-white-blossom/60">
+                {isOnline ? (
+                  <>
+                    <Cloud className="w-3.5 h-3.5 text-muted-rosewood" />
+                    <span className="text-xs font-medium text-dried-rose">Synced</span>
+                  </>
+                ) : (
+                  <>
+                    <CloudOff className="w-3.5 h-3.5 text-faded-mauve" />
+                    <span className="text-xs font-medium text-dried-rose">Offline</span>
+                  </>
+                )}
+              </div>
             </div>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Bell className="w-5 h-5" />
-            </Button>
           </div>
-        </div>
-
-        {/* Week Selector */}
-        <Card className="glass p-4 animate-slide-up" style={{ animationDelay: '50ms' }}>
-          <WeekSelector selectedDate={selectedDate} onDateSelect={setSelectedDate} />
-        </Card>
-
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <StatisticsCard label="All task" count={stats.total} percentage={100} />
-          <StatisticsCard label="Done" count={stats.completed} percentage={stats.completionPercentage} />
-          <StatisticsCard label="In process" count={stats.inProgress} percentage={stats.inProgressPercentage} />
+          <p className="text-muted-foreground">
+            {tasks.length === 0 
+              ? "Ready to get organized? Create your first task!"
+              : `You have ${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'}${tasks.filter(t => t.completed).length > 0 ? ` (${tasks.filter(t => t.completed).length} completed)` : ''}`
+            }
+          </p>
         </div>
 
         {/* Tasks Section Header */}
         <div className="flex justify-between items-center">
-          <h3 className="text-lg sm:text-xl font-bold">Tasks</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-dried-rose">All Tasks</h3>
 
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) resetForm();
           }}>
             <DialogTrigger asChild>
-              <Button size="default" className="gap-2">
+              <Button size="default" className="gap-2 shadow-neumorphism hover:shadow-neumorphism-hover bg-dried-rose hover:bg-faded-mauve text-white transition-all">
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="hidden sm:inline">New Task</span>
                 <span className="sm:hidden">New</span>
@@ -255,7 +240,7 @@ const Tasks = () => {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Task Title *</label>
+                  <label className="text-sm font-semibold text-dried-rose">Task Title *</label>
                   <Input
                     placeholder="e.g., Complete project proposal"
                     value={formData.title}
@@ -264,7 +249,7 @@ const Tasks = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Description</label>
+                  <label className="text-sm font-semibold text-dried-rose">Description</label>
                   <Textarea
                     placeholder="Add details about this task (optional)"
                     value={formData.description}
@@ -274,7 +259,7 @@ const Tasks = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Priority</label>
+                    <label className="text-sm font-semibold text-dried-rose">Priority</label>
                     <Select
                       value={formData.priority}
                       onValueChange={(value: any) => setFormData({ ...formData, priority: value })}
@@ -290,7 +275,7 @@ const Tasks = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Category</label>
+                    <label className="text-sm font-semibold text-dried-rose">Category</label>
                     <Select
                       value={formData.category}
                       onValueChange={(value: string) => setFormData({ ...formData, category: value })}
@@ -313,7 +298,7 @@ const Tasks = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Due Date (Optional)</label>
+                  <label className="text-sm font-semibold text-dried-rose">Due Date (Optional)</label>
                   <Input
                     type="date"
                     value={formData.dueDate}
@@ -368,7 +353,7 @@ const Tasks = () => {
                   <div className="space-y-2">
                     <h4 className="text-sm font-semibold text-muted-foreground">Details</h4>
                     <div className="flex flex-wrap gap-2">
-                      <span className={`px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r ${getPriorityColor(viewingTask.priority)} text-white capitalize`}>
+                      <span className={`px-3 py-1.5 rounded-full text-sm font-semibold capitalize shadow-neumorphism ${getPriorityColor(viewingTask.priority)}`}>
                         {viewingTask.priority} Priority
                       </span>
                       {viewingTask.category && (
@@ -410,24 +395,24 @@ const Tasks = () => {
         </Dialog>
 
         <div className="grid gap-3 sm:gap-4">
-          {displayTasks.length === 0 ? (
-            <Card className="glass">
+          {tasks.length === 0 ? (
+            <Card className="shadow-neumorphism border-0 bg-white-blossom/60 animate-fade-in">
               <CardContent className="py-16 text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-                  <Plus className="w-8 h-8 text-primary" />
+                <div className="w-20 h-20 mx-auto rounded-2xl shadow-neumorphism-inset bg-gradient-to-br from-blush-cloud/30 to-petal-dust/20 flex items-center justify-center">
+                  <Plus className="w-10 h-10 text-dried-rose" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">No tasks yet</h3>
-                  <p className="text-muted-foreground">Click the "+" button to create your first task!</p>
+                  <h3 className="text-xl font-bold text-dried-rose mb-2">No tasks yet</h3>
+                  <p className="text-muted-foreground">Click the "New Task" button to get started!</p>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            displayTasks.map((task, index) => (
+            tasks.map((task, index) => (
               <Card
                 key={task.id}
-                className={`glass hover:shadow-lg transition-all animate-scale-in cursor-pointer relative overflow-hidden ${getPriorityColor(task.priority)}`}
-                style={{ animationDelay: `${index * 50 + 150}ms` }}
+                className={`shadow-neumorphism hover:shadow-neumorphism-hover border-0 transition-all animate-scale-in cursor-pointer relative overflow-hidden ${getPriorityColor(task.priority)}`}
+                style={{ animationDelay: `${index * 50}ms` }}
                 onClick={() => handleTaskClick(task)}
               >
                 <CardContent className="py-3 px-3 sm:py-4 sm:px-4 md:py-5 md:px-5">

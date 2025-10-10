@@ -47,6 +47,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Cloud Petal Palette - Soft, warm, cozy tones
+        petal: {
+          'white-blossom': "hsl(var(--white-blossom))",    // #f9f7f4
+          'blush-cloud': "hsl(var(--blush-cloud))",        // #f5e0e2
+          'petal-dust': "hsl(var(--petal-dust))",          // #e8cdc7
+          'muted-rosewood': "hsl(var(--muted-rosewood))",  // #d7b3ad
+          'faded-mauve': "hsl(var(--faded-mauve))",        // #b9908d
+          'dried-rose': "hsl(var(--dried-rose))",          // #8b6a69
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

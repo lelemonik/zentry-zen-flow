@@ -1,13 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Smile, Meh, Frown, Angry, Laugh, MessageSquare, Lightbulb, Send } from 'lucide-react';
+import { Smile, Meh, Frown, Angry, Laugh, MessageSquare, Lightbulb, Send, TrendingUp, Calendar, Zap } from 'lucide-react';
 import AppLayout from '@/components/Layout/AppLayout';
-import { taskStorage, profileStorage, moodStorage } from '@/lib/storage';
+import { taskStorage, profileStorage, moodStorage, type MoodEntry } from '@/lib/storage';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -22,6 +23,8 @@ const Dashboard = () => {
   const [feedbackText, setFeedbackText] = useState('');
   const [featureText, setFeatureText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [moodHistory, setMoodHistory] = useState<MoodEntry[]>([]);
+  const [showMoodHistory, setShowMoodHistory] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -75,17 +78,56 @@ const Dashboard = () => {
       if (todayMood) {
         setSelectedMood(todayMood);
       }
+
+      // Load mood history
+      const history = moodStorage.getHistory();
+      setMoodHistory(history);
     };
 
     loadData();
   }, [user]);
 
   const moods = [
-    { icon: <Laugh className="w-full h-full" />, label: 'Amazing', value: 'amazing', color: 'text-primary' },
-    { icon: <Smile className="w-full h-full" />, label: 'Good', value: 'good', color: 'text-primary' },
-    { icon: <Meh className="w-full h-full" />, label: 'Okay', value: 'okay', color: 'text-muted-foreground' },
-    { icon: <Frown className="w-full h-full" />, label: 'Not Great', value: 'bad', color: 'text-accent' },
-    { icon: <Angry className="w-full h-full" />, label: 'Awful', value: 'awful', color: 'text-destructive' },
+    { 
+      icon: <Laugh className="w-full h-full" />, 
+      label: 'Amazing', 
+      value: 'amazing', 
+      color: 'text-blush-cloud',
+      bgGradient: 'from-blush-cloud/40 to-blush-cloud/15',
+      borderColor: 'border-blush-cloud/50'
+    },
+    { 
+      icon: <Smile className="w-full h-full" />, 
+      label: 'Good', 
+      value: 'good', 
+      color: 'text-petal-dust',
+      bgGradient: 'from-petal-dust/40 to-petal-dust/15',
+      borderColor: 'border-petal-dust/50'
+    },
+    { 
+      icon: <Meh className="w-full h-full" />, 
+      label: 'Okay', 
+      value: 'okay', 
+      color: 'text-muted-rosewood',
+      bgGradient: 'from-muted-rosewood/40 to-muted-rosewood/15',
+      borderColor: 'border-muted-rosewood/50'
+    },
+    { 
+      icon: <Frown className="w-full h-full" />, 
+      label: 'Not Great', 
+      value: 'bad', 
+      color: 'text-faded-mauve',
+      bgGradient: 'from-faded-mauve/40 to-faded-mauve/15',
+      borderColor: 'border-faded-mauve/50'
+    },
+    { 
+      icon: <Angry className="w-full h-full" />, 
+      label: 'Awful', 
+      value: 'awful', 
+      color: 'text-dried-rose',
+      bgGradient: 'from-dried-rose/40 to-dried-rose/15',
+      borderColor: 'border-dried-rose/50'
+    },
   ];
 
   const handleMoodSelect = (value: string) => {
@@ -93,11 +135,90 @@ const Dashboard = () => {
     // Save mood to localStorage
     moodStorage.setTodayMood(value);
     
+    // Update mood history
+    const history = moodStorage.getHistory();
+    setMoodHistory(history);
+    
     // Show feedback toast
     toast({
       title: 'Mood saved!',
+      description: 'Your mood has been tracked for today',
       duration: 2000,
     });
+  };
+
+  // Calculate mood statistics
+  const getMoodStats = () => {
+    if (moodHistory.length === 0) {
+      return { mostCommon: null, streak: 0, weeklyAverage: null, totalDays: 0 };
+    }
+
+    // Count mood occurrences
+    const moodCounts: Record<string, number> = {};
+    moodHistory.forEach(entry => {
+      moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+    });
+
+    // Find most common mood
+    const mostCommon = Object.entries(moodCounts).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+
+    // Calculate streak (consecutive days logged)
+    let streak = 0;
+    const sortedHistory = [...moodHistory].sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    
+    const today = new Date().toISOString().split('T')[0];
+    let currentDate = new Date(today);
+    
+    for (const entry of sortedHistory) {
+      const entryDate = entry.date;
+      const expectedDate = currentDate.toISOString().split('T')[0];
+      
+      if (entryDate === expectedDate) {
+        streak++;
+        currentDate.setDate(currentDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    // Get last 7 days for weekly average
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recentMoods = moodHistory.filter(entry => 
+      new Date(entry.date) >= sevenDaysAgo
+    );
+
+    return {
+      mostCommon,
+      streak,
+      recentDays: recentMoods.length,
+      totalDays: moodHistory.length
+    };
+  };
+
+  const stats_mood = getMoodStats();
+
+  // Get mood emoji for display
+  const getMoodIcon = (moodValue: string) => {
+    const mood = moods.find(m => m.value === moodValue);
+    return mood ? mood.icon : null;
+  };
+
+  const getMoodLabel = (moodValue: string) => {
+    const mood = moods.find(m => m.value === moodValue);
+    return mood ? mood.label : moodValue;
+  };
+
+  const getMoodColor = (moodValue: string) => {
+    const mood = moods.find(m => m.value === moodValue);
+    return mood ? mood.color : 'text-muted-foreground';
+  };
+
+  const getMoodGradient = (moodValue: string) => {
+    const mood = moods.find(m => m.value === moodValue);
+    return mood ? mood.bgGradient : 'from-gray-100 to-gray-50';
   };
 
   const handleSubmitFeedback = async (type: 'feedback' | 'feature') => {
@@ -136,7 +257,7 @@ const Dashboard = () => {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Welcome Message */}
         <div className="animate-fade-in">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 text-dried-rose">
             {isNewUser ? `Welcome, ${userName}!` : `Welcome back, ${userName}!`}
           </h1>
           <p className="text-muted-foreground">
@@ -148,34 +269,185 @@ const Dashboard = () => {
         </div>
 
         {/* Mood Tracker */}
-        <Card className="glass animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <Card className="glass animate-slide-up border-0 shadow-neumorphism" style={{ animationDelay: '100ms' }}>
           <CardHeader>
-            <CardTitle className="text-base sm:text-lg">How are you feeling today?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center sm:justify-around gap-1 sm:gap-2 flex-wrap">
-              {moods.map((mood) => (
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg sm:text-xl bg-gradient-to-r from-blush-cloud via-petal-dust to-muted-rosewood bg-clip-text text-transparent">
+                How are you feeling today?
+              </CardTitle>
+              {moodHistory.length > 0 && (
                 <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMoodHistory(!showMoodHistory)}
+                  className="text-xs hover:bg-petal-dust/10 text-dried-rose"
+                >
+                  {showMoodHistory ? 'Hide' : 'View'} History
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Mood Selection */}
+            <div className="flex justify-center sm:justify-around gap-3 sm:gap-4 flex-wrap">
+              {moods.map((mood, index) => (
+                <button
                   key={mood.value}
-                  variant={selectedMood === mood.value ? 'default' : 'outline'}
-                  className={`flex flex-col items-center gap-1 sm:gap-2 h-auto py-2 sm:py-3 md:py-4 px-2 sm:px-3 transition-all hover:scale-105 sm:hover:scale-110 min-w-[58px] sm:min-w-[70px] ${
+                  className={`group relative flex flex-col items-center gap-2.5 h-auto py-4 sm:py-5 px-4 sm:px-5 rounded-2xl transition-all duration-300 min-w-[80px] sm:min-w-[90px] ${
                     selectedMood === mood.value 
-                      ? 'shadow-lg ring-2 ring-primary' 
-                      : 'glass'
+                      ? `shadow-neumorphism-pressed bg-gradient-to-br ${mood.bgGradient} border-2 ${mood.borderColor} scale-105` 
+                      : 'shadow-neumorphism hover:shadow-neumorphism-hover border-2 border-transparent hover:border-petal-dust/30 hover:scale-105 bg-white-blossom/60'
                   }`}
                   onClick={() => handleMoodSelect(mood.value)}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className={`w-5 h-5 sm:w-6 sm:h-6 ${selectedMood === mood.value ? 'text-primary-foreground' : mood.color}`}>
+                  {/* Glow effect on hover/selected */}
+                  <div className={`absolute inset-0 rounded-2xl blur-xl transition-opacity duration-300 ${
+                    selectedMood === mood.value 
+                      ? `bg-gradient-to-br ${mood.bgGradient} opacity-35` 
+                      : 'opacity-0 group-hover:opacity-25 bg-petal-dust/30'
+                  }`} />
+                  
+                  {/* Icon */}
+                  <div className={`relative w-8 h-8 sm:w-9 sm:h-9 transition-all duration-300 ${
+                    selectedMood === mood.value 
+                      ? `${mood.color} drop-shadow-lg scale-110` 
+                      : `${mood.color} opacity-60 group-hover:opacity-100 group-hover:scale-110`
+                  }`}>
                     {mood.icon}
                   </div>
-                  <span className="text-[10px] sm:text-xs font-medium">{mood.label}</span>
-                </Button>
+                  
+                  {/* Label */}
+                  <span className={`relative text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                    selectedMood === mood.value 
+                      ? `${mood.color}` 
+                      : 'text-muted-foreground group-hover:text-muted-rosewood'
+                  }`}>
+                    {mood.label}
+                  </span>
+                  
+                  {/* Selected indicator */}
+                  {selectedMood === mood.value && (
+                    <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${mood.color.replace('text-', 'bg-')} animate-pulse`} />
+                  )}
+                </button>
               ))}
             </div>
+
+            {/* Mood Message */}
             {selectedMood && (
-              <p className="text-center text-sm text-muted-foreground mt-4 animate-fade-in">
-                We hope your day gets even better! 
-              </p>
+              <div className="text-center space-y-2 animate-fade-in">
+                <p className="text-sm text-muted-foreground">
+                  {selectedMood === 'amazing' && '🎉 That\'s wonderful! Keep spreading the positivity!'}
+                  {selectedMood === 'good' && '😊 Great to hear! Hope your day stays bright!'}
+                  {selectedMood === 'okay' && '👍 Every day is a new opportunity!'}
+                  {selectedMood === 'bad' && '💙 Tomorrow is a fresh start. Take care of yourself.'}
+                  {selectedMood === 'awful' && '💜 We\'re here for you. Remember, tough times don\'t last.'}
+                </p>
+              </div>
+            )}
+
+            {/* Mood Statistics */}
+            {moodHistory.length > 0 && (
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-petal-dust/30">
+                <div className="text-center space-y-1 p-3 rounded-xl shadow-neumorphism-inset bg-gradient-to-br from-blush-cloud/15 to-transparent">
+                  <div className="flex items-center justify-center gap-1">
+                    <Zap className="w-4 h-4 text-faded-mauve" />
+                    <p className="text-xl sm:text-2xl font-bold text-dried-rose">{stats_mood.streak}</p>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Day Streak</p>
+                </div>
+                
+                <div className="text-center space-y-1 p-3 rounded-xl shadow-neumorphism-inset bg-gradient-to-br from-petal-dust/15 to-transparent">
+                  <div className="flex items-center justify-center gap-1">
+                    <Calendar className="w-4 h-4 text-faded-mauve" />
+                    <p className="text-xl sm:text-2xl font-bold text-dried-rose">{stats_mood.totalDays}</p>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Days Tracked</p>
+                </div>
+                
+                {stats_mood.mostCommon && (
+                  <div className="text-center space-y-1 p-3 rounded-xl shadow-neumorphism-inset bg-gradient-to-br from-muted-rosewood/15 to-transparent">
+                    <div className="flex items-center justify-center gap-1">
+                      <div className={`w-5 h-5 ${getMoodColor(stats_mood.mostCommon)}`}>
+                        {getMoodIcon(stats_mood.mostCommon)}
+                      </div>
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Most Common</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Mood History */}
+            {showMoodHistory && moodHistory.length > 0 && (
+              <div className="pt-4 border-t border-petal-dust/30 animate-slide-up">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="w-4 h-4 text-muted-rosewood" />
+                  <h3 className="text-sm font-semibold text-dried-rose">Recent Mood History</h3>
+                </div>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                  {[...moodHistory]
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                    .slice(0, 14)
+                    .map((entry, index) => {
+                      const date = new Date(entry.date);
+                      const isToday = entry.date === new Date().toISOString().split('T')[0];
+                      const isYesterday = entry.date === new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                      
+                      return (
+                        <div 
+                          key={entry.timestamp}
+                          className={`group flex items-center justify-between p-3.5 rounded-xl shadow-neumorphism-inset bg-gradient-to-r ${
+                            isToday 
+                              ? `${getMoodGradient(entry.mood)} border-2 ${moods.find(m => m.value === entry.mood)?.borderColor || 'border-petal-dust/40'}`
+                              : 'from-white-blossom/70 to-petal-dust/5 border-2 border-transparent hover:border-petal-dust/30'
+                          } hover:shadow-neumorphism transition-all duration-300`}
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 flex items-center justify-center rounded-xl shadow-neumorphism transition-all duration-300 ${
+                              isToday 
+                                ? `bg-gradient-to-br ${getMoodGradient(entry.mood)} scale-105` 
+                                : 'bg-white/80 group-hover:bg-white group-hover:scale-105'
+                            }`}>
+                              <div className={`w-6 h-6 ${getMoodColor(entry.mood)} transition-transform group-hover:scale-110`}>
+                                {getMoodIcon(entry.mood)}
+                              </div>
+                            </div>
+                            <div>
+                              <p className={`text-sm font-semibold ${getMoodColor(entry.mood)}`}>
+                                {getMoodLabel(entry.mood)}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {isToday ? 'Today' : isYesterday ? 'Yesterday' : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined })}
+                              </p>
+                            </div>
+                          </div>
+                          {isToday && (
+                            <Badge 
+                              variant="secondary" 
+                              className={`text-[10px] font-semibold bg-gradient-to-r ${getMoodGradient(entry.mood)} ${getMoodColor(entry.mood)} border ${moods.find(m => m.value === entry.mood)?.borderColor || 'border-pastel-steel/30'} shadow-sm`}
+                            >
+                              Current
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+                {moodHistory.length > 14 && (
+                  <p className="text-xs text-center text-muted-foreground mt-3">
+                    Showing 14 most recent entries • {moodHistory.length} total
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* First time message */}
+            {moodHistory.length === 0 && !selectedMood && (
+              <div className="text-center p-4 rounded-lg bg-gradient-to-r from-blush-cloud/15 to-petal-dust/15">
+              </div>
             )}
           </CardContent>
         </Card>

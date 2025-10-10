@@ -56,13 +56,13 @@ export function filterTasksByDateRange(tasks: Task[], startDate: Date, endDate: 
 export function getPriorityColor(priority: 'low' | 'medium' | 'high'): string {
   switch (priority) {
     case 'high':
-      return 'border-l-4 border-l-red-500';
+      return 'border-l-4 border-l-dried-rose bg-gradient-to-r from-dried-rose/20 to-faded-mauve/10 text-dried-rose';
     case 'medium':
-      return 'border-l-4 border-l-yellow-500';
+      return 'border-l-4 border-l-faded-mauve bg-gradient-to-r from-faded-mauve/20 to-muted-rosewood/10 text-dried-rose';
     case 'low':
-      return 'border-l-4 border-l-green-500';
+      return 'border-l-4 border-l-muted-rosewood bg-gradient-to-r from-muted-rosewood/20 to-petal-dust/10 text-dried-rose';
     default:
-      return 'border-l-4 border-l-gray-400';
+      return 'border-l-4 border-l-petal-dust bg-gradient-to-r from-petal-dust/20 to-blush-cloud/10 text-dried-rose';
   }
 }
 

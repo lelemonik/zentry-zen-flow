@@ -26,7 +26,7 @@ const Schedule = () => {
     startTime: '',
     endTime: '',
     date: '',
-    color: '#8b5cf6',
+    color: '#b9908d', // Default to faded mauve from Cloud Petal palette
     category: '',
   });
   const { toast } = useToast();
@@ -88,7 +88,7 @@ const Schedule = () => {
       startTime: '',
       endTime: '',
       date: '',
-      color: '#8b5cf6',
+      color: '#b9908d', // Default to faded mauve from Cloud Petal palette
       category: '',
     });
     setEditingEvent(null);
@@ -191,41 +191,51 @@ const Schedule = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center animate-fade-in">
-          <h2 className="text-xl sm:text-2xl font-bold">Calendar</h2>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-xs">
-              {isOnline ? (
-                <>
-                  <Cloud className="w-3 h-3 text-green-500" />
-                  <span className="text-green-500 hidden sm:inline">Synced</span>
-                </>
-              ) : (
-                <>
-                  <CloudOff className="w-3 h-3 text-amber-500" />
-                  <span className="text-amber-500 hidden sm:inline">Offline</span>
-                </>
-              )}
+        <div className="animate-fade-in">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-4xl font-bold text-dried-rose">
+              My Schedule
+            </h1>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-neumorphism-inset bg-white-blossom/60">
+                {isOnline ? (
+                  <>
+                    <Cloud className="w-3.5 h-3.5 text-muted-rosewood" />
+                    <span className="text-xs font-medium text-dried-rose">Synced</span>
+                  </>
+                ) : (
+                  <>
+                    <CloudOff className="w-3.5 h-3.5 text-faded-mauve" />
+                    <span className="text-xs font-medium text-dried-rose">Offline</span>
+                  </>
+                )}
+              </div>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-2 shadow-neumorphism hover:shadow-neumorphism-hover bg-dried-rose hover:bg-faded-mauve text-white transition-all">
+                    <Plus className="w-4 h-4" />
+                    <span className="hidden sm:inline">New Event</span>
+                    <span className="sm:hidden">New</span>
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-1.5 sm:gap-2">
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">New Event</span>
-                  <span className="sm:hidden">New</span>
-                </Button>
-              </DialogTrigger>
-            </Dialog>
           </div>
+          <p className="text-muted-foreground">
+            {events.length === 0 
+              ? "No events scheduled."
+              : `You have ${events.length} ${events.length === 1 ? 'event' : 'events'} scheduled`
+            }
+          </p>
         </div>
 
         {/* Calendar Grid */}
-        <Card className="glass p-3 sm:p-4 md:p-6 animate-slide-up" style={{ animationDelay: '50ms' }}>
+        <Card className="shadow-neumorphism border-0 bg-white-blossom/60 p-4 sm:p-6 animate-slide-up" style={{ animationDelay: '50ms' }}>
           <CalendarGrid
             currentDate={currentDate}
             selectedDates={selectedDates}
@@ -248,7 +258,7 @@ const Schedule = () => {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Event Title *</label>
+                  <label className="text-sm font-semibold text-dried-rose">Event Title *</label>
                   <Input
                     placeholder="e.g., Team Meeting"
                     value={formData.title}
@@ -257,7 +267,7 @@ const Schedule = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Description</label>
+                  <label className="text-sm font-semibold text-dried-rose">Description</label>
                   <Textarea
                     placeholder="Add details about this event (optional)"
                     value={formData.description}
@@ -266,7 +276,7 @@ const Schedule = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Date *</label>
+                  <label className="text-sm font-semibold text-dried-rose">Date *</label>
                   <Input
                     type="date"
                     value={formData.date}
@@ -276,7 +286,7 @@ const Schedule = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Start Time (Optional)</label>
+                    <label className="text-sm font-semibold text-dried-rose">Start Time (Optional)</label>
                     <Input
                       type="time"
                       value={formData.startTime}
@@ -284,7 +294,7 @@ const Schedule = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">End Time (Optional)</label>
+                    <label className="text-sm font-semibold text-dried-rose">End Time (Optional)</label>
                     <Input
                       type="time"
                       value={formData.endTime}
@@ -294,7 +304,7 @@ const Schedule = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Category</label>
+                    <label className="text-sm font-semibold text-dried-rose">Category</label>
                     <Select
                       value={formData.category}
                       onValueChange={(value: string) => setFormData({ ...formData, category: value })}
@@ -316,12 +326,35 @@ const Schedule = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Color</label>
+                    <label className="text-sm font-semibold text-dried-rose">Color</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {[
+                        { color: '#f5e0e2', name: 'Blush Cloud' },
+                        { color: '#e8cdc7', name: 'Petal Dust' },
+                        { color: '#d7b3ad', name: 'Muted Rosewood' },
+                        { color: '#b9908d', name: 'Faded Mauve' },
+                        { color: '#8b6a69', name: 'Dried Rose' },
+                        { color: '#f9f7f4', name: 'White Blossom' },
+                      ].map((item) => (
+                        <button
+                          key={item.color}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, color: item.color })}
+                          className={`w-10 h-10 rounded-xl transition-all shadow-neumorphism hover:shadow-neumorphism-hover ${
+                            formData.color === item.color 
+                              ? 'ring-2 ring-dried-rose scale-110' 
+                              : 'hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: item.color }}
+                          title={item.name}
+                        />
+                      ))}
+                    </div>
                     <Input
                       type="color"
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="h-10"
+                      className="h-8 w-full mt-2"
                     />
                   </div>
                 </div>
