@@ -347,7 +347,7 @@ const Settings = () => {
                     <Input
                       id="name"
                       placeholder="Your name"
-                      value={profile.name}
+                      value={profile.name || ''}
                       onChange={(e) => handleProfileChange({ name: e.target.value })}
                     />
                   </div>
@@ -357,7 +357,7 @@ const Settings = () => {
                       id="email"
                       type="email"
                       placeholder="your.email@example.com"
-                      value={profile.email}
+                      value={profile.email || ''}
                       onChange={(e) => handleProfileChange({ email: e.target.value })}
                     />
                   </div>
@@ -366,7 +366,7 @@ const Settings = () => {
                     <Textarea
                       id="bio"
                       placeholder="Tell us about yourself..."
-                      value={profile.bio}
+                      value={profile.bio || ''}
                       onChange={(e) => handleProfileChange({ bio: e.target.value })}
                     />
                   </div>
@@ -611,36 +611,6 @@ const Settings = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass">
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-lg sm:text-xl">Data Management</CardTitle>
-                <CardDescription className="text-sm">Backup and restore your data</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
-                <Button onClick={handleBackup} className="w-full gap-2" variant="outline" size="default">
-                  <Download className="w-4 h-4" />
-                  <span className="text-sm">Export Backup</span>
-                </Button>
-                <div>
-                  <label htmlFor="restore-file">
-                    <Button className="w-full gap-2" variant="outline" size="default" asChild>
-                      <span>
-                        <Upload className="w-4 h-4" />
-                        <span className="text-sm">Import Backup</span>
-                      </span>
-                    </Button>
-                  </label>
-                  <input
-                    id="restore-file"
-                    type="file"
-                    accept=".json"
-                    onChange={handleRestore}
-                    className="hidden"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
             <Card className="glass border-destructive/50">
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="text-destructive flex items-center gap-2 text-base sm:text-lg">
@@ -677,8 +647,11 @@ const Settings = () => {
                         <AlertTriangle className="w-5 h-5" />
                         Are you absolutely sure?
                       </AlertDialogTitle>
-                      <AlertDialogDescription className="space-y-2">
-                        <p className="font-semibold">This action cannot be undone. This will permanently:</p>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your account and all data.
+                      </AlertDialogDescription>
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <p className="font-semibold">This will permanently:</p>
                         <ul className="list-disc list-inside space-y-1 ml-2">
                           <li>Delete your account</li>
                           <li>Remove all your tasks, notes, and schedules</li>
@@ -686,7 +659,7 @@ const Settings = () => {
                           <li>Clear all local and cloud data</li>
                         </ul>
                         <p className="text-destructive font-medium mt-4">Type "DELETE" to confirm:</p>
-                      </AlertDialogDescription>
+                      </div>
                     </AlertDialogHeader>
                     <Input 
                       id="delete-confirm"
