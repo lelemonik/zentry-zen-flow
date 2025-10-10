@@ -41,6 +41,7 @@ export interface UserProfile {
 
 export interface AppSettings {
   colorScheme: 'purple' | 'blue' | 'green' | 'pink';
+  theme: 'strawberry-kiss' | 'deep-matcha' | 'pink-latte' | 'midnight-sky';
   notifications: boolean;
   autoSave: boolean;
 }
@@ -153,6 +154,7 @@ export const profileStorage = {
 export const settingsStorage = {
   get: (): AppSettings => storage.get(STORAGE_KEYS.SETTINGS, {
     colorScheme: 'purple',
+    theme: 'strawberry-kiss',
     notifications: true,
     autoSave: true,
   }),
@@ -283,6 +285,55 @@ export const moodStorage = {
   // Get mood history
   getHistory: (): MoodEntry[] => {
     return storage.get<MoodEntry[]>(STORAGE_KEYS.MOOD_HISTORY, []);
+  },
+
+  // Add mood for a specific date
+  addMoodForDate: (mood: string, date: string) => {
+    const history = moodStorage.getHistory();
+    const entry: MoodEntry = {
+      mood,
+      date,
+      timestamp: new Date().toISOString(),
+    };
+    
+    // Check if there's already an entry for this date
+    const existingIndex = history.findIndex(e => e.date === date);
+    if (existingIndex >= 0) {
+      // Update existing entry
+      history[existingIndex] = entry;
+    } else {
+      // Add new entry
+      history.push(entry);
+    }
+    
+    // Sort by date (newest first)
+    history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    storage.set(STORAGE_KEYS.MOOD_HISTORY, history);
+    
+    // Update today's mood if the date is today
+    const today = new Date().toISOString().split('T')[0];
+    if (date === today) {
+      storage.set(STORAGE_KEYS.TODAY_MOOD, { mood, date });
+    }
+  },
+
+  // Delete mood entry by date
+  deleteMoodByDate: (date: string) => {
+    const history = moodStorage.getHistory();
+    const filtered = history.filter(e => e.date !== date);
+    storage.set(STORAGE_KEYS.MOOD_HISTORY, filtered);
+    
+    // If deleting today's mood, also clear TODAY_MOOD
+    const today = new Date().toISOString().split('T')[0];
+    if (date === today) {
+      storage.remove(STORAGE_KEYS.TODAY_MOOD);
+    }
+  },
+
+  // Update mood for a specific date
+  updateMoodForDate: (date: string, newMood: string) => {
+    moodStorage.addMoodForDate(newMood, date);
   },
 
   // Clear mood data

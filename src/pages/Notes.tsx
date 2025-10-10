@@ -171,7 +171,7 @@ const Notes = () => {
       <div className="max-w-6xl mx-auto">
         <div className="animate-fade-in">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-bold text-dried-rose">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Notes
             </h1>
             <div className="flex items-center gap-2">
@@ -188,16 +188,21 @@ const Notes = () => {
                   </>
                 )}
               </div>
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button size="lg" className="gap-2 shadow-neumorphism hover:shadow-neumorphism-hover bg-dried-rose hover:bg-faded-mauve text-white transition-all">
-                    <Plus className="w-5 h-5" />
-                    New
-                  </Button>
-                </DialogTrigger>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-muted-foreground text-sm sm:text-base">{notes.length} total notes</p>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button size="default" className="gap-2 shadow-neumorphism hover:shadow-neumorphism-hover bg-dried-rose hover:bg-faded-mauve text-white transition-all">
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">New Note</span>
+                  <span className="sm:hidden">New</span>
+                </Button>
+              </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle>{editingNote ? 'Edit Note' : 'Create New Note'}</DialogTitle>
@@ -248,10 +253,8 @@ const Notes = () => {
               </Dialog>
             </div>
           </div>
-          <p className="text-muted-foreground">{notes.length} total notes</p>
-        </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
           {notes.length === 0 ? (
             <Card className="glass md:col-span-2 lg:col-span-3">
               <CardContent className="py-12 text-center">
@@ -264,32 +267,28 @@ const Notes = () => {
             notes.map((note, index) => (
               <Card
                 key={note.id}
-                className="glass hover:shadow-lg transition-all animate-scale-in"
+                className="glass hover:shadow-lg transition-all animate-scale-in cursor-pointer"
                 style={{ animationDelay: `${index * 50}ms` }}
+                onClick={() => handleEdit(note)}
               >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg line-clamp-1">{note.title}</CardTitle>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(note)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
+                <CardHeader className="pb-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <CardTitle className="text-base sm:text-lg line-clamp-1">{note.title}</CardTitle>
+                    <div onClick={(e) => e.stopPropagation()}>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(note.id)}
+                        title="Delete note"
+                        className="h-8 w-8 p-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm line-clamp-3 mb-3">
+                <CardContent className="space-y-3">
+                  <p className="text-muted-foreground text-sm line-clamp-2">
                     {note.content || 'No content'}
                   </p>
                   {note.tags.length > 0 && (
@@ -304,7 +303,7 @@ const Notes = () => {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground mt-3">
+                  <p className="text-xs text-muted-foreground">
                     Updated {new Date(note.updatedAt).toLocaleDateString()}
                   </p>
                 </CardContent>

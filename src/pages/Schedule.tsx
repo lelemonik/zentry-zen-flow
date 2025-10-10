@@ -53,22 +53,26 @@ const Schedule = () => {
 
 
 
-  const handleDateSelect = (date: Date) => {
-    const dateTime = date.setHours(0, 0, 0, 0);
-    const existingIndex = selectedDates.findIndex(d => 
-      new Date(d).setHours(0, 0, 0, 0) === dateTime
-    );
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [dateEvents, setDateEvents] = useState<ScheduleEvent[]>([]);
 
-    if (existingIndex >= 0) {
-      // Date already selected, remove it
-      setSelectedDates(selectedDates.filter((_, i) => i !== existingIndex));
-    } else if (selectedDates.length < 2) {
-      // Add date (max 2 for range selection)
-      setSelectedDates([...selectedDates, date]);
-    } else {
-      // Replace with new selection
-      setSelectedDates([date]);
+  const handleDateSelect = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    const dayEvents = events.filter(event => event.date === dateStr);
+    
+    setSelectedDate(date);
+    setDateEvents(dayEvents);
+    
+    // Pre-fill the form date when a date is selected
+    if (!editingEvent) {
+      setFormData(prev => ({ ...prev, date: dateStr }));
     }
+  };
+
+  const handleCloseFloatingBox = () => {
+    setSelectedDate(null);
+    setDateEvents([]);
+    resetForm();
   };
 
   const handleMonthChange = (direction: 'prev' | 'next') => {
@@ -149,6 +153,13 @@ const Schedule = () => {
       loadEvents();
       resetForm();
       setIsDialogOpen(false);
+      // Refresh the date events if a date is selected
+      if (selectedDate) {
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        const refreshedEvents = await supabaseScheduleStorage.getAll();
+        const dayEvents = refreshedEvents.filter(event => event.date === dateStr);
+        setDateEvents(dayEvents);
+      }
     }
   };
 
@@ -163,7 +174,12 @@ const Schedule = () => {
       color: event.color,
       category: event.category,
     });
-    setIsDialogOpen(true);
+  };
+
+  // Get events for a specific date
+  const getEventsForDate = (date: Date): ScheduleEvent[] => {
+    const dateStr = date.toISOString().split('T')[0];
+    return events.filter(event => event.date === dateStr);
   };
 
   const handleDelete = async (id: string) => {
@@ -182,11 +198,14 @@ const Schedule = () => {
         description: '⚠️ Removed locally',
       });
     }
-    loadEvents();
-    toast({
-      title: 'Event deleted',
-      description: 'Your event has been deleted',
-    });
+    await loadEvents();
+    // Refresh the date events if a date is selected
+    if (selectedDate) {
+      const dateStr = selectedDate.toISOString().split('T')[0];
+      const refreshedEvents = scheduleStorage.getAll();
+      const dayEvents = refreshedEvents.filter(event => event.date === dateStr);
+      setDateEvents(dayEvents);
+    }
   };
 
   return (
@@ -195,7 +214,7 @@ const Schedule = () => {
         {/* Header */}
         <div className="animate-fade-in">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-bold text-dried-rose">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               My Schedule
             </h1>
             <div className="flex items-center gap-2">
@@ -212,24 +231,12 @@ const Schedule = () => {
                   </>
                 )}
               </div>
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="gap-2 shadow-neumorphism hover:shadow-neumorphism-hover bg-dried-rose hover:bg-faded-mauve text-white transition-all">
-                    <Plus className="w-4 h-4" />
-                    <span className="hidden sm:inline">New Event</span>
-                    <span className="sm:hidden">New</span>
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
             </div>
           </div>
           <p className="text-muted-foreground">
             {events.length === 0 
-              ? "No events scheduled."
-              : `You have ${events.length} ${events.length === 1 ? 'event' : 'events'} scheduled`
+              ? "Click any date to create your first event."
+              : `You have ${events.length} ${events.length === 1 ? 'event' : 'events'} scheduled. Click a date to view or add events.`
             }
           </p>
         </div>
@@ -238,11 +245,123 @@ const Schedule = () => {
         <Card className="shadow-neumorphism border-0 bg-white-blossom/60 p-4 sm:p-6 animate-slide-up" style={{ animationDelay: '50ms' }}>
           <CalendarGrid
             currentDate={currentDate}
-            selectedDates={selectedDates}
+            selectedDates={selectedDate ? [selectedDate] : []}
             onDateSelect={handleDateSelect}
             onMonthChange={handleMonthChange}
+            eventsData={events}
           />
         </Card>
+
+        {/* Floating Event Box - Centered Modal */}
+        <Dialog open={!!selectedDate} onOpenChange={(open) => {
+          if (!open) handleCloseFloatingBox();
+        }}>
+          <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto rounded-3xl bg-white-blossom shadow-neumorphism border-0">
+            <div className="space-y-4">
+              {/* Date Header */}
+              <div className="pb-4 border-b border-petal-dust">
+                <h3 className="text-xl sm:text-2xl font-bold text-dried-rose">
+                  {selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {dateEvents.length === 0 
+                    ? "No events scheduled for this day"
+                    : `${dateEvents.length} ${dateEvents.length === 1 ? 'event' : 'events'} scheduled`
+                  }
+                </p>
+              </div>
+
+              {/* Existing Events */}
+              {dateEvents.length > 0 && (
+                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+                  {dateEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className="p-3 sm:p-4 rounded-2xl shadow-neumorphism-inset border-l-4 transition-all hover:shadow-neumorphism"
+                      style={{ borderLeftColor: event.color }}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="font-bold text-dried-rose text-base sm:text-lg flex-1">
+                          {event.title}
+                        </h4>
+                        <div className="flex gap-1 flex-shrink-0">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              handleEdit(event);
+                              setIsDialogOpen(true);
+                            }}
+                            className="h-7 w-7 p-0 hover:bg-petal-dust/20"
+                            title="Edit event"
+                          >
+                            <Edit className="w-3.5 h-3.5 text-dried-rose" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDelete(event.id)}
+                            className="h-7 w-7 p-0 hover:bg-destructive/10"
+                            title="Delete event"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {event.description && (
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-2 leading-relaxed">
+                          {event.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {event.startTime && (
+                          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-petal-dust/20 text-dried-rose text-xs font-medium">
+                            <span>🕐</span>
+                            <span>
+                              {event.startTime}
+                              {event.endTime && ` - ${event.endTime}`}
+                            </span>
+                          </div>
+                        )}
+                        {event.category && (
+                          <div className="px-2 py-1 rounded-full bg-muted-rosewood/20 text-dried-rose text-xs font-medium">
+                            📂 {event.category}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Create New Event Button */}
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button 
+                    className="w-full gap-2 shadow-neumorphism hover:shadow-neumorphism-hover bg-dried-rose hover:bg-faded-mauve text-white transition-all"
+                    onClick={() => {
+                      resetForm();
+                      if (selectedDate) {
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          date: selectedDate.toISOString().split('T')[0] 
+                        }));
+                      }
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Event to This Day
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Event Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={(open) => {

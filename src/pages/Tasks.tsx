@@ -189,7 +189,7 @@ const Tasks = () => {
         {/* Header */}
         <div className="animate-fade-in">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-4xl font-bold text-dried-rose">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               My Tasks
             </h1>
             <div className="flex items-center gap-2">
@@ -208,9 +208,9 @@ const Tasks = () => {
               </div>
             </div>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             {tasks.length === 0 
-              ? "Ready to get organized? Create your first task!"
+              ? "No tasks yet."
               : `You have ${tasks.length} ${tasks.length === 1 ? 'task' : 'tasks'}${tasks.filter(t => t.completed).length > 0 ? ` (${tasks.filter(t => t.completed).length} completed)` : ''}`
             }
           </p>
@@ -398,12 +398,9 @@ const Tasks = () => {
           {tasks.length === 0 ? (
             <Card className="shadow-neumorphism border-0 bg-white-blossom/60 animate-fade-in">
               <CardContent className="py-16 text-center space-y-4">
-                <div className="w-20 h-20 mx-auto rounded-2xl shadow-neumorphism-inset bg-gradient-to-br from-blush-cloud/30 to-petal-dust/20 flex items-center justify-center">
-                  <Plus className="w-10 h-10 text-dried-rose" />
-                </div>
                 <div>
                   <h3 className="text-xl font-bold text-dried-rose mb-2">No tasks yet</h3>
-                  <p className="text-muted-foreground">Click the "New Task" button to get started!</p>
+                  <p className="text-muted-foreground">Click the button above to get started!</p>
                 </div>
               </CardContent>
             </Card>

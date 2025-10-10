@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { notificationManager } from "@/lib/notifications";
+import { settingsStorage } from "@/lib/storage";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,14 @@ const RootRedirect = () => {
 
 const App = () => {
   useEffect(() => {
+    // Apply saved theme on app load
+    const settings = settingsStorage.get();
+    if (settings.theme && settings.theme !== 'strawberry-kiss') {
+      document.documentElement.setAttribute('data-theme', settings.theme);
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+
     // Register service worker for notifications and offline support
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')

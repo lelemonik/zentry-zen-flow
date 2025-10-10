@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Smile, Meh, Frown, Angry, Laugh, MessageSquare, Lightbulb, Send, TrendingUp, Calendar, Zap } from 'lucide-react';
+import { Smile, Meh, Frown, Angry, Laugh, MessageSquare, Lightbulb, Send, TrendingUp, Calendar, Zap, Trash2 } from 'lucide-react';
 import AppLayout from '@/components/Layout/AppLayout';
 import { taskStorage, profileStorage, moodStorage, type MoodEntry } from '@/lib/storage';
 import { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { supabaseFeedbackStorage } from '@/lib/supabaseFeedback';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -147,6 +148,25 @@ const Dashboard = () => {
     });
   };
 
+  const handleDeleteMood = (date: string) => {
+    if (!confirm('Are you sure you want to delete this mood entry?')) return;
+
+    moodStorage.deleteMoodByDate(date);
+    const history = moodStorage.getHistory();
+    setMoodHistory(history);
+
+    // Update selected mood if deleting today
+    const today = new Date().toISOString().split('T')[0];
+    if (date === today) {
+      setSelectedMood(null);
+    }
+
+    toast({
+      title: 'Mood deleted',
+      description: 'Mood entry has been removed',
+    });
+  };
+
   // Calculate mood statistics
   const getMoodStats = () => {
     if (moodHistory.length === 0) {
@@ -235,11 +255,22 @@ const Dashboard = () => {
 
     setIsSubmitting(true);
 
-    // Simulate submission (you can replace this with actual API call)
-    setTimeout(() => {
+    try {
+      // Get user profile for additional context
+      const profile = profileStorage.get();
+      
+      // Submit to Supabase
+      await supabaseFeedbackStorage.submit({
+        user_id: user?.id || 'anonymous',
+        user_email: user?.email || profile?.email || '',
+        user_name: profile?.name || user?.user_metadata?.username || 'Anonymous',
+        type: type,
+        content: text,
+      });
+
       toast({
         title: 'Thank you!',
-        description: `Your ${type === 'feedback' ? 'feedback' : 'feature request'} has been submitted. We appreciate your input!`,
+        description: `Your ${type === 'feedback' ? 'feedback' : 'feature request'} has been submitted successfully. We'll review it soon!`,
       });
       
       if (type === 'feedback') {
@@ -247,9 +278,16 @@ const Dashboard = () => {
       } else {
         setFeatureText('');
       }
-      
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      toast({
+        title: 'Submission failed',
+        description: 'There was an error submitting your ' + type + '. Please try again later.',
+        variant: 'destructive',
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -257,12 +295,12 @@ const Dashboard = () => {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Welcome Message */}
         <div className="animate-fade-in">
-          <h1 className="text-4xl font-bold mb-2 text-dried-rose">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             {isNewUser ? `Welcome, ${userName}!` : `Welcome back, ${userName}!`}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             {isNewUser 
-              ? "We're excited to have you here! Start by creating your first task or note."
+              ? "We're excited to have you here!"
               : `You have ${stats.tasks} ${stats.tasks === 1 ? 'task' : 'tasks'}${stats.completedTasks > 0 ? ` (${stats.completedTasks} completed)` : ''}`
             }
           </p>
@@ -405,7 +443,7 @@ const Dashboard = () => {
                           } hover:shadow-neumorphism transition-all duration-300`}
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3 flex-1">
                             <div className={`w-10 h-10 flex items-center justify-center rounded-xl shadow-neumorphism transition-all duration-300 ${
                               isToday 
                                 ? `bg-gradient-to-br ${getMoodGradient(entry.mood)} scale-105` 
@@ -415,23 +453,37 @@ const Dashboard = () => {
                                 {getMoodIcon(entry.mood)}
                               </div>
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <p className={`text-sm font-semibold ${getMoodColor(entry.mood)}`}>
                                 {getMoodLabel(entry.mood)}
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 {isToday ? 'Today' : isYesterday ? 'Yesterday' : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined })}
                               </p>
+                              <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                                Created {new Date(entry.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                              </p>
                             </div>
                           </div>
-                          {isToday && (
-                            <Badge 
-                              variant="secondary" 
-                              className={`text-[10px] font-semibold bg-gradient-to-r ${getMoodGradient(entry.mood)} ${getMoodColor(entry.mood)} border ${moods.find(m => m.value === entry.mood)?.borderColor || 'border-pastel-steel/30'} shadow-sm`}
+                          <div className="flex items-center gap-2">
+                            {isToday && (
+                              <Badge 
+                                variant="secondary" 
+                                className={`text-[10px] font-semibold bg-gradient-to-r ${getMoodGradient(entry.mood)} ${getMoodColor(entry.mood)} border ${moods.find(m => m.value === entry.mood)?.borderColor || 'border-pastel-steel/30'} shadow-sm`}
+                              >
+                                Current
+                              </Badge>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteMood(entry.date)}
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600"
+                              title="Delete mood entry"
                             >
-                              Current
-                            </Badge>
-                          )}
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       );
                     })}

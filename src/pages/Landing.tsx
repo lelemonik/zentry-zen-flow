@@ -91,7 +91,7 @@ const Landing = () => {
       title: 'AI Chat', 
       description: 'Get instant help and insights powered by AI',
       gradient: 'from-pastel-purple/30 to-pastel-pink/30',
-      iconGradient: 'from-pastel-purple to-pastel-pink',
+      iconGradient: 'from-primary to-muted',
       badge: 'NEW'
     },
     { 
@@ -99,21 +99,21 @@ const Landing = () => {
       title: 'Smart Tasks', 
       description: 'Organize and track your to-dos with AI assistance',
       gradient: 'from-pastel-steel/30 to-pastel-blue/30',
-      iconGradient: 'from-pastel-steel to-pastel-blue'
+      iconGradient: 'from-primary to-muted'
     },
     { 
       icon: <StickyNote className="w-6 h-6" />, 
       title: 'Quick Notes', 
       description: 'Capture ideas and thoughts instantly',
       gradient: 'from-pastel-yellow/30 to-pastel-pink/30',
-      iconGradient: 'from-pastel-yellow to-pastel-pink'
+      iconGradient: 'from-primary to-muted'
     },
     { 
       icon: <Calendar className="w-6 h-6" />, 
       title: 'Schedule', 
       description: 'Plan your day with a beautiful calendar',
       gradient: 'from-pastel-teal/30 to-pastel-blue/30',
-      iconGradient: 'from-pastel-teal to-pastel-blue'
+      iconGradient: 'from-primary to-muted'
     },
   ];
 
@@ -157,7 +157,7 @@ const Landing = () => {
 
           {/* Tagline */}
           <div className="text-center">
-            <p className="text-sm md:text-base text-muted-foreground font-medium">
+            <p className="text-sm md:text-base text-foreground/80 font-semibold">
               Your all-in-one productivity hub
             </p>
           </div>
@@ -166,7 +166,7 @@ const Landing = () => {
           <div className="pt-12">
             <div className="flex items-center justify-center gap-4 mb-8">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-              <p className="text-base font-semibold text-foreground uppercase tracking-wider">
+              <p className="text-base font-bold text-foreground/90 uppercase tracking-wider">
                 Features
               </p>
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -179,7 +179,7 @@ const Landing = () => {
                 >
                   {/* Badge for new features */}
                   {feature.badge && (
-                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-gradient-to-r from-pastel-purple to-pastel-pink text-white text-[10px] font-bold uppercase tracking-wide shadow-lg">
+                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-gradient-to-r from-primary to-muted text-primary-foreground text-[10px] font-bold uppercase tracking-wide shadow-lg">
                       {feature.badge}
                     </div>
                   )}
@@ -188,16 +188,16 @@ const Landing = () => {
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient || 'from-primary/5 to-secondary/5'} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl`} />
                   
                   {/* Icon */}
-                  <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.iconGradient || 'from-primary to-secondary'} flex items-center justify-center text-white shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300`}>
+                  <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.iconGradient || 'from-primary to-secondary'} flex items-center justify-center text-primary-foreground shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300`}>
                     {feature.icon}
                   </div>
                   
                   {/* Content */}
                   <div className="relative text-center space-y-2">
-                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="text-base font-bold text-foreground/90 group-hover:text-foreground transition-colors">
                       {feature.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-xs text-foreground/70 leading-relaxed font-medium">
                       {feature.description}
                     </p>
                   </div>
@@ -211,10 +211,10 @@ const Landing = () => {
       {/* Footer */}
       <footer className="w-full py-6 px-4 border-t">
         <div className="container mx-auto text-center space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Developed with ❤️ by <span className="font-semibold text-foreground">Gayle</span>
+          <p className="text-sm text-foreground/70 font-medium">
+            Developed with ❤️ by <span className="font-bold text-foreground/90">Gayle</span>
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-foreground/60 font-medium">
             © 2025 Zentry. All rights reserved.
           </p>
         </div>

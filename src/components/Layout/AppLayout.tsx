@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { CheckSquare, FileText, Calendar, Settings, LogOut, MessageSquare, LayoutDashboard } from 'lucide-react';
+import { CheckSquare, FileText, Calendar, Settings, LogOut, MessageSquare, LayoutDashboard, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -20,7 +20,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -85,14 +85,28 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             {/* Logo with Drawer */}
             <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
               <SheetTrigger asChild>
-                <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                    <span className="text-xl font-bold text-white">Z</span>
+                <button 
+                  className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-80 transition-all group"
+                  aria-label="Open menu"
+                  title="Open menu"
+                >
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center group-hover:shadow-lg transition-shadow">
+                      <span className="text-xl font-bold text-white">Z</span>
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                      <Menu className="w-3 h-3 text-white" />
+                    </div>
                   </div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:inline">
-                    Zentry
-                  </span>
-                </div>
+                  <div className="flex flex-col items-start">
+                    <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:inline">
+                      Zentry
+                    </span>
+                    <span className="text-[10px] font-medium text-muted-foreground hidden sm:inline">
+                      Tap to open menu
+                    </span>
+                  </div>
+                </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                 <SheetHeader>
@@ -147,7 +161,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                     onClick={() => navigate(item.path)}
                   >
                     {item.icon}
-                    <span className="ml-2 hidden lg:inline">{item.label}</span>
                   </Button>
                 ))}
                 <Button 
@@ -157,7 +170,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   onClick={handleLogout}
                 >
                   <LogOut className="w-5 h-5" />
-                  <span className="ml-2 hidden lg:inline">Logout</span>
                 </Button>
               </nav>
             </div>
@@ -173,7 +185,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               key={item.path}
               variant={isActive(item.path) ? 'default' : 'ghost'}
               size="sm"
-              className={`flex flex-col h-16 gap-1.5 rounded-2xl transition-all duration-300 ${
+              className={`flex items-center justify-center h-12 rounded-2xl transition-all duration-300 ${
                 isActive(item.path) 
                   ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-md scale-105' 
                   : 'hover:bg-accent/50 hover:scale-105'
@@ -182,9 +194,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             >
               <span className={`transition-transform duration-300 ${isActive(item.path) ? 'scale-110' : ''}`}>
                 {item.icon}
-              </span>
-              <span className={`text-xs font-semibold ${isActive(item.path) ? 'text-white' : 'text-foreground'}`}>
-                {item.label}
               </span>
             </Button>
           ))}

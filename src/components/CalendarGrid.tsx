@@ -8,6 +8,7 @@ interface CalendarGridProps {
   onMonthChange: (direction: 'prev' | 'next') => void;
   selectionMode?: 'single' | 'range';
   onRangeComplete?: (startDate: Date, endDate: Date) => void;
+  eventsData?: Array<{ date: string; color?: string }>;
 }
 
 export function CalendarGrid({ 
@@ -16,7 +17,8 @@ export function CalendarGrid({
   onDateSelect,
   onMonthChange,
   selectionMode = 'range',
-  onRangeComplete
+  onRangeComplete,
+  eventsData = []
 }: CalendarGridProps) {
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -81,6 +83,17 @@ export function CalendarGrid({
     return date.toDateString() === today.toDateString();
   };
 
+  const hasEvents = (date: Date): boolean => {
+    const dateStr = date.toISOString().split('T')[0];
+    return eventsData.some(event => event.date === dateStr);
+  };
+
+  const getEventColor = (date: Date): string => {
+    const dateStr = date.toISOString().split('T')[0];
+    const event = eventsData.find(e => e.date === dateStr);
+    return event?.color || '#b9908d';
+  };
+
   const days = getDaysInMonth(currentDate);
 
   return (
@@ -129,25 +142,52 @@ export function CalendarGrid({
           const selected = isSelected(day);
           const inRange = isInRange(day);
           const today = isToday(day);
+          const dayHasEvents = hasEvents(day);
 
           return (
             <button
               key={index}
               onClick={() => onDateSelect(day)}
               className={`
-                aspect-square rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold
-                transition-all duration-200
+                aspect-square rounded-full flex flex-col items-center justify-center text-xs sm:text-sm font-semibold
+                transition-all duration-300 relative overflow-visible
                 ${selected 
-                  ? 'bg-gradient-to-br from-faded-mauve to-muted-rosewood text-white scale-105 sm:scale-110 shadow-neumorphism' 
+                  ? 'bg-gradient-to-br from-faded-mauve to-muted-rosewood text-white scale-110 sm:scale-125 shadow-neumorphism z-10' 
                   : inRange
                   ? 'bg-petal-dust/40 text-dried-rose'
                   : today
                   ? 'bg-blush-cloud/40 text-dried-rose font-bold ring-2 ring-faded-mauve/50'
-                  : 'hover:bg-petal-dust/20 text-dried-rose'
+                  : dayHasEvents
+                  ? 'hover:bg-petal-dust/30 text-dried-rose font-bold hover:scale-105'
+                  : 'hover:bg-petal-dust/20 text-dried-rose hover:scale-105'
                 }
               `}
             >
+              {/* Animated circles for selected date */}
+              {selected && (
+                <>
+                  <div className="absolute inset-0 rounded-full border-2 border-faded-mauve/30 animate-ping" />
+                  <div className="absolute inset-0 rounded-full border-2 border-dried-rose/20 animate-pulse" 
+                       style={{ animationDelay: '150ms' }} />
+                </>
+              )}
+              
               {day.getDate()}
+              
+              {dayHasEvents && !selected && (
+                <div 
+                  className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full absolute bottom-1 sm:bottom-1.5 transition-all duration-300"
+                  style={{ backgroundColor: getEventColor(day) }}
+                />
+              )}
+              
+              {/* Event indicator moves to a ring around selected date */}
+              {dayHasEvents && selected && (
+                <div 
+                  className="absolute -bottom-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full animate-bounce"
+                  style={{ backgroundColor: getEventColor(day) }}
+                />
+              )}
             </button>
           );
         })}

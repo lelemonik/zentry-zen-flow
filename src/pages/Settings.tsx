@@ -47,6 +47,15 @@ const Settings = () => {
     loadSettings();
   }, []);
 
+  useEffect(() => {
+    // Apply theme on mount and when settings change
+    if (settings.theme && settings.theme !== 'strawberry-kiss') {
+      document.documentElement.setAttribute('data-theme', settings.theme);
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }, [settings.theme]);
+
   const loadProfile = async () => {
     try {
       const supabaseProfile = await supabaseProfileStorage.get();
@@ -242,78 +251,80 @@ const Settings = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6 animate-fade-in">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+        <div className="animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Settings
           </h1>
-          <p className="text-muted-foreground mt-1">Manage your preferences and profile</p>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage your preferences and profile</p>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="glass">
-            <TabsTrigger value="profile" className="gap-2">
-              <User className="w-4 h-4" />
-              Profile
+        <Tabs defaultValue="profile" className="space-y-4 sm:space-y-6">
+          <TabsList className="glass w-full sm:w-auto">
+            <TabsTrigger value="profile" className="gap-1 sm:gap-2 flex-1 sm:flex-initial">
+              <User className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="preferences" className="gap-2">
-              <SettingsIcon className="w-4 h-4" />
-              Preferences
+            <TabsTrigger value="preferences" className="gap-1 sm:gap-2 flex-1 sm:flex-initial">
+              <SettingsIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm">Preferences</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
+          <TabsContent value="profile" className="space-y-4 sm:space-y-6">
             <Card className="glass">
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your personal information</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Profile Information</CardTitle>
+                <CardDescription className="text-sm">Update your personal information</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex flex-col sm:flex-row items-center gap-6">
+              <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                   <div className="relative group">
-                    <Avatar className="w-32 h-32 border-4 border-primary/20">
+                    <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-primary/20">
                       <AvatarImage src={profile.avatar} />
-                      <AvatarFallback className="text-4xl bg-gradient-to-br from-primary to-secondary text-primary-foreground">
+                      <AvatarFallback className="text-2xl sm:text-4xl bg-gradient-to-br from-primary to-secondary text-primary-foreground">
                         {profile.name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     {profile.avatar && (
                       <button
                         onClick={handleRemoveAvatar}
-                        className="absolute -top-2 -right-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"
+                        className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-7 h-7 sm:w-8 sm:h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"
                         title="Remove photo"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3 h-3 sm:w-4 sm:h-4" />
                       </button>
                     )}
                   </div>
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-3 text-center sm:text-left">
                     <div>
-                      <Label className="text-base font-semibold">Profile Photo</Label>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <Label className="text-sm sm:text-base font-semibold">Profile Photo</Label>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                         Upload a photo to personalize your profile
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => fileInputRef.current?.click()}
-                        className="gap-2"
+                        className="gap-2 w-full sm:w-auto"
+                        size="sm"
                       >
-                        <Camera className="w-4 h-4" />
-                        {profile.avatar ? 'Change Photo' : 'Upload Photo'}
+                        <Camera className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="text-xs sm:text-sm">{profile.avatar ? 'Change Photo' : 'Upload Photo'}</span>
                       </Button>
                       {profile.avatar && (
                         <Button
                           type="button"
                           variant="outline"
                           onClick={handleRemoveAvatar}
-                          className="gap-2 text-destructive hover:text-destructive"
+                          className="gap-2 text-destructive hover:text-destructive w-full sm:w-auto"
+                          size="sm"
                         >
-                          <X className="w-4 h-4" />
-                          Remove
+                          <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="text-xs sm:text-sm">Remove</span>
                         </Button>
                       )}
                     </div>
@@ -324,7 +335,7 @@ const Settings = () => {
                       onChange={handleImageUpload}
                       className="hidden"
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">
                       Recommended: Square image, max 5MB (JPG, PNG, GIF)
                     </p>
                   </div>
@@ -373,22 +384,186 @@ const Settings = () => {
           </TabsContent>
 
           {/* Preferences Tab */}
-          <TabsContent value="preferences" className="space-y-6">
+          <TabsContent value="preferences" className="space-y-4 sm:space-y-6">
+            {/* Theme Selector */}
             <Card className="glass">
-              <CardHeader>
-                <CardTitle>App Preferences</CardTitle>
-                <CardDescription>Configure how Zentry works for you</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Theme</CardTitle>
+                <CardDescription className="text-sm">Choose your preferred color theme</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-3 rounded-lg hover:bg-accent/50 transition-colors space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Notifications</p>
-                      <p className="text-sm text-muted-foreground">Receive push notifications for tasks and events</p>
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Strawberry Kiss */}
+                  <button
+                    onClick={() => {
+                      handleSettingsChange({ theme: 'strawberry-kiss' });
+                      document.documentElement.removeAttribute('data-theme');
+                      toast({
+                        title: 'Theme changed',
+                        description: '🍓 Strawberry Kiss theme applied',
+                      });
+                    }}
+                    className={`group relative p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                      settings.theme === 'strawberry-kiss' 
+                        ? 'border-primary ring-2 ring-primary/20 shadow-lg' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#b9908d] to-[#d7b3ad] shadow-md" />
+                      <div className="text-left flex-1">
+                        <p className="font-semibold text-sm">Strawberry Kiss</p>
+                        <p className="text-xs text-muted-foreground">Soft pink & mauve</p>
+                      </div>
+                      {settings.theme === 'strawberry-kiss' && (
+                        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-2 flex-1 rounded-full bg-[#f5e0e2]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#e8cdc7]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#b9908d]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#8b6a69]" />
+                    </div>
+                  </button>
+
+                  {/* Deep Matcha */}
+                  <button
+                    onClick={() => {
+                      handleSettingsChange({ theme: 'deep-matcha' });
+                      document.documentElement.setAttribute('data-theme', 'deep-matcha');
+                      toast({
+                        title: 'Theme changed',
+                        description: '🍵 Deep Matcha theme applied',
+                      });
+                    }}
+                    className={`group relative p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                      settings.theme === 'deep-matcha' 
+                        ? 'border-[#5f7f3d] ring-2 ring-[#5f7f3d]/20 shadow-lg' 
+                        : 'border-border hover:border-[#5f7f3d]/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#5f7f3d] to-[#3d5526] shadow-md" />
+                      <div className="text-left flex-1">
+                        <p className="font-semibold text-sm">Deep Matcha</p>
+                        <p className="text-xs text-muted-foreground">Rich green tones</p>
+                      </div>
+                      {settings.theme === 'deep-matcha' && (
+                        <div className="w-6 h-6 rounded-full bg-[#5f7f3d] flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-2 flex-1 rounded-full bg-[#e8efe2]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#94aa6e]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#5f7f3d]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#3d5526]" />
+                    </div>
+                  </button>
+
+                  {/* Pink Latte */}
+                  <button
+                    onClick={() => {
+                      handleSettingsChange({ theme: 'pink-latte' });
+                      document.documentElement.setAttribute('data-theme', 'pink-latte');
+                      toast({
+                        title: 'Theme changed',
+                        description: '☕ Pink Latte theme applied',
+                      });
+                    }}
+                    className={`group relative p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                      settings.theme === 'pink-latte' 
+                        ? 'border-[#f0dde5] ring-2 ring-[#f0dde5]/20 shadow-lg' 
+                        : 'border-border hover:border-[#f0dde5]/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#f0dde5] to-[#fbe9f3] shadow-md" />
+                      <div className="text-left flex-1">
+                        <p className="font-semibold text-sm">Pink Latte</p>
+                        <p className="text-xs text-muted-foreground">Soft pink blend</p>
+                      </div>
+                      {settings.theme === 'pink-latte' && (
+                        <div className="w-6 h-6 rounded-full bg-[#f0dde5] flex items-center justify-center">
+                          <svg className="w-4 h-4 text-[#7d5a66]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-2 flex-1 rounded-full bg-[#fae4e2]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#fdde5]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#f0dde5]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#fbe9f3]" />
+                    </div>
+                  </button>
+
+                  {/* Midnight Sky */}
+                  <button
+                    onClick={() => {
+                      handleSettingsChange({ theme: 'midnight-sky' });
+                      document.documentElement.setAttribute('data-theme', 'midnight-sky');
+                      toast({
+                        title: 'Theme changed',
+                        description: '🌙 Midnight Sky theme applied',
+                      });
+                    }}
+                    className={`group relative p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                      settings.theme === 'midnight-sky' 
+                        ? 'border-[#4e6188] ring-2 ring-[#4e6188]/20 shadow-lg' 
+                        : 'border-border hover:border-[#4e6188]/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#4e6188] to-[#3a405b] shadow-md" />
+                      <div className="text-left flex-1">
+                        <p className="font-semibold text-sm">Midnight Sky</p>
+                        <p className="text-xs text-muted-foreground">Deep blue hues</p>
+                      </div>
+                      {settings.theme === 'midnight-sky' && (
+                        <div className="w-6 h-6 rounded-full bg-[#4e6188] flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-2 flex-1 rounded-full bg-[#c0c6de]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#7589a2]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#4e6188]" />
+                      <div className="h-2 flex-1 rounded-full bg-[#3a405b]" />
+                    </div>
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">App Preferences</CardTitle>
+                <CardDescription className="text-sm">Configure how Zentry works for you</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
+                <div className="p-3 sm:p-4 rounded-lg hover:bg-accent/50 transition-colors space-y-3">
+                  <div className="flex items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base">Notifications</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Receive push notifications for tasks and events</p>
                     </div>
                     <Switch
                       checked={settings.notifications}
                       onCheckedChange={(checked) => handleSettingsChange({ notifications: checked })}
+                      className="flex-shrink-0"
                     />
                   </div>
                   {settings.notifications && (
@@ -409,14 +584,15 @@ const Settings = () => {
                     </Button>
                   )}
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent/50 transition-colors">
-                  <div>
-                    <p className="font-medium">Auto-save</p>
-                    <p className="text-sm text-muted-foreground">Automatically save your work to the cloud</p>
+                <div className="flex items-start sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-lg hover:bg-accent/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm sm:text-base">Auto-save</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Automatically save your work to the cloud</p>
                   </div>
                   <Switch
                     checked={settings.autoSave}
                     onCheckedChange={(checked) => handleSettingsChange({ autoSave: checked })}
+                    className="flex-shrink-0"
                   />
                 </div>
                 
@@ -436,21 +612,21 @@ const Settings = () => {
             </Card>
 
             <Card className="glass">
-              <CardHeader>
-                <CardTitle>Data Management</CardTitle>
-                <CardDescription>Backup and restore your data</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Data Management</CardTitle>
+                <CardDescription className="text-sm">Backup and restore your data</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Button onClick={handleBackup} className="w-full gap-2" variant="outline">
+              <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
+                <Button onClick={handleBackup} className="w-full gap-2" variant="outline" size="default">
                   <Download className="w-4 h-4" />
-                  Export Backup
+                  <span className="text-sm">Export Backup</span>
                 </Button>
                 <div>
                   <label htmlFor="restore-file">
-                    <Button className="w-full gap-2" variant="outline" asChild>
+                    <Button className="w-full gap-2" variant="outline" size="default" asChild>
                       <span>
                         <Upload className="w-4 h-4" />
-                        Import Backup
+                        <span className="text-sm">Import Backup</span>
                       </span>
                     </Button>
                   </label>
@@ -466,14 +642,14 @@ const Settings = () => {
             </Card>
 
             <Card className="glass border-destructive/50">
-              <CardHeader>
-                <CardTitle className="text-destructive flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
-                  Danger Zone
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-destructive flex items-center gap-2 text-base sm:text-lg">
+                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Danger Zone</span>
                 </CardTitle>
-                <CardDescription>Permanently delete your account and all data</CardDescription>
+                <CardDescription className="text-sm">Permanently delete your account and all data</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
                 <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
                   <p className="text-sm text-destructive font-medium mb-2">⚠️ Warning: This action cannot be undone!</p>
                   <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
