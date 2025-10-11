@@ -1,6 +1,6 @@
-# Zentry - Personal Productivity Suite
+# Zentry - Productivity Hub
 
-A beautiful, privacy-first PWA built with React, TypeScript, and Tailwind CSS featuring glassmorphic design, AI assistance, and complete offline functionality.
+A minimal, privacy-first PWA built with React, TypeScript, and Tailwind CSS featuring a neumorphic design, and AI assistance.
 
 ## ✨ Features
 
@@ -25,28 +25,23 @@ A beautiful, privacy-first PWA built with React, TypeScript, and Tailwind CSS fe
 - Upcoming events overview
 
 ### 🤖 AI Assistant
-- ChatGPT integration (demo mode included)
+- Gemini AI integration
 - Natural language chat interface
 - Real-time streaming responses
 - Context-aware assistance
 
 ### 🎨 Customization
-- Light/Dark mode toggle
-- Multiple color schemes (Purple, Blue, Green, Pink)
-- Glassmorphic UI with smooth animations
+- Multiple color themes
+- Neumorphic UI with smooth animations
 - Mobile-responsive design
 
 ### 🔐 Privacy & Security
-- PIN/password protection
+- Password protection
 - All data stored locally (no external servers)
-- Export/Import backup functionality
-- Complete offline support
 
 ### 📱 PWA Features
 - Install as native app
-- Offline-first architecture
 - Push notification support (ready)
-- App shortcuts for quick actions
 - Responsive mobile UI
 
 ## 🚀 Tech Stack
@@ -105,7 +100,7 @@ npm run preview
 ### First Time Setup
 1. Open Zentry
 2. Click "Get Started" on the landing page
-3. Create a secure PIN (4-8 digits)
+3. Create an account
 4. Start using the app!
 
 ### Managing Tasks
@@ -126,49 +121,21 @@ npm run preview
 - View upcoming events at a glance
 
 ### Customizing Appearance
-- Go to Settings → Appearance
-- Toggle dark mode
-- Choose your favorite color scheme
+- Go to Settings → Preferences
+- Choose your favorite theme
 - All changes save automatically
 
-### Data Backup
-- Settings → Preferences → Data Management
-- Export: Download a JSON backup file
-- Import: Restore from a backup file
-
 ## 🔒 Security & Privacy
-
 - **Local-First**: All data stored in browser localStorage
 - **No Tracking**: Zero analytics or tracking
-- **PIN Protected**: Secure access with PIN
 - **Open Source**: Full transparency
 
-## 🎨 Design System
-
-Zentry uses a custom design system with:
-- HSL color tokens for theme switching
-- Glassmorphic cards with backdrop blur
-- Smooth animations (fade, slide, scale)
-- Gradient accents
-- Mobile-first responsive design
-
 ## 🌐 Browser Support
-
 - Chrome/Edge 90+
 - Firefox 88+
 - Safari 14+
 - Mobile browsers (iOS Safari, Chrome Android)
 
-## 📝 Future Enhancements
-
-- [ ] Full ChatGPT API integration
-- [ ] Cloud sync (optional)
-- [ ] Recurring tasks
-- [ ] Pomodoro timer
-- [ ] Habit tracking
-- [ ] Data encryption
-- [ ] Calendar integrations
-- [ ] Collaboration features
 
 ## 🤝 Contributing
 
