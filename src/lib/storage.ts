@@ -8,6 +8,7 @@ export interface Task {
   priority: 'low' | 'medium' | 'high';
   category: string;
   dueDate?: string;
+  time?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -11,7 +11,13 @@ import { Plus, Trash2, Edit, Cloud, CloudOff, Clock, Calendar, Tag, Bell } from 
 import { Task, taskStorage } from '@/lib/storage';
 import { supabaseTaskStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
-import { getPriorityColor, formatDate } from '@/lib/taskUtils';
+import {
+  getPriorityColor,
+  formatDate,
+  formatTime,
+  formatDateTime,
+  getPriorityTextColor,
+} from '@/lib/taskUtils';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -26,6 +32,7 @@ const Tasks = () => {
     priority: 'medium' as 'low' | 'medium' | 'high',
     category: '',
     dueDate: '',
+    time: '',
   });
   const { toast } = useToast();
 
@@ -60,6 +67,7 @@ const Tasks = () => {
       priority: 'medium',
       category: '',
       dueDate: '',
+      time: '',
     });
     setEditingTask(null);
   };
@@ -140,6 +148,7 @@ const Tasks = () => {
       priority: task.priority,
       category: task.category,
       dueDate: task.dueDate || '',
+      time: task.time || '',
     });
     setIsDialogOpen(true);
   };
@@ -178,10 +187,27 @@ const Tasks = () => {
   };
 
   const handleTaskClick = (task: Task) => {
-    if (task.description) {
-      setViewingTask(task);
-    }
+    setViewingTask(task);
   };
+
+  const sortedTasks = [...tasks].sort((a, b) => {
+    // Completed tasks go to the bottom
+    if (a.completed !== b.completed) {
+      return a.completed ? 1 : -1;
+    }
+
+    // Sort by priority
+    const priorityOrder = { high: 1, medium: 2, low: 3 };
+    const priorityA = priorityOrder[a.priority];
+    const priorityB = priorityOrder[b.priority];
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // Sort by creation date (newest first) for tasks with the same priority
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <AppLayout>
@@ -305,6 +331,14 @@ const Tasks = () => {
                     onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
                   />
                 </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-dried-rose">Time (Optional)</label>
+                  <Input
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  />
+                </div>
                 <div className="flex gap-2 pt-2">
                   <Button type="submit" className="flex-1" disabled={isLoading}>
                     {isLoading ? 'Saving...' : editingTask ? 'Update Task' : 'Create Task'}
@@ -366,9 +400,19 @@ const Tasks = () => {
                           📅 Due: {new Date(viewingTask.dueDate).toLocaleDateString()}
                         </span>
                       )}
+                      {viewingTask.time && (
+                        <span className="px-3 py-1.5 rounded-full text-sm font-medium bg-muted">
+                          ⏰ {formatTime(viewingTask.time)}
+                        </span>
+                      )}
                     </div>
                   </div>
                   
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>Created: {formatDateTime(viewingTask.createdAt)}</p>
+                    <p>Last Updated: {formatDateTime(viewingTask.updatedAt)}</p>
+                  </div>
+
                   <div className="flex gap-2 pt-2">
                     <Button
                       onClick={() => {
@@ -405,7 +449,7 @@ const Tasks = () => {
               </CardContent>
             </Card>
           ) : (
-            tasks.map((task, index) => (
+            sortedTasks.map((task, index) => (
               <Card
                 key={task.id}
                 className={`shadow-neumorphism hover:shadow-neumorphism-hover border-0 transition-all animate-scale-in cursor-pointer relative overflow-hidden ${getPriorityColor(task.priority)}`}
@@ -427,7 +471,11 @@ const Tasks = () => {
                     <div className="flex-1 min-w-0">
                       {/* Title and Description */}
                       <div className="mb-1.5 sm:mb-2">
-                        <h3 className={`text-sm sm:text-base md:text-lg font-semibold mb-0.5 sm:mb-1 ${task.completed ? 'line-through opacity-60' : ''}`}>
+                        <h3
+                          className={`text-sm sm:text-base md:text-lg font-semibold mb-0.5 sm:mb-1 ${
+                            task.completed ? 'line-through opacity-60' : ''
+                          }`}
+                        >
                           {task.title}
                         </h3>
                         {task.description && (
@@ -439,22 +487,33 @@ const Tasks = () => {
 
                       {/* Info Row with Icons */}
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
+                        <div
+                          className={`flex items-center gap-0.5 sm:gap-1 font-semibold ${getPriorityTextColor(
+                            task.priority
+                          )}`}
+                        >
+                          <span className="capitalize">{task.priority}</span>
+                        </div>
+
+                        {task.time && (
+                          <div className="flex items-center gap-0.5 sm:gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{formatTime(task.time)}</span>
+                          </div>
+                        )}
+
                         {task.dueDate && (
-                          <>
-                            <div className="flex items-center gap-0.5 sm:gap-1">
-                              <Clock className="w-3 h-3" />
-                              <span>18:00</span>
-                            </div>
-                            <div className="flex items-center gap-0.5 sm:gap-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>{formatDate(task.dueDate)}</span>
-                            </div>
-                          </>
+                          <div className="flex items-center gap-0.5 sm:gap-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>{formatDate(task.dueDate)}</span>
+                          </div>
                         )}
                         {task.category && (
                           <div className="flex items-center gap-0.5 sm:gap-1">
                             <Tag className="w-3 h-3" />
-                            <span className="lowercase truncate max-w-[80px] sm:max-w-none">{task.category}</span>
+                            <span className="lowercase truncate max-w-[80px] sm:max-w-none">
+                              {task.category}
+                            </span>
                           </div>
                         )}
                       </div>

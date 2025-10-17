@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
+import { formatDateToYYYYMMDD } from '@/lib/taskUtils';
 
 interface CalendarGridProps {
   currentDate: Date;
@@ -25,7 +26,7 @@ export function CalendarGrid({
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const dayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  const dayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
   // Get all days for the current month
   const getDaysInMonth = (date: Date) => {
@@ -35,9 +36,7 @@ export function CalendarGrid({
     const lastDay = new Date(year, month + 1, 0);
     
     // Get day of week (0 = Sunday, 1 = Monday, etc.)
-    let startDay = firstDay.getDay();
-    // Convert to Monday = 0
-    startDay = startDay === 0 ? 6 : startDay - 1;
+    const startDay = firstDay.getDay();
     
     const days: (Date | null)[] = [];
     
@@ -56,40 +55,32 @@ export function CalendarGrid({
 
   const isSelected = (date: Date) => {
     return selectedDates.some(selected => {
-      const selectedTime = new Date(selected).setHours(0, 0, 0, 0);
-      const dateTime = new Date(date).setHours(0, 0, 0, 0);
-      return selectedTime === dateTime;
+      return formatDateToYYYYMMDD(selected) === formatDateToYYYYMMDD(date);
     });
   };
 
   const isInRange = (date: Date) => {
     if (selectedDates.length !== 2) return false;
     
-    const dateTime = new Date(date).setHours(0, 0, 0, 0);
-    const start = Math.min(
-      new Date(selectedDates[0]).setHours(0, 0, 0, 0),
-      new Date(selectedDates[1]).setHours(0, 0, 0, 0)
-    );
-    const end = Math.max(
-      new Date(selectedDates[0]).setHours(0, 0, 0, 0),
-      new Date(selectedDates[1]).setHours(0, 0, 0, 0)
-    );
+    const dateTime = date.getTime();
+    const start = Math.min(selectedDates[0].getTime(), selectedDates[1].getTime());
+    const end = Math.max(selectedDates[0].getTime(), selectedDates[1].getTime());
     
     return dateTime >= start && dateTime <= end;
   };
 
   const isToday = (date: Date) => {
     const today = new Date();
-    return date.toDateString() === today.toDateString();
+    return formatDateToYYYYMMDD(date) === formatDateToYYYYMMDD(today);
   };
 
   const hasEvents = (date: Date): boolean => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = formatDateToYYYYMMDD(date);
     return eventsData.some(event => event.date === dateStr);
   };
 
   const getEventColor = (date: Date): string => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = formatDateToYYYYMMDD(date);
     const event = eventsData.find(e => e.date === dateStr);
     return event?.color || '#b9908d';
   };
@@ -176,16 +167,25 @@ export function CalendarGrid({
               
               {dayHasEvents && !selected && (
                 <div 
-                  className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full absolute bottom-1 sm:bottom-1.5 transition-all duration-300"
-                  style={{ backgroundColor: getEventColor(day) }}
+                  className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full absolute bottom-1 sm:bottom-1.5 transition-all duration-300"
+                  style={{
+                    backgroundColor: getEventColor(day),
+                    // Add subtle glow so pale colors remain visible on pale backgrounds
+                    boxShadow: `0 0 0 4px ${getEventColor(day)}33`,
+                    border: '1px solid rgba(0,0,0,0.06)'
+                  }}
                 />
               )}
               
               {/* Event indicator moves to a ring around selected date */}
               {dayHasEvents && selected && (
                 <div 
-                  className="absolute -bottom-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full animate-bounce"
-                  style={{ backgroundColor: getEventColor(day) }}
+                  className="absolute -bottom-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full animate-bounce"
+                  style={{
+                    backgroundColor: getEventColor(day),
+                    boxShadow: `0 0 0 6px ${getEventColor(day)}33`,
+                    border: '1px solid rgba(0,0,0,0.06)'
+                  }}
                 />
               )}
             </button>

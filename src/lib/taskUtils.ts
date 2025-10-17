@@ -66,6 +66,19 @@ export function getPriorityColor(priority: 'low' | 'medium' | 'high'): string {
   }
 }
 
+export function getPriorityTextColor(priority: 'low' | 'medium' | 'high'): string {
+  switch (priority) {
+    case 'high':
+      return 'text-dried-rose';
+    case 'medium':
+      return 'text-faded-mauve';
+    case 'low':
+      return 'text-muted-rosewood';
+    default:
+      return 'text-muted-foreground';
+  }
+}
+
 export function formatTime(time: string): string {
   if (!time) return '';
   
@@ -76,6 +89,27 @@ export function formatTime(time: string): string {
   const displayHour = hour % 12 || 12;
   
   return `${displayHour}:${minutes} ${ampm}`;
+}
+
+export function formatDateTime(isoString: string): string {
+  if (!isoString) return '';
+  
+  const date = new Date(isoString);
+  
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+export function formatDateToYYYYMMDD(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function formatDate(dateString: string): string {

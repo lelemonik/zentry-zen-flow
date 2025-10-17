@@ -11,6 +11,15 @@ import { ScheduleEvent, scheduleStorage } from '@/lib/storage';
 import { supabaseScheduleStorage } from '@/lib/supabaseStorage';
 import { useToast } from '@/hooks/use-toast';
 import { CalendarGrid } from '@/components/CalendarGrid';
+import { formatDateToYYYYMMDD } from '@/lib/taskUtils';
+
+const colorPalette = [
+  { color: '#f5e0e2', name: 'Blush Cloud' },
+  { color: '#e8cdc7', name: 'Petal Dust' },
+  { color: '#d7b3ad', name: 'Muted Rosewood' },
+  { color: '#b9908d', name: 'Faded Mauve' },
+  { color: '#8b6a69', name: 'Dried Rose' },
+];
 
 const Schedule = () => {
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
@@ -42,9 +51,12 @@ const Schedule = () => {
       setEvents(supabaseEvents);
       scheduleStorage.set(supabaseEvents);
       setIsOnline(true);
+      console.log('Loaded events from Supabase:', supabaseEvents);
     } catch (error) {
       console.error('Error loading from Supabase:', error);
-      setEvents(scheduleStorage.getAll());
+      const localEvents = scheduleStorage.getAll();
+      setEvents(localEvents);
+      console.log('Loaded events from local storage:', localEvents);
       setIsOnline(false);
     } finally {
       setIsLoading(false);
@@ -57,7 +69,7 @@ const Schedule = () => {
   const [dateEvents, setDateEvents] = useState<ScheduleEvent[]>([]);
 
   const handleDateSelect = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = formatDateToYYYYMMDD(date);
     const dayEvents = events.filter(event => event.date === dateStr);
     
     setSelectedDate(date);
@@ -155,7 +167,7 @@ const Schedule = () => {
       setIsDialogOpen(false);
       // Refresh the date events if a date is selected
       if (selectedDate) {
-        const dateStr = selectedDate.toISOString().split('T')[0];
+        const dateStr = formatDateToYYYYMMDD(selectedDate);
         const refreshedEvents = await supabaseScheduleStorage.getAll();
         const dayEvents = refreshedEvents.filter(event => event.date === dateStr);
         setDateEvents(dayEvents);
@@ -201,7 +213,7 @@ const Schedule = () => {
     await loadEvents();
     // Refresh the date events if a date is selected
     if (selectedDate) {
-      const dateStr = selectedDate.toISOString().split('T')[0];
+      const dateStr = formatDateToYYYYMMDD(selectedDate);
       const refreshedEvents = scheduleStorage.getAll();
       const dayEvents = refreshedEvents.filter(event => event.date === dateStr);
       setDateEvents(dayEvents);
@@ -243,14 +255,14 @@ const Schedule = () => {
 
         {/* Calendar Grid */}
         <Card className="shadow-neumorphism border-0 bg-white-blossom/60 p-4 sm:p-6 animate-slide-up" style={{ animationDelay: '50ms' }}>
-          <CalendarGrid
-            currentDate={currentDate}
-            selectedDates={selectedDate ? [selectedDate] : []}
-            onDateSelect={handleDateSelect}
-            onMonthChange={handleMonthChange}
-            eventsData={events}
-          />
-        </Card>
+           <CalendarGrid
+             currentDate={currentDate}
+             selectedDates={selectedDate ? [selectedDate] : []}
+             onDateSelect={handleDateSelect}
+             onMonthChange={handleMonthChange}
+             eventsData={events}
+           />
+         </Card>
 
         {/* Floating Event Box - Centered Modal */}
         <Dialog open={!!selectedDate} onOpenChange={(open) => {
@@ -259,17 +271,17 @@ const Schedule = () => {
           <DialogContent className="sm:max-w-[90vw] md:max-w-[500px] max-h-[85vh] overflow-y-auto rounded-3xl bg-white-blossom shadow-neumorphism border-0">
             <div className="space-y-4">
               {/* Date Header */}
-              <div className="pb-4 border-b border-petal-dust">
-                <h3 className="text-xl sm:text-2xl font-bold text-dried-rose">
+              <DialogHeader className="pb-4 border-b border-petal-dust">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-dried-rose">
                   {selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {dateEvents.length === 0 
+                </DialogTitle>
+                <DialogDescription className="text-sm text-muted-foreground mt-1">
+                  {dateEvents.length === 0
                     ? "No events scheduled for this day"
                     : `${dateEvents.length} ${dateEvents.length === 1 ? 'event' : 'events'} scheduled`
                   }
-                </p>
-              </div>
+                </DialogDescription>
+              </DialogHeader>
 
               {/* Existing Events */}
               {dateEvents.length > 0 && (
@@ -349,7 +361,7 @@ const Schedule = () => {
                       if (selectedDate) {
                         setFormData(prev => ({ 
                           ...prev, 
-                          date: selectedDate.toISOString().split('T')[0] 
+                          date: formatDateToYYYYMMDD(selectedDate)
                         }));
                       }
                     }}
@@ -447,21 +459,14 @@ const Schedule = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-dried-rose">Color</label>
                     <div className="flex gap-2 flex-wrap">
-                      {[
-                        { color: '#f5e0e2', name: 'Blush Cloud' },
-                        { color: '#e8cdc7', name: 'Petal Dust' },
-                        { color: '#d7b3ad', name: 'Muted Rosewood' },
-                        { color: '#b9908d', name: 'Faded Mauve' },
-                        { color: '#8b6a69', name: 'Dried Rose' },
-                        { color: '#f9f7f4', name: 'White Blossom' },
-                      ].map((item) => (
+                      {colorPalette.map((item) => (
                         <button
                           key={item.color}
                           type="button"
                           onClick={() => setFormData({ ...formData, color: item.color })}
-                          className={`w-10 h-10 rounded-xl transition-all shadow-neumorphism hover:shadow-neumorphism-hover ${
-                            formData.color === item.color 
-                              ? 'ring-2 ring-dried-rose scale-110' 
+                          className={`w-8 h-8 rounded-full transition-all shadow-neumorphism hover:shadow-neumorphism-hover ${
+                            formData.color === item.color
+                              ? 'ring-2 ring-dried-rose scale-110'
                               : 'hover:scale-105'
                           }`}
                           style={{ backgroundColor: item.color }}
@@ -469,12 +474,6 @@ const Schedule = () => {
                         />
                       ))}
                     </div>
-                    <Input
-                      type="color"
-                      value={formData.color}
-                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="h-8 w-full mt-2"
-                    />
                   </div>
                 </div>
                 <div className="flex gap-2">
